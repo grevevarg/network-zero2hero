@@ -99,4 +99,13 @@ export const SPECS: Record<string, Layout> = {
     { toRight: false, label: "SYN + ACK" },
     { toRight: true, label: "ACK" },
   ]),
+
+  // 11. DHCP och DNS
+  "11-dhcpdns/text-dora": sequence([
+    { toRight: true, label: "DISCOVER" },
+    { toRight: false, label: "OFFER" },
+    { toRight: true, label: "REQUEST" },
+    { toRight: false, label: "ACK" },
+  ]),
+  "11-dhcpdns/text-hierarki": stack(["Rot  .", "Toppdomän  se", "coolabilar.se", "www.coolabilar.se"], 190),
 };

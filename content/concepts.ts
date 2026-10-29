@@ -165,4 +165,17 @@ export const concepts: Concept[] = [
   { id: "checksumma", section: "transport", term: "Checksumma", explanation: "TCP:s och UDP:s kontrollsumma, som bara kontrolleras av mottagaren längst bort." },
   { id: "netstat", section: "transport", term: "netstat", explanation: "Kommando som visar datorns anslutningar med adresser, portar och status." },
   { id: "telnet", section: "transport", term: "Telnet", explanation: "Gammalt program för okrypterad fjärrinloggning. Används i dag för att testa om en TCP-port är öppen." },
+
+  // 11. DHCP och DNS
+  { id: "dhcp", section: "dhcpdns", term: "DHCP", explanation: "Dynamic Host Configuration Protocol. Delar ut IP-adress, mask, default gateway och DNS-server automatiskt." },
+  { id: "scope", section: "dhcpdns", term: "Scope", explanation: "Poolen med adresser som en DHCP-server får dela ut." },
+  { id: "dora", section: "dhcpdns", term: "DORA", explanation: "DHCP:s fyra steg: Discover, Offer, Request och Ack." },
+  { id: "lease", section: "dhcpdns", term: "Lease", explanation: "Lånet av en adress från DHCP. Måste förnyas, annars går adressen tillbaka till poolen." },
+  { id: "dhcp-relay", section: "dhcpdns", term: "DHCP relay", explanation: "En router som skickar DHCP-frågor vidare till en server i ett annat nät." },
+  { id: "hostname", section: "dhcpdns", term: "Hostname", explanation: "En dators namn, till exempel webb1." },
+  { id: "fqdn", section: "dhcpdns", term: "FQDN", explanation: "Fully Qualified Domain Name. Datorns namn plus domänen, till exempel webb1.exempel.local." },
+  { id: "dns", section: "dhcpdns", term: "DNS", explanation: "Domain Name System. Översätter namn till IP-adresser." },
+  { id: "dns-hierarki", section: "dhcpdns", term: "DNS-hierarkin", explanation: "Trädet av DNS-servrar: rotservrar, toppdomäner som .se och sedan domäner och namn under dem." },
+  { id: "resource-record", section: "dhcpdns", term: "DNS-poster", explanation: "Uppgifter i DNS: A ger en IPv4-adress, CNAME är ett alias och MX pekar ut e-postservern." },
+  { id: "dns-cache", section: "dhcpdns", term: "DNS-cache", explanation: "Datorns lokala minne av gamla uppslagningar. Innehåller också hosts-filen." },
 ];

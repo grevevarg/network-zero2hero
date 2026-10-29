@@ -166,5 +166,17 @@
     "image": "img/8377a3eead8531abf55c1e6c9cc71fd9.svg",
     "width": 606,
     "height": 402
+  },
+  "11-dhcpdns/text-dora": {
+    "sourceHash": "892ef00dc113020d52d467d6eca0ab2fbd3277f1db0e890a60ab53f3e8c8dcea",
+    "image": "img/b6f2538860cb60ca0d76d2effb1fd66f.svg",
+    "width": 606,
+    "height": 480
+  },
+  "11-dhcpdns/text-hierarki": {
+    "sourceHash": "203c2f3f79747617a5d4916b6bfbea4ec1e493ab35b5975db0f2fcda8dc3c809",
+    "image": "img/f7f346daeed6f924356fdce35d247b32.svg",
+    "width": 514,
+    "height": 207
   }
 }
