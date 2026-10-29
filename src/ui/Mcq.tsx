@@ -15,10 +15,10 @@ export function Mcq({ question: q, seed, onSolved, onAnswered }: Props) {
   const options = useMemo(() => shuffle(q.options, rngFromSeed(`${seed}:${q.id}:${attempt}`)), [q, seed, attempt]);
   const answered = verdict !== undefined;
 
-  async function submit(e: Event) {
+  function submit(e: Event) {
     e.preventDefault();
     if (chosen === undefined) return;
-    const right = await matchesKey(q.id, chosen, q.key);
+    const right = matchesKey(q.id, chosen, q.key);
     setVerdict(right ? "right" : "wrong");
     onAnswered(q.id);
     if (right) onSolved(q.id);

@@ -37,7 +37,7 @@ describe("content", async () => {
   });
 
   it("ships no authored answer ids", async () => {
-    const json = JSON.stringify(await buildCourse(content));
+    const json = JSON.stringify(buildCourse(content));
     for (const s of content.sections) {
       for (const q of s.questions) if (q.kind === "mcq") expect(json).not.toContain(`"${q.correct}"`);
     }

@@ -35,7 +35,7 @@ export function coursePlugin(): Plugin {
       const content = parseContent(raw);
       const errors = [...checkBlocks(content), ...checkConceptGraph(content), ...checkQuestions(content)];
       if (errors.length > 0) throw new Error(`content errors:\n  ${errors.join("\n  ")}`);
-      return `export default ${JSON.stringify(await buildCourse(content))};`;
+      return `export default ${JSON.stringify(buildCourse(content))};`;
     },
   };
 }

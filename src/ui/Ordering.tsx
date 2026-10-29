@@ -30,9 +30,9 @@ export function Ordering({ question: q, seed, onSolved, onAnswered }: Props) {
     setVerdict(undefined);
   }
 
-  async function check(e: Event) {
+  function check(e: Event) {
     e.preventDefault();
-    const right = await matchesKey(q.id, orderingAnswer(items.map((i) => i.id)), q.key);
+    const right = matchesKey(q.id, orderingAnswer(items.map((i) => i.id)), q.key);
     setVerdict(right ? "right" : "wrong");
     onAnswered(q.id);
     if (right) onSolved(q.id);

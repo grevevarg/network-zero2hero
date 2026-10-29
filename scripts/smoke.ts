@@ -23,6 +23,14 @@ const browser = await chromium.launch({ executablePath: browserPath, args: ["--n
 const failures: string[] = [];
 const fail = (where: string, what: string) => failures.push(`${where}: ${what}`);
 
+// The site is often opened over plain HTTP on a LAN address, which is not a secure context, so
+// APIs like crypto.subtle are missing there. localhost is secure, so hide them to catch any use.
+async function newPage(options: Parameters<typeof browser.newPage>[0]) {
+  const page = await browser.newPage(options);
+  await page.addInitScript(() => Object.defineProperty(globalThis.crypto, "subtle", { value: undefined }));
+  return page;
+}
+
 const title = (page: Page) => page.locator("#card-title").innerText();
 const count = (page: Page) => page.locator(".deck-count").innerText();
 
@@ -44,7 +52,7 @@ const modes = [
 
 try {
   for (const mode of modes) {
-    const page = await browser.newPage({ viewport: mode.viewport, colorScheme: mode.colorScheme });
+    const page = await newPage({ viewport: mode.viewport, colorScheme: mode.colorScheme });
     page.on("request", (r) => {
       if (!r.url().startsWith(origin) && !r.url().startsWith("data:")) fail(mode.name, `request to ${r.url()}`);
     });
@@ -84,7 +92,7 @@ try {
   }
 
   // Keyboard only, from the first question card: gating, answering, moving on.
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  const page = await newPage({ viewport: { width: 390, height: 844 } });
   await page.goto(base);
   await page.click(".section-box-title");
   await page.waitForSelector("#card-title");

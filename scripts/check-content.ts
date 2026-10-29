@@ -39,7 +39,7 @@ for (const file of [...tracked, ...dist]) {
   violations.push(...scanText(file, buf.toString("utf8"), terms, allow, isProseFile(file)));
 }
 
-const course = await buildCourse(parseContent(await loadContent(root)));
+const course = buildCourse(parseContent(await loadContent(root)));
 for (const s of collectStrings(course)) violations.push(...scanText("<built content>", s, terms, allow, true));
 
 if (violations.length > 0) {

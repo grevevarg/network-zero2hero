@@ -56,7 +56,7 @@ function choices(qid: string, list: { id: string; text: string }[]): ClientChoic
   return hideOrder(out);
 }
 
-async function buildQuestion(q: Question, diagrams: Record<string, string>): Promise<ClientQuestion> {
+function buildQuestion(q: Question, diagrams: Record<string, string>): ClientQuestion {
   const promptHtml = renderMarkdown(q.prompt);
   const diagram = (id: string | undefined) => {
     if (id === undefined) return undefined;
@@ -72,7 +72,7 @@ async function buildQuestion(q: Question, diagrams: Record<string, string>): Pro
         promptHtml,
         diagramHtml: diagram(q.diagram),
         options: choices(q.id, q.options),
-        key: await answerKey(q.id, opaqueId(q.id, q.correct)),
+        key: answerKey(q.id, opaqueId(q.id, q.correct)),
         explanationHtml: renderMarkdown(q.explanation),
       };
     case "ordering":
@@ -81,7 +81,7 @@ async function buildQuestion(q: Question, diagrams: Record<string, string>): Pro
         id: q.id,
         promptHtml,
         items: choices(q.id, q.items),
-        key: await answerKey(q.id, orderingAnswer(q.items.map((i) => opaqueId(q.id, i.id)))),
+        key: answerKey(q.id, orderingAnswer(q.items.map((i) => opaqueId(q.id, i.id)))),
         explanationHtml: q.explanation === undefined ? undefined : renderMarkdown(q.explanation),
       };
     case "matching": {
@@ -101,7 +101,7 @@ async function buildQuestion(q: Question, diagrams: Record<string, string>): Pro
         promptHtml,
         left,
         right: choices(q.id, matchingRightOptions(q)),
-        key: await answerKey(q.id, matchingAnswer(left.map((l) => l.id), solution)),
+        key: answerKey(q.id, matchingAnswer(left.map((l) => l.id), solution)),
         explanationHtml: q.explanation === undefined ? undefined : renderMarkdown(q.explanation),
       };
     }
@@ -109,14 +109,14 @@ async function buildQuestion(q: Question, diagrams: Record<string, string>): Pro
 }
 
 /** Turn validated content into the data the browser gets: HTML, opaque ids, hashed answers. */
-export async function buildCourse(content: ParsedContent): Promise<ClientCourse> {
+export function buildCourse(content: ParsedContent): ClientCourse {
   const sections: ClientSection[] = [];
   for (const s of content.sections) {
     const diagrams = Object.fromEntries(
       Object.entries(s.meta.diagrams).map(([id, d]) => [id, diagramHtml(d, content.images)]),
     );
     const questions: ClientQuestion[] = [];
-    for (const q of s.questions) questions.push(await buildQuestion(q, diagrams));
+    for (const q of s.questions) questions.push(buildQuestion(q, diagrams));
     sections.push({
       id: s.meta.id,
       number: s.meta.number,
