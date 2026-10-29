@@ -1,10 +1,10 @@
 // Generated diagrams: scene name -> layout. `npm run diagrams:generate` writes missing scenes.
 // A scene that was hand-edited in Excalidraw is never overwritten unless you pass --force.
-import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, parts, rackGrid, ring, stack, star, tree, type Layout } from "./lib/layouts.ts";
+import { bus, chain, clientServer, compareModels, encapsulation, fullMesh, pair, parts, rackGrid, ring, stack, star, tree, twoLans, type Layout } from "./lib/layouts.ts";
 import type { Roles } from "./lib/scene.ts";
 
 /** Which library item plays which role. */
-export const ROLES: Roles = { device: "Computer (3D)", box: "Switch", server: "Server" };
+export const ROLES: Roles = { device: "Computer (3D)", box: "Switch", server: "Server", router: "Router" };
 
 export const SPECS: Record<string, Layout> = {
   // 1. Vad är ett nätverk? Concept pictures on the text cards:
@@ -79,4 +79,14 @@ export const SPECS: Record<string, Layout> = {
     6,
     true,
   ),
+
+  // 8. Routing och default gateway
+  "08-routing/text-tva-nat": twoLans("192.168.1.0/24", "192.168.2.0/24"),
+  "08-routing/text-ttl": chain([
+    { shape: "device", label: "TTL 64" },
+    { shape: "router", label: "63" },
+    { shape: "router", label: "62" },
+    { shape: "router", label: "61" },
+    { shape: "server" },
+  ]),
 };

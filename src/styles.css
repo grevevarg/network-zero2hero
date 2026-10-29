@@ -77,6 +77,7 @@ th, td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: le
 .question fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .question legend { padding: 0; margin-bottom: 0.5rem; font-weight: 600; }
 .question legend p, .prompt p { margin: 0 0 0.5rem; }
+.question legend table, .prompt table { font-weight: normal; }
 .prompt { font-weight: 600; }
 
 .option {

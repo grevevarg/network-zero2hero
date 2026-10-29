@@ -142,5 +142,17 @@
     "image": "img/9f972e5eb0c0d17cc2d06c83a8bbd1a6.svg",
     "width": 545,
     "height": 110
+  },
+  "08-routing/text-ttl": {
+    "sourceHash": "98b08c29a308e8196efb1ad81c0047b70a398103145059c60b114da002de1f29",
+    "image": "img/da82a9d476542da8937aea19666fc618.svg",
+    "width": 670,
+    "height": 168
+  },
+  "08-routing/text-tva-nat": {
+    "sourceHash": "f84c8eb59877354adc21d0b164e924030b48fe42c6639970792a4c245be2ea26",
+    "image": "img/204b7d70ce4176b7c4e3ce56662924c5.svg",
+    "width": 707,
+    "height": 390
   }
 }

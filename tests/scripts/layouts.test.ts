@@ -2,6 +2,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {
   bus,
+  chain,
   circlePoints,
   clientServer,
   compareModels,
@@ -15,6 +16,7 @@ import {
   stack,
   star,
   tree,
+  twoLans,
   type Block,
   type Layout,
 } from "../../scripts/lib/layouts.ts";
@@ -213,6 +215,26 @@ describe("parts", () => {
     expect(parts([{ text: "x" }]).labels).toEqual([]);
     const eq = parts([{ text: "x" }, { text: "longer" }], 10, true).blocks ?? [];
     expect(eq[0].w).toBe(eq[1].w);
+  });
+});
+
+describe("router layouts", () => {
+  it("twoLans joins two switched LANs through one router, each LAN named under it", () => {
+    const d = twoLans("Vänster", "Höger");
+    expect(valid(d)).toBe(true);
+    const deg = degrees(d);
+    expect(d.nodes.filter((n) => n.shape === "router")).toHaveLength(1);
+    expect(deg.get("r")).toBe(2);
+    expect(devicesOf(d).every((n) => deg.get(n.id) === 1)).toBe(true);
+    expect(d.labels?.map((l) => l.text)).toEqual(["Vänster", "Höger"]);
+  });
+
+  it("chain links neighbours only and labels only the items that have a label", () => {
+    const d = chain([{ shape: "device", label: "A" }, { shape: "router" }, { shape: "server", label: "C" }], 50);
+    expect(valid(d)).toBe(true);
+    expect(d.edges).toEqual([["n1", "n2"], ["n2", "n3"]]);
+    expect(d.labels).toEqual([{ x: 0, y: 0, text: "A" }, { x: 100, y: 0, text: "C" }]);
+    expect(d.width).toBe(100);
   });
 });
 

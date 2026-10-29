@@ -94,3 +94,16 @@ Things to revisit later. Content items need checking against the notes before th
 - [ ] **Left out:** supernetting, /31 and /32, and the class A/B subnetting examples from the 1007 note. They could be extra practice questions later.
 - [ ] **No generated practice.** Every subnetting question is written by hand, with answers computed by `net.ts`. A seeded "new exercise" generator (a bit-grid puzzle) was in the plan and is still open.
 - [ ] **LIX is 21.9**, well under the 30–40 target. The sentences are short and full of numbers, which is probably fine for this section.
+
+## Section 8: Routing och default gateway
+
+- [ ] **No Cisco CLI.** The routing table is a neutral two-column table, with no C/L/S codes and no `ip route` syntax. Windows `ipconfig` and `route print` are mentioned.
+- [ ] **Not from the notes:**
+  - "15 or 20 hops to the other side of the world"
+  - TTL's purpose ("a lost packet can't circle forever")
+  - "no router has a row for every network"
+  - the term "interface" as a definition
+- [ ] **The gateway question uses the 10.0.68.49/18 example from the 1007 note.** The note wonders whether the mask is /10 or /18; it is /18, and the question uses /18.
+- [ ] **Longest match is only implicit.** The routing-table question relies on "default route is used only when no other row fits", not on longest-prefix matching, which the notes don't cover.
+- [ ] **Left out:** Request Timed Out vs Destination Unreachable (better in section 16).
+- [ ] **Tables inside question prompts** are now normal weight, not bold.

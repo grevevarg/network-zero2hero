@@ -19,7 +19,7 @@ export type ExElement = {
 export type LibraryItem = { id: string; name?: string; elements: ExElement[] };
 export type Library = { libraryItems: LibraryItem[] };
 export type Box = { minX: number; minY: number; maxX: number; maxY: number };
-export type Roles = { device: string; box: string; server: string };
+export type Roles = { device: string; box: string; server: string; router: string };
 export type Scene = {
   type: "excalidraw";
   version: 2;

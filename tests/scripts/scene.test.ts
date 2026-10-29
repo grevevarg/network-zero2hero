@@ -37,7 +37,7 @@ const library: Library = {
     { id: "srv", name: "Rack", elements: [el({ id: "rack", x: 0, y: 0, width: 30, height: 60 })] },
   ],
 };
-const roles = { device: "PC", box: "Hub", server: "Rack" };
+const roles = { device: "PC", box: "Hub", server: "Rack", router: "Hub" };
 
 describe("bounds", () => {
   it("uses points for lines and width/height for shapes", () => {

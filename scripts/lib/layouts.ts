@@ -1,4 +1,4 @@
-export type NodeShape = "device" | "box" | "server" | "junction";
+export type NodeShape = "device" | "box" | "server" | "router" | "junction";
 export type LayoutNode = { id: string; x: number; y: number; shape: NodeShape };
 export type Edge = [string, string];
 /** A labelled arrow drawn beside the straight line between two nodes, above or below it. */
@@ -248,4 +248,34 @@ export function parts(items: readonly { text: string; caption?: string; shaded?:
     x += w;
   }
   return { width: x, height: BLOCK_H + (labels.length > 0 ? 20 : 0), nodes: [], edges: [], blocks, labels };
+}
+
+/**
+ * Two LANs joined by a router: two devices on a switch on each side. Each LAN is named under it,
+ * for example with its network address.
+ */
+export function twoLans(left: string, right: string): Layout {
+  const nodes: LayoutNode[] = [
+    { id: "a1", x: 20, y: 35, shape: "device" },
+    { id: "a2", x: 20, y: 115, shape: "device" },
+    { id: "sa", x: 75, y: 75, shape: "box" },
+    { id: "r", x: 140, y: 75, shape: "router" },
+    { id: "sb", x: 205, y: 75, shape: "box" },
+    { id: "b1", x: 260, y: 35, shape: "device" },
+    { id: "b2", x: 260, y: 115, shape: "device" },
+  ];
+  const edges: Edge[] = [["a1", "sa"], ["a2", "sa"], ["sa", "r"], ["r", "sb"], ["sb", "b1"], ["sb", "b2"]];
+  const labels: Label[] = [
+    { x: 48, y: 150, text: left },
+    { x: 232, y: 150, text: right },
+  ];
+  return { width: 280, height: 165, nodes, edges, labels };
+}
+
+/** Nodes in a row joined by single links, each with an optional label above it. */
+export function chain(items: readonly { shape: NodeShape; label?: string }[], step = 55): Layout {
+  const nodes: LayoutNode[] = items.map((it, i) => ({ id: `n${i + 1}`, x: i * step, y: 40, shape: it.shape }));
+  const edges = nodes.slice(1).map((n, i): Edge => [nodes[i].id, n.id]);
+  const labels = items.flatMap((it, i): Label[] => (it.label ? [{ x: i * step, y: 0, text: it.label }] : []));
+  return { width: (items.length - 1) * step, height: 60, nodes, edges, labels };
 }

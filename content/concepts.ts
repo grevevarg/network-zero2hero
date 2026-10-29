@@ -125,4 +125,14 @@ export const concepts: Concept[] = [
   { id: "blockstorlek", section: "subnat", term: "Blockstorlek", explanation: "Hur många adresser varje subnet har: 256 minus maskens värde i oktetten där masken slutar." },
   { id: "vlsm", section: "subnat", term: "VLSM", explanation: "Variable Length Subnet Masking. Varje subnet får den mask som passar det. Dela ut från störst till minst." },
   { id: "ip-plan", section: "subnat", term: "IP-plan", explanation: "Ett dokument med alla nät, masker, host-adresser och broadcastadresser." },
+
+  // 8. Routing och default gateway
+  { id: "router", section: "routing", term: "Router", explanation: "Kopplar ihop nät och jobbar på lager 3. Bryr sig om nät, inte enskilda hosts, och delar broadcastdomäner." },
+  { id: "interface", section: "routing", term: "Interface", explanation: "En port på en router. Varje interface sitter i ett eget nät och har en egen IP-adress där." },
+  { id: "default-gateway", section: "routing", term: "Default gateway", explanation: "Routerns adress i ditt eget nät. Dit skickar datorn allt som ska till andra nät." },
+  { id: "routingtabell", section: "routing", term: "Routingtabell", explanation: "Routerns lista över nät och åt vilket håll vart och ett ligger." },
+  { id: "statisk-route", section: "routing", term: "Statisk route", explanation: "En rad i routingtabellen som skrivs in för hand: nätverksadress, mask och nästa router." },
+  { id: "default-route", section: "routing", term: "Default route", explanation: "Raden 0.0.0.0/0, som passar alla mottagare. Används när ingen annan rad passar, ofta mot internet." },
+  { id: "hop", section: "routing", term: "Hopp (hop)", explanation: "Varje gång ett paket passerar en router." },
+  { id: "ttl", section: "routing", term: "TTL", explanation: "Time To Live. Ett tal i paketet som minskar med ett per router. Vid noll slängs paketet." },
 ];
