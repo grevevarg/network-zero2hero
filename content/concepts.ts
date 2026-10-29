@@ -178,4 +178,13 @@ export const concepts: Concept[] = [
   { id: "dns-hierarki", section: "dhcpdns", term: "DNS-hierarkin", explanation: "Trädet av DNS-servrar: rotservrar, toppdomäner som .se och sedan domäner och namn under dem." },
   { id: "resource-record", section: "dhcpdns", term: "DNS-poster", explanation: "Uppgifter i DNS: A ger en IPv4-adress, CNAME är ett alias och MX pekar ut e-postservern." },
   { id: "dns-cache", section: "dhcpdns", term: "DNS-cache", explanation: "Datorns lokala minne av gamla uppslagningar. Innehåller också hosts-filen." },
+
+  // 12. NAT och ACL
+  { id: "nat", section: "natacl", term: "NAT", explanation: "Network Address Translation. Routern översätter privata adresser till publika och tillbaka." },
+  { id: "pat", section: "natacl", term: "PAT", explanation: "Port Address Translation. Många enheter delar en publik adress, och routern håller isär dem med källportar." },
+  { id: "port-forwarding", section: "natacl", term: "Port forwarding", explanation: "Trafik som kommer in på en viss port skickas vidare till en viss dator innanför." },
+  { id: "acl", section: "natacl", term: "ACL", explanation: "Access Control List. Regler på en router som tillåter eller nekar trafik. Läses uppifrån, första träffen gäller." },
+  { id: "implicit-deny", section: "natacl", term: "Implicit deny", explanation: "Den osynliga sista regeln i varje ACL, som nekar allt som inte passat någon regel." },
+  { id: "standard-extended-acl", section: "natacl", term: "Standard- och extended-ACL", explanation: "Standard tittar bara på avsändaren. Extended kan också titta på mottagare, protokoll och portar." },
+  { id: "wildcard-mask", section: "natacl", term: "Wildcard-mask", explanation: "Masken vänd ut och in, 255 minus masken i varje oktett. /24 blir 0.0.0.255." },
 ];

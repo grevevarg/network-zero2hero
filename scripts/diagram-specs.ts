@@ -108,4 +108,14 @@ export const SPECS: Record<string, Layout> = {
     { toRight: false, label: "ACK" },
   ]),
   "11-dhcpdns/text-hierarki": stack(["Rot  .", "Toppdomän  se", "coolabilar.se", "www.coolabilar.se"], 190),
+
+  // 12. NAT och ACL. Addresses from the documentation ranges (203.0.113.0/24, 198.51.100.0/24).
+  "12-natacl/text-nat": chain(
+    [
+      { shape: "device", label: "192.168.1.10" },
+      { shape: "router", label: "203.0.113.5" },
+      { shape: "server", label: "198.51.100.7" },
+    ],
+    95,
+  ),
 };

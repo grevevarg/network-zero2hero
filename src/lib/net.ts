@@ -52,6 +52,11 @@ export function prefixToMask(prefix: number): number {
   return prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
 }
 
+/** The wildcard mask used in ACLs: the subnet mask turned inside out (/24 -> 0.0.0.255). */
+export function wildcardMask(prefix: number): number {
+  return ~prefixToMask(prefix) >>> 0;
+}
+
 export function isContiguousMask(mask: number): boolean {
   const inverted = ~mask >>> 0;
   return (inverted & (inverted + 1)) === 0;

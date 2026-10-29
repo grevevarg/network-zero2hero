@@ -178,5 +178,11 @@
     "image": "img/f7f346daeed6f924356fdce35d247b32.svg",
     "width": 514,
     "height": 207
+  },
+  "12-natacl/text-nat": {
+    "sourceHash": "26db6a32cdb7545596bf7007b73682094db3764aa0f8db735812e12a87a37db4",
+    "image": "img/63766bfe076563624dfe2214bd2b7b13.svg",
+    "width": 686,
+    "height": 168
   }
 }

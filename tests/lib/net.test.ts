@@ -26,6 +26,7 @@ import {
   splitNetwork,
   toBinary,
   toHex,
+  wildcardMask,
 } from "../../src/lib/net.ts";
 
 const u32 = fc.integer({ min: 0, max: 0xffffffff });
@@ -212,6 +213,20 @@ describe("ospfCost", () => {
       }),
     );
     expect(() => ospfCost(0)).toThrow(/link speed/);
+  });
+});
+
+describe("wildcardMask", () => {
+  it("is the mask turned inside out: mask + wildcard is all ones", () => {
+    expect(formatIPv4(wildcardMask(24))).toBe("0.0.0.255");
+    expect(formatIPv4(wildcardMask(26))).toBe("0.0.0.63");
+    expect(formatIPv4(wildcardMask(0))).toBe("255.255.255.255");
+    fc.assert(
+      fc.property(prefix, (p) => {
+        expect(prefixToMask(p) + wildcardMask(p)).toBe(0xffffffff);
+        expect(prefixToMask(p) & wildcardMask(p)).toBe(0);
+      }),
+    );
   });
 });
 
