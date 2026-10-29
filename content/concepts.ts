@@ -216,4 +216,17 @@ export const concepts: Concept[] = [
   { id: "csma-ca", section: "wlan", term: "CSMA/CA", explanation: "Wifi:s sätt att undvika krockar: lyssna, vänta en slumpad stund och bekräfta varje frame med ACK." },
   { id: "wpa", section: "wlan", term: "WEP, WPA2 och WPA3", explanation: "Kryptering för wifi. WEP är knäckt, WPA2 är minimum och WPA3 är bäst." },
   { id: "eap", section: "wlan", term: "EAP", explanation: "Inloggning där varje användare har eget namn och lösenord mot en server, ofta RADIUS." },
+
+  // 15. IPv6
+  { id: "ipv6", section: "ipv6", term: "IPv6", explanation: "Nästa version av IP. 128 bitar, skrivet som åtta grupper med fyra hexsiffror." },
+  { id: "ipv6-forkortning", section: "ipv6", term: "Förkorta IPv6", explanation: "Stryk nollor först i varje grupp, och byt den längsta följden av nollgrupper mot ::, bara en gång." },
+  { id: "ipv6-prefix", section: "ipv6", term: "/64 och interface-ID", explanation: "Standardprefixet i IPv6. De första 64 bitarna är nätet, de sista 64 är interface-ID." },
+  { id: "anycast", section: "ipv6", term: "Anycast", explanation: "Samma adress på flera enheter. Paketet går till den som ligger närmast." },
+  { id: "global-unicast", section: "ipv6", term: "Global unicast", explanation: "Publik IPv6-adress som går ut på internet. Börjar med 2 eller 3 (2000::/3)." },
+  { id: "link-local", section: "ipv6", term: "Link-local", explanation: "IPv6-adress som börjar med fe80. Fungerar bara på den egna länken, och varje interface har en." },
+  { id: "unique-local", section: "ipv6", term: "Unique local", explanation: "IPv6:s motsvarighet till privata adresser. Börjar med fc eller fd." },
+  { id: "slaac", section: "ipv6", term: "SLAAC", explanation: "IPv6 ställer in adressen själv utifrån det nät som routern talar om." },
+  { id: "ndp", section: "ipv6", term: "Neighbor Discovery", explanation: "IPv6:s ersättare för ARP, med meddelanden i ICMPv6." },
+  { id: "eui-64", section: "ipv6", term: "EUI-64", explanation: "Bygger interface-ID av MAC-adressen: FF:FE i mitten och den sjunde biten vänd." },
+  { id: "aaaa", section: "ipv6", term: "AAAA", explanation: "DNS-posten som ger ett namns IPv6-adress." },
 ];

@@ -36,7 +36,7 @@ export type ClientMatching = {
   explanationHtml?: string;
 };
 
-export type ClientFillField = { id: string; labelHtml: string; format: "text" | "number" | "ipv4" | "binary"; key: string };
+export type ClientFillField = { id: string; labelHtml: string; format: "text" | "number" | "ipv4" | "binary" | "ipv6"; key: string };
 
 export type ClientFill = {
   kind: "fill";

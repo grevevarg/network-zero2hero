@@ -68,7 +68,7 @@ export const fillSchema = z.strictObject({
         id,
         label: text,
         answer: text,
-        format: z.enum(["text", "number", "ipv4", "binary"]).default("text"),
+        format: z.enum(["text", "number", "ipv4", "binary", "ipv6"]).default("text"),
       }),
     )
     .min(1)

@@ -1,3 +1,5 @@
+import { compressIPv6 } from "./net.ts";
+
 /** Canonical string forms of answers. The client hashes these and compares with the shipped key. */
 export function orderingAnswer(ids: readonly string[]): string {
   return ids.join(",");
@@ -7,11 +9,12 @@ export function matchingAnswer(leftIds: readonly string[], chosen: Readonly<Reco
   return leftIds.map((l) => `${l}=${chosen[l] ?? ""}`).join(",");
 }
 
-export type FillFormat = "text" | "number" | "ipv4" | "binary";
+export type FillFormat = "text" | "number" | "ipv4" | "binary" | "ipv6";
 
 /**
  * The canonical form of a typed answer, so harmless differences don't count as wrong:
- * case and extra spaces always, leading zeros in numbers, octets and binary.
+ * case and extra spaces always, leading zeros in numbers, octets and binary, and for IPv6 any
+ * valid way of writing the same address (it becomes the canonical short form).
  * Anything that doesn't parse for its format is compared as plain text.
  */
 export function normalizeAnswer(value: string, format: FillFormat): string {
@@ -29,6 +32,12 @@ export function normalizeAnswer(value: string, format: FillFormat): string {
       const parts = compact.split(".");
       return parts.length === 4 && parts.every((p) => /^\d+$/.test(p)) ? parts.map(noLeadingZeros).join(".") : text;
     }
+    case "ipv6":
+      try {
+        return compressIPv6(compact);
+      } catch {
+        return text;
+      }
   }
 }
 

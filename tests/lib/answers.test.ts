@@ -25,6 +25,12 @@ describe("normalizeAnswer", () => {
     expect(normalizeAnswer("0000", "binary")).toBe("0");
   });
 
+  it("ipv6 accepts any valid form of the same address", () => {
+    expect(normalizeAnswer("FE80:0000:0000:0000:021A:2BFF:FE3C:4D5E", "ipv6")).toBe("fe80::21a:2bff:fe3c:4d5e");
+    expect(normalizeAnswer(" fe80::21a:2bff:fe3c:4d5e ", "ipv6")).toBe("fe80::21a:2bff:fe3c:4d5e");
+    expect(normalizeAnswer("fe80::1::2", "ipv6")).toBe("fe80::1::2");
+  });
+
   it("falls back to plain text when the format doesn't parse", () => {
     expect(normalizeAnswer("tolv", "number")).toBe("tolv");
     expect(normalizeAnswer("1.2.3", "ipv4")).toBe("1.2.3");
@@ -32,7 +38,7 @@ describe("normalizeAnswer", () => {
   });
 
   it("is idempotent, and accepts the padded forms of any octet or address", () => {
-    const formats = ["text", "number", "ipv4", "binary"] as const;
+    const formats = ["text", "number", "ipv4", "binary", "ipv6"] as const;
     fc.assert(
       fc.property(fc.string(), fc.constantFrom(...formats), (s, f) => {
         expect(normalizeAnswer(normalizeAnswer(s, f), f)).toBe(normalizeAnswer(s, f));

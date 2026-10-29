@@ -214,5 +214,17 @@
     "image": "img/77a27dffaf57f7c44c4ae15017b33c70.svg",
     "width": 602,
     "height": 110
+  },
+  "15-ipv6/text-64": {
+    "sourceHash": "4c5ef938738efdd3f9dcc1a5355115014fd3eb9b2c3a911ee0199199ab7de626",
+    "image": "img/908e98b66d076c0850a39929d0d86eac.svg",
+    "width": 553,
+    "height": 110
+  },
+  "15-ipv6/text-eui64": {
+    "sourceHash": "48b23cb6448a6237c07ca448792a91a7c558a9359c35e6ff94e4cde45b10954f",
+    "image": "img/b1fd0b2d3adba48ba89ddb9721a55cea.svg",
+    "width": 619,
+    "height": 110
   }
 }

@@ -141,4 +141,15 @@ export const SPECS: Record<string, Layout> = {
     6,
     true,
   ),
+
+  // 15. IPv6. A /64 split into its halves, and EUI-64 putting FFFE in the middle of a MAC.
+  "15-ipv6/text-64": parts([
+    { text: "2001:db8:0:1", caption: "Nätdel, /64", shaded: true },
+    { text: "21a:2bff:fe3c:4d5e", caption: "Interface-ID" },
+  ]),
+  "15-ipv6/text-eui64": parts([
+    { text: "02:1A:2B", caption: "Första halvan" },
+    { text: "FF:FE", caption: "Inlagt", shaded: true },
+    { text: "3C:4D:5E", caption: "Andra halvan" },
+  ]),
 };
