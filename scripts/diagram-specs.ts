@@ -1,6 +1,6 @@
 // Generated diagrams: scene name -> layout. `npm run diagrams:generate` writes missing scenes.
 // A scene that was hand-edited in Excalidraw is never overwritten unless you pass --force.
-import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, ring, stack, star, tree, type Layout } from "./lib/layouts.ts";
+import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, rackGrid, ring, stack, star, tree, type Layout } from "./lib/layouts.ts";
 import type { Roles } from "./lib/scene.ts";
 
 /** Which library item plays which role. */
@@ -42,4 +42,17 @@ export const SPECS: Record<string, Layout> = {
     190,
     ["#fff0dc", "#ffa94d", "#e3f7e6", "#74c0fc", "#e3f1fd", "#69db7c", "#f3e9df", "#c4996c"],
   ),
+
+  // 4. Märkning av uttag. Rack grids: row starts numbered in the text, only 01 in the questions.
+  "04-markning/text-rack": rackGrid(
+    [
+      { row: 3, col: 1, rows: 1, cols: 10, label: "Panel 21" },
+      { row: 6, col: 1, rows: 0.5, cols: 10, label: "51A" },
+      { row: 6.5, col: 1, rows: 0.5, cols: 10, label: "51B" },
+    ],
+    [1, 11, 21, 31, 41, 51, 61, 71, 81, 91],
+    24,
+  ),
+  "04-markning/q-rack-rad": rackGrid([{ row: 4, col: 1, rows: 1, cols: 10, label: "Panel" }], [1], 24),
+  "04-markning/q-rack-mitt": rackGrid([{ row: 7, col: 6, rows: 1, cols: 5, label: "Panel" }], [1], 24),
 };

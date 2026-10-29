@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, ring, stack, star, tree } from "../../scripts/lib/layouts.ts";
+import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, rackGrid, ring, stack, star, tree } from "../../scripts/lib/layouts.ts";
 import {
   arrowElement,
   blockElements,
@@ -176,6 +176,7 @@ describe("blocks and labels", () => {
     expect(text).toMatchObject({ id: "block-3-label", text: "Data" });
     expect(text.x + text.width / 2).toBeCloseTo(50);
     expect(text.y + text.height / 2).toBeCloseTo(80);
+    expect(blockElements({ x: 0, y: 0, w: 1, h: 1, label: "" }, 0, 1)).toHaveLength(1);
   });
 
   it("labelElement scales the anchor", () => {
@@ -185,13 +186,14 @@ describe("blocks and labels", () => {
   });
 
   it("buildScene draws blocks first and free labels last, with unique ids", () => {
-    for (const layout of [stack(["a", "b"]), encapsulation(["a", "b", "c", "d", "e"], "01"), compareModels(["L", "R"], ["a", "b"], [{ label: "x", span: 2 }])]) {
+    for (const layout of [stack(["a", "b"]), encapsulation(["a", "b", "c", "d", "e"], "01"), compareModels(["L", "R"], ["a", "b"], [{ label: "x", span: 2 }]), rackGrid([{ row: 2, col: 1, rows: 1, cols: 10, label: "P" }], [1])]) {
       const scene = buildScene(layout, library, roles);
       const blocks = layout.blocks ?? [];
       const labels = layout.labels ?? [];
-      expect(scene.elements).toHaveLength(blocks.length * 2 + labels.length);
-      expect(scene.elements.slice(0, blocks.length * 2).every((e) => e.id.startsWith("block-"))).toBe(true);
-      expect(scene.elements.slice(blocks.length * 2).every((e) => e.id.startsWith("label-"))).toBe(true);
+      const drawn = blocks.length + blocks.filter((b) => b.label !== "").length;
+      expect(scene.elements).toHaveLength(drawn + labels.length);
+      expect(scene.elements.slice(0, drawn).every((e) => e.id.startsWith("block-"))).toBe(true);
+      expect(scene.elements.slice(drawn).every((e) => e.id.startsWith("label-"))).toBe(true);
       expect(new Set(scene.elements.map((e) => e.id)).size).toBe(scene.elements.length);
     }
   });

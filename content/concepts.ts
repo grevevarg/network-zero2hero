@@ -66,4 +66,18 @@ export const concepts: Concept[] = [
   { id: "dampning", section: "kablar", term: "Dämpning", explanation: "Att signalen blir svagare ju längre den färdas." },
   { id: "singlemode", section: "kablar", term: "Singlemode (SMF)", explanation: "Fiber med en mycket tunn kärna. Laserljus i en enda bana, räcker väldigt långt." },
   { id: "multimode", section: "kablar", term: "Multimode (MMF)", explanation: "Fiber med tjockare kärna där ljuset går i många banor. Räcker kortare och är på väg bort." },
+
+  // 4. Märkning av uttag
+  { id: "dokumentation", section: "markning", term: "Dokumentation", explanation: "Ritningar och listor över nätet. Används när något krånglar och när nätet ska byggas om." },
+  { id: "rack", section: "markning", term: "Rack", explanation: "Ett stativ eller skåp där nätverksutrustning skruvas fast. Ofta 19 tum brett." },
+  { id: "patchpanel", section: "markning", term: "Patchpanel", explanation: "En panel i racket med ett uttag för varje kabel ute i huset." },
+  { id: "patchkabel", section: "markning", term: "Patchkabel", explanation: "En vanlig nätverkskabel som kopplas i patchpanelen." },
+  { id: "uttag", section: "markning", term: "Uttag", explanation: "Där kabeln slutar. Får panelens beteckning plus sitt nummer i panelen, till exempel AC0311A10, och samma beteckning i båda ändar." },
+  { id: "stall", section: "markning", term: "Ställ", explanation: "Utrymmet där racken står. Två bokstäver: första är våningen, andra är utrymmet på våningen." },
+  { id: "falt", section: "markning", term: "Fält", explanation: "Racket. Två siffror, från 01 och uppåt, från vänster till höger i rummet." },
+  { id: "panel", section: "markning", term: "Panel", explanation: "Var i racket panelen sitter, enligt fältuppdelningen. Flera paneler i samma ruta får A, B och så vidare." },
+  { id: "faltuppdelning", section: "markning", term: "Fältuppdelning", explanation: "Racket delas framifrån i 10 gånger 10 rutor, 01 till 100. Utrustningen får numret där dess övre vänstra hörn sitter." },
+  { id: "stallforteckning", section: "markning", term: "Ställförteckning", explanation: "En lista över alla ställ." },
+  { id: "monteringsritning", section: "markning", term: "Monteringsritning", explanation: "Ett fält framifrån: var utrustningen sitter och fakta om den. Kablarna ritas inte här." },
+  { id: "panelkort", section: "markning", term: "Panelkort", explanation: "Ett kort per panel som visar varje uttag: kabel, längd och vart den går." },
 ];

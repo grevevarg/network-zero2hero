@@ -49,3 +49,11 @@ Things to revisit later. Content items need checking against the notes before th
 - [ ] **Left out:** "ljus är snabbare än el" (shaky as a claim), and the ±2.5 V = 1/0 signalling picture (simplified to the point of being misleading for gigabit). Add them back if you want them.
 - [ ] **Speed table** is from the lecture slide. Cat6 is 1 Gbit/s there (the 10 Gbit/s at 55 m detail is not in the notes).
 - [ ] **Patch cable** is moved to section 4, together with the patch panel.
+
+## Section 4: Märkning av uttag
+
+- [ ] **Floor letter conflict.** The documentation note says the first letter of a ställ is the floor (AC = floor 1, third room), but the book's example calls AC "plan 3". The text follows the first rule. Confirm.
+- [ ] **Row starts.** The edition 5 summary lists cells as "01, 21, 31…" and skips 11. The text follows the book figure (01, 11, 21 … 91).
+- [ ] **Not from the notes:** the definitions of rack and patch panel (the note only uses the words), and the explanation of why several panels can share a cell (a cell is tall).
+- [ ] **Left out on purpose:** edition 6 designations (+D1S1M25:12X), the panelkort columns in detail, the procurement flow (förfrågningsunderlag, EL-AMA) and the example building. Say if any of these should go in.
+- [ ] **No clickable rack puzzle.** The rack grid is drawn as a diagram on two multiple-choice questions. A real click-the-cell puzzle could come later.

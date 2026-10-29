@@ -218,14 +218,12 @@ export function rectElement(id: string, x: number, y: number, width: number, hei
   };
 }
 
-/** A block's rectangle with its label centred inside it, in scene units. */
+/** A block's rectangle with its label centred inside it, in scene units. An empty label draws no text. */
 export function blockElements(b: Block, index: number, scale: number): ExElement[] {
   const [x, y, w, h] = [b.x * scale, b.y * scale, b.w * scale, b.h * scale];
   const top = y + (h - FONT_SIZE * 1.25) / 2;
-  return [
-    rectElement(`block-${index}`, x, y, w, h, b.fill ?? (b.shaded ? SHADE : "transparent")),
-    textElement(`block-${index}-label`, b.label, x + w / 2, top),
-  ];
+  const rect = rectElement(`block-${index}`, x, y, w, h, b.fill ?? (b.shaded ? SHADE : "transparent"));
+  return b.label === "" ? [rect] : [rect, textElement(`block-${index}-label`, b.label, x + w / 2, top)];
 }
 
 export function labelElement(l: Label, index: number, scale: number): ExElement {

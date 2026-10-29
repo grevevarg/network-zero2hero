@@ -94,5 +94,23 @@
     "image": "img/f2335e9ee1513a6a651d5c4218aff662.svg",
     "width": 514,
     "height": 394
+  },
+  "04-markning/q-rack-mitt": {
+    "sourceHash": "c20f89198eea2c79b3d6b6f90381c2f751b35ff9ffb6713a2d57569826a07504",
+    "image": "img/adddd0021791141faadbfd1d26900c76.svg",
+    "width": 644,
+    "height": 644
+  },
+  "04-markning/q-rack-rad": {
+    "sourceHash": "e873b71f9292897b32e7f0d73430a6d6388be17dc165ba9ee9bea60203c95ac6",
+    "image": "img/52e4d265f064e60304ba90f7a8077977.svg",
+    "width": 644,
+    "height": 644
+  },
+  "04-markning/text-rack": {
+    "sourceHash": "7b163c585a7b80e9d36c82c5e4a75f203801207200cd89b076380cae0327f68a",
+    "image": "img/4991c0bad6f3b7c218063d8af12a9ddc.svg",
+    "width": 644,
+    "height": 644
   }
 }

@@ -6,6 +6,8 @@ import {
   clientServer,
   compareModels,
   encapsulation,
+  rackCell,
+  rackGrid,
   fullMesh,
   pair,
   ring,
@@ -169,6 +171,32 @@ describe("block diagrams", () => {
     expect(y).toMatchObject({ label: "y", y: dd.y, h: dd.h });
     expect(d.labels?.map((l) => l.text)).toEqual(["L", "R"]);
     expect(() => compareModels(["L", "R"], ["a", "b"], [{ label: "x", span: 3 }])).toThrow(/spans 3 layers/);
+  });
+});
+
+describe("rack grid", () => {
+  it("rackCell numbers rows of ten: 01-10, 11-20 ... 91-100", () => {
+    expect([rackCell(1, 1), rackCell(1, 10), rackCell(2, 1), rackCell(6, 1), rackCell(10, 10)]).toEqual([1, 10, 11, 51, 100]);
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 10 }), fc.integer({ min: 1, max: 10 }), (row, col) => {
+        const n = rackCell(row, col);
+        expect(Math.floor((n - 1) / 10) + 1).toBe(row);
+        expect(((n - 1) % 10) + 1).toBe(col);
+      }),
+    );
+  });
+
+  it("draws every uncovered cell once, equipment on top, numbers only where asked and visible", () => {
+    const d = rackGrid([{ row: 3, col: 1, rows: 1, cols: 10, label: "Panel" }, { row: 5, col: 6, rows: 2, cols: 5, label: "Switch" }], [1, 21, 51, 56]);
+    const blocks = d.blocks ?? [];
+    const cells = blocks.filter((b) => !b.shaded);
+    expect(cells).toHaveLength(100 - 10 - 10);
+    expect(blocks.filter((b) => b.shaded).map((b) => b.label)).toEqual(["Panel", "Switch"]);
+    expect(cells.filter((b) => b.label !== "").map((b) => b.label)).toEqual(["01", "51"]);
+    const sw = blocks.find((b) => b.label === "Switch")!;
+    expect(sw).toMatchObject({ x: 5 * 18, y: 4 * 18, w: 5 * 18, h: 2 * 18 });
+    expect(() => rackGrid([{ row: 10, col: 1, rows: 2, cols: 1, label: "Big" }], [])).toThrow(/does not fit/);
+    expect(() => rackGrid([{ row: 1, col: 0, rows: 1, cols: 1, label: "Off" }], [])).toThrow(/does not fit/);
   });
 });
 

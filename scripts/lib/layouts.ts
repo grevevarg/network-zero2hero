@@ -195,3 +195,34 @@ export function compareModels(
   ];
   return { width: 2 * w + gap, height: top + total * BLOCK_H, nodes: [], edges: [], blocks, labels };
 }
+
+/** A piece of equipment in a rack grid: its top-left cell (1-based row and column) and size in cells. */
+export type RackItem = { row: number; col: number; rows: number; cols: number; label: string };
+
+/** The cell number in a 10 x 10 rack grid: row 1 is 01-10, row 2 is 11-20 and so on. */
+export function rackCell(row: number, col: number): number {
+  return (row - 1) * 10 + col;
+}
+
+/**
+ * A rack seen from the front, split into 10 x 10 numbered cells, with equipment drawn on top.
+ * `numbered` lists the cells that show their number (only where no equipment covers them).
+ */
+export function rackGrid(items: readonly RackItem[], numbered: readonly number[], cell = 18): Layout {
+  const covers = (it: RackItem, row: number, col: number) =>
+    row >= it.row && row < it.row + it.rows && col >= it.col && col < it.col + it.cols;
+  const blocks: Block[] = [];
+  for (let row = 1; row <= 10; row++) {
+    for (let col = 1; col <= 10; col++) {
+      if (items.some((it) => covers(it, row, col))) continue;
+      const n = rackCell(row, col);
+      const label = numbered.includes(n) ? String(n).padStart(2, "0") : "";
+      blocks.push({ x: (col - 1) * cell, y: (row - 1) * cell, w: cell, h: cell, label });
+    }
+  }
+  for (const it of items) {
+    if (it.row < 1 || it.col < 1 || it.row + it.rows > 11 || it.col + it.cols > 11) throw new Error(`"${it.label}" does not fit in the rack`);
+    blocks.push({ x: (it.col - 1) * cell, y: (it.row - 1) * cell, w: it.cols * cell, h: it.rows * cell, label: it.label, shaded: true });
+  }
+  return { width: 10 * cell, height: 10 * cell, nodes: [], edges: [], blocks };
+}
