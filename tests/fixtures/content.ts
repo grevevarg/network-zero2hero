@@ -46,6 +46,20 @@ export const matching = (over: Partial<QuestionInput> = {}): QuestionInput =>
     ...over,
   }) as QuestionInput;
 
+export const fill = (over: Partial<QuestionInput> = {}): QuestionInput =>
+  ({
+    kind: "fill",
+    id: "q-fill",
+    uses: ["a"],
+    prompt: "Skriv",
+    fields: [
+      { id: "net", label: "Nätadress", answer: "10.0.0.0", format: "ipv4" },
+      { id: "n", label: "Antal", answer: "254", format: "number" },
+    ],
+    explanation: "Nätadressen är 10.0.0.0. Antalet är 254. Mer behövs inte.",
+    ...over,
+  }) as QuestionInput;
+
 export const sectionInput = (over: Partial<SectionInput["meta"]> = {}, questions?: QuestionInput[]): SectionInput => ({
   meta: {
     id: "s1",

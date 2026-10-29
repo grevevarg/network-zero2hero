@@ -147,6 +147,15 @@ async function answerSomething(page: Page, where: string) {
     await page.keyboard.press("Space");
     await page.getByRole("button", { name: "Svara" }).focus();
     await page.keyboard.press("Enter");
+  } else if ((await page.locator(".fill input").count()) > 0) {
+    const inputs = page.locator(".fill input");
+    for (let i = 0; i < (await inputs.count()); i++) {
+      await inputs.nth(i).focus();
+      await page.keyboard.type("1");
+      if (!(await isClearOfNav(page))) fail(where, `focused input ${i + 1} is hidden behind the card navigation`);
+    }
+    await page.getByRole("button", { name: "Kontrollera" }).focus();
+    await page.keyboard.press("Enter");
   } else if ((await page.locator(".ordering").count()) > 0) {
     await page.getByRole("button", { name: "Kontrollera" }).focus();
     await page.keyboard.press("Enter");

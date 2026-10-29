@@ -1,5 +1,5 @@
 import { answerKey } from "../lib/answerHash.ts";
-import { matchingAnswer, orderingAnswer } from "../lib/answers.ts";
+import { fillAnswer, matchingAnswer, orderingAnswer } from "../lib/answers.ts";
 import { hashString } from "../lib/prng.ts";
 import type { ClientChoice, ClientCourse, ClientQuestion, ClientSection } from "../types.ts";
 import { diagramHtml, type ImageInfo } from "./diagram.ts";
@@ -105,6 +105,18 @@ function buildQuestion(q: Question, diagrams: Record<string, string>): ClientQue
         explanationHtml: q.explanation === undefined ? undefined : renderMarkdown(q.explanation),
       };
     }
+    case "fill":
+      return {
+        kind: "fill",
+        id: q.id,
+        promptHtml,
+        diagramHtml: diagram(q.diagram),
+        fields: q.fields.map((f) => {
+          const fid = opaqueId(q.id, f.id);
+          return { id: fid, labelHtml: renderInline(f.label), format: f.format, key: answerKey(q.id, fillAnswer(fid, f.answer, f.format)) };
+        }),
+        explanationHtml: renderMarkdown(q.explanation),
+      };
   }
 }
 

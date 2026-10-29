@@ -28,6 +28,8 @@ function ownItem(q: Question): OwnItem {
       return { id: q.id, text: `${q.prompt} ${q.explanation ?? ""}`, options: q.items.map((i) => i.text) };
     case "matching":
       return { id: q.id, text: `${q.prompt} ${q.explanation ?? ""}`, options: matchingRightOptions(q).map((r) => r.text) };
+    case "fill":
+      return { id: q.id, text: `${q.prompt} ${q.fields.map((f) => f.label).join(" ")} ${q.explanation}`, options: [] };
   }
 }
 

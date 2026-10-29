@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { buildCourse, opaqueId, parseContent } from "../../src/build/course.ts";
 import { matchesKey } from "../../src/lib/answerHash.ts";
-import { matchingAnswer, orderingAnswer } from "../../src/lib/answers.ts";
-import type { ClientMatching, ClientMcq, ClientOrdering } from "../../src/types.ts";
-import { matching, mcq, rawContent, sectionInput, TEXT } from "../fixtures/content.ts";
+import { fillAnswer, matchingAnswer, orderingAnswer } from "../../src/lib/answers.ts";
+import type { ClientFill, ClientMatching, ClientMcq, ClientOrdering } from "../../src/types.ts";
+import { fill, matching, mcq, rawContent, sectionInput, TEXT } from "../fixtures/content.ts";
 
 describe("parseContent", () => {
   it("validates and splits blocks", () => {
@@ -96,5 +96,21 @@ describe("buildCourse", () => {
     raw.sections[0] = { section: sectionInput({}, [mcq({ diagram: "dia" } as never)]), text: TEXT };
     const course = buildCourse(parseContent(raw));
     expect((course.sections[0].questions[0] as ClientMcq).diagramHtml).toContain("<img");
+  });
+});
+
+describe("fill questions", () => {
+  it("ship one key per field that accepts the normalised answer", () => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({}, [fill({ diagram: "dia" } as never)]), text: TEXT };
+    const q = buildCourse(parseContent(raw)).sections[0].questions[0] as ClientFill;
+    expect(q.diagramHtml).toContain("<img");
+    expect(q.fields.map((f) => f.format)).toEqual(["ipv4", "number"]);
+    const [net, n] = q.fields;
+    expect(net.id).toBe(opaqueId("q-fill", "net"));
+    expect(matchesKey("q-fill", fillAnswer(net.id, "10.000.0.0", "ipv4"), net.key)).toBe(true);
+    expect(matchesKey("q-fill", fillAnswer(n.id, "254", "number"), n.key)).toBe(true);
+    expect(matchesKey("q-fill", fillAnswer(n.id, "255", "number"), n.key)).toBe(false);
+    expect(JSON.stringify(q.fields)).not.toMatch(/254|10\.0\.0\.0/);
   });
 });

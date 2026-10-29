@@ -1,4 +1,5 @@
 import type { ClientQuestion } from "../types.ts";
+import { Fill } from "./Fill.tsx";
 import { Matching } from "./Matching.tsx";
 import { Mcq } from "./Mcq.tsx";
 import { Ordering } from "./Ordering.tsx";
@@ -20,8 +21,10 @@ export function Question({ question, seed, solved, onSolved, onAnswered }: Props
         <Mcq question={question} {...handlers} />
       ) : question.kind === "ordering" ? (
         <Ordering question={question} {...handlers} />
-      ) : (
+      ) : question.kind === "matching" ? (
         <Matching question={question} {...handlers} />
+      ) : (
+        <Fill question={question} {...handlers} />
       )}
     </div>
   );

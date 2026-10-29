@@ -1,10 +1,13 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/preact";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import type { ClientCourse, ClientMatching, ClientMcq, ClientOrdering } from "../../src/types.ts";
+import { buildCourse, parseContent } from "../../src/build/course.ts";
+import type { ClientCourse, ClientFill, ClientMatching, ClientMcq, ClientOrdering } from "../../src/types.ts";
+import { Fill } from "../../src/ui/Fill.tsx";
 import { Matching } from "../../src/ui/Matching.tsx";
 import { Mcq } from "../../src/ui/Mcq.tsx";
 import { move, Ordering } from "../../src/ui/Ordering.tsx";
 import { Question } from "../../src/ui/Question.tsx";
+import { fill, rawContent, sectionInput, TEXT } from "../fixtures/content.ts";
 import { fixtureCourse, textOf } from "./helpers.ts";
 
 let course: ClientCourse;
@@ -139,3 +142,50 @@ describe("shuffling", () => {
     await waitFor(() => expect(order()).toEqual(first));
   });
 });
+
+describe("Fill", () => {
+  const fillQuestion = (): ClientFill => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({}, [fill()]), text: TEXT };
+    return buildCourse(parseContent(raw)).sections[0].questions[0] as ClientFill;
+  };
+
+  it("needs every field, marks each field, offers the solution and accepts padded answers", async () => {
+    const onSolved = vi.fn();
+    const onAnswered = vi.fn();
+    render(<Fill question={fillQuestion()} seed="s" onSolved={onSolved} onAnswered={onAnswered} />);
+    const check = screen.getByRole("button", { name: "Kontrollera" }) as HTMLButtonElement;
+    const [net, n] = screen.getAllByRole("textbox") as HTMLInputElement[];
+    expect(net.getAttribute("inputmode")).toBe("decimal");
+    expect(n.getAttribute("inputmode")).toBe("numeric");
+    expect(check.disabled).toBe(true);
+
+    fireEvent.input(net, { target: { value: "10.0.0.0" } });
+    fireEvent.input(n, { target: { value: "255" } });
+    fireEvent.click(check);
+    await screen.findByText(/Inte riktigt/);
+    expect(onAnswered).toHaveBeenCalledWith("q-fill");
+    expect(screen.getByText("Rätt")).toBeTruthy();
+    expect(screen.getByText("Fel")).toBeTruthy();
+    expect(n.getAttribute("aria-invalid")).toBe("true");
+    expect(document.querySelector(".explanation")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Visa lösningen" }));
+    expect(document.querySelector(".explanation")).toBeTruthy();
+
+    fireEvent.input(n, { target: { value: "0254" } });
+    expect(screen.queryByText("Fel")).toBeNull();
+    fireEvent.click(check);
+    await screen.findByText("Rätt.");
+    expect(onSolved).toHaveBeenCalledWith("q-fill");
+    expect(net.disabled).toBe(true);
+  });
+
+  it("uses a text keyboard for text answers and is dispatched by Question", () => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({}, [fill({ fields: [{ id: "t", label: "Ord", answer: "hej" }] } as never)]), text: TEXT };
+    const question = buildCourse(parseContent(raw)).sections[0].questions[0];
+    render(<Question question={question} seed="s" solved={false} onSolved={() => {}} onAnswered={() => {}} />);
+    expect(screen.getByRole("textbox").getAttribute("inputmode")).toBe("text");
+  });
+});
+

@@ -121,6 +121,26 @@ button:disabled { opacity: 0.45; cursor: default; }
 .ordering-buttons { display: flex; gap: 0.25rem; flex-shrink: 0; }
 .ordering-buttons button { margin: 0; min-width: 2.75rem; padding: 0.25rem; }
 .matching li { padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+.fill { list-style: none; padding: 0; margin: 0.5rem 0; }
+.fill li { padding: 0.5rem 0; }
+.fill label { display: flex; flex-direction: column; gap: 0.35rem; }
+.fill-input { display: flex; align-items: center; gap: 0.5rem; }
+.fill input {
+  font: inherit;
+  min-height: 2.75rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  width: 100%;
+  max-width: 18rem;
+  min-width: 0;
+}
+.fill input[aria-invalid="true"] { border-color: var(--wrong); }
+.fill-mark { font-weight: 600; white-space: nowrap; }
+.fill-right { color: var(--right); }
+.fill-wrong { color: var(--wrong); }
 .matching .diagram { max-width: 13rem; }
 .matching label { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; }
 select {

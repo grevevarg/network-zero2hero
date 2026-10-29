@@ -57,7 +57,25 @@ export const matchingSchema = z.strictObject({
   explanation: text.optional(),
 });
 
-export const questionSchema = z.discriminatedUnion("kind", [mcqSchema, orderingSchema, matchingSchema]);
+export const fillSchema = z.strictObject({
+  ...questionBase,
+  kind: z.literal("fill"),
+  diagram: id.optional(),
+  /** Typed answers. Each answer is compared after normalising (see normalizeAnswer) and must already be canonical. */
+  fields: z
+    .array(
+      z.strictObject({
+        id,
+        label: text,
+        answer: text,
+        format: z.enum(["text", "number", "ipv4", "binary"]).default("text"),
+      }),
+    )
+    .min(1)
+    .max(6),
+  explanation: text,
+});
+export const questionSchema = z.discriminatedUnion("kind", [mcqSchema, orderingSchema, matchingSchema, fillSchema]);
 
 export const sectionMetaSchema = z.strictObject({
   id,
@@ -82,6 +100,7 @@ export type QuestionInput = z.input<typeof questionSchema>;
 export type Mcq = z.output<typeof mcqSchema>;
 export type Ordering = z.output<typeof orderingSchema>;
 export type Matching = z.output<typeof matchingSchema>;
+export type Fill = z.output<typeof fillSchema>;
 export type SectionMeta = z.output<typeof sectionMetaSchema>;
 export type SectionMetaInput = z.input<typeof sectionMetaSchema>;
 export type Section = z.output<typeof sectionSchema>;

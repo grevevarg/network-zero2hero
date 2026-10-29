@@ -36,7 +36,18 @@ export type ClientMatching = {
   explanationHtml?: string;
 };
 
-export type ClientQuestion = ClientMcq | ClientOrdering | ClientMatching;
+export type ClientFillField = { id: string; labelHtml: string; format: "text" | "number" | "ipv4" | "binary"; key: string };
+
+export type ClientFill = {
+  kind: "fill";
+  id: string;
+  promptHtml: string;
+  diagramHtml?: string;
+  fields: ClientFillField[];
+  explanationHtml: string;
+};
+
+export type ClientQuestion = ClientMcq | ClientOrdering | ClientMatching | ClientFill;
 
 export type ClientSection = {
   id: string;

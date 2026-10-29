@@ -124,5 +124,17 @@
     "image": "img/e37f36f6be6eb077b9a90b93165a8406.svg",
     "width": 514,
     "height": 301
+  },
+  "06-ipv4/text-binar": {
+    "sourceHash": "bd31433a3e016e3206d0b85a5d3f942d5544a1ae00083f7d0c958ed14fc8cdb5",
+    "image": "img/823defe9a9037f9c71e78b3839de5f72.svg",
+    "width": 456,
+    "height": 110
+  },
+  "06-ipv4/text-delar": {
+    "sourceHash": "f09d1c13a48519f3948bdb6a3550d55c214603d7a6368d654f710cd6a6a984e3",
+    "image": "img/5654ab48048407353db9d80bc5e37993.svg",
+    "width": 353,
+    "height": 110
   }
 }

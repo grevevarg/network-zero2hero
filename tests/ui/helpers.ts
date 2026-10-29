@@ -10,6 +10,6 @@ export async function fixtureCourse(): Promise<ClientCourse> {
 export function textOf(course: ClientCourse, questionId: string, authoredId: string): string {
   const q = course.sections.flatMap((s) => s.questions).find((x) => x.id === questionId);
   const id = opaqueId(questionId, authoredId);
-  const all = q ? ("options" in q ? q.options : "items" in q ? q.items : [...q.left, ...q.right]) : [];
+  const all = q ? ("options" in q ? q.options : "items" in q ? q.items : "left" in q ? [...q.left, ...q.right] : []) : [];
   return all.find((c) => c.id === id)?.html.replace(/<[^>]+>/g, "") ?? "";
 }

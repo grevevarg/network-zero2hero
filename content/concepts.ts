@@ -101,4 +101,18 @@ export const concepts: Concept[] = [
   { id: "broadcastdoman", section: "switchar", term: "Broadcastdomän", explanation: "Alla enheter som hör samma broadcast. Allt som hänger ihop på lager 2 är samma broadcastdomän." },
   { id: "managed-switch", section: "switchar", term: "Managed och unmanaged switch", explanation: "En managed switch går att ställa in. En unmanaged switch kopplas bara in och fungerar." },
   { id: "l3-switch", section: "switchar", term: "Lager 3-switch", explanation: "En switch som också jobbar med logiska adresser på lager 3." },
+
+  // 6. IPv4-adresser
+  { id: "ipv4", section: "ipv4", term: "IPv4-adress", explanation: "En logisk adress på 32 bitar, skriven som fyra tal med punkter emellan, till exempel 192.168.1.10." },
+  { id: "oktett", section: "ipv4", term: "Oktett", explanation: "En av de fyra delarna i en IPv4-adress. Åtta bitar, ett tal från 0 till 255." },
+  { id: "binart", section: "ipv4", term: "Binärt", explanation: "Tal skrivna med bara ettor och nollor. Bitvärdena i en oktett är 128, 64, 32, 16, 8, 4, 2 och 1." },
+  { id: "natdel-vardel", section: "ipv4", term: "Nätdel och värddel", explanation: "Nätdelen säger vilket nät, värddelen vilken enhet i nätet. Som riktnummer och telefonnummer." },
+  { id: "subnatmask", section: "ipv4", term: "Subnätmask", explanation: "32 bitar där ettorna visar nätdelen och nollorna värddelen, till exempel 255.255.255.0." },
+  { id: "prefix", section: "ipv4", term: "Prefix", explanation: "Antalet ettor i masken, skrivet med snedstreck. 255.255.255.0 är /24." },
+  { id: "adressklass", section: "ipv4", term: "Klass A, B och C", explanation: "Den gamla indelningen efter första oktetten: A 1–126 (/8), B 128–191 (/16), C 192–223 (/24)." },
+  { id: "privat-adress", section: "ipv4", term: "Privat adress", explanation: "Adress för lokala nät som inte används på internet: 10.x.x.x, 172.16–172.31 och 192.168." },
+  { id: "publik-adress", section: "ipv4", term: "Publik adress", explanation: "Adress som används på internet och måste vara unik i hela världen." },
+  { id: "loopback", section: "ipv4", term: "Loopback", explanation: "127.0.0.1 och resten av 127.x.x.x. Betyder datorn själv och används för att testa IP." },
+  { id: "apipa", section: "ipv4", term: "APIPA", explanation: "En adress på 169.254 som datorn hittar på när den inte fick någon adress automatiskt." },
+  { id: "arp", section: "ipv4", term: "ARP", explanation: "Tar reda på MAC-adressen till en IP-adress i samma broadcastdomän med en broadcast-fråga." },
 ];

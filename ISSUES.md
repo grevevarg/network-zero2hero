@@ -77,3 +77,11 @@ Things to revisit later. Content items need checking against the notes before th
   - the switch CLI
   - the wifi collision handling (it belongs to the wireless section)
 - [ ] **Hubs and collisions** are explained with CSMA/CD at a basic level only.
+
+## Section 6: IPv4-adresser
+
+- [ ] **New question type: fill-in.** Answers are typed, and each field is checked on its own. Harmless differences are ignored: case, spaces, and leading zeros in numbers, octets and bits. After a wrong check a "Visa lösningen" button shows the explanation. The answers are computed with `src/lib/net.ts`, which has property tests, so a numeric answer can't drift from the maths. Check that the UI copy ("Rätt"/"Fel", "Visa lösningen") reads well.
+- [ ] **Prefix notation (/24) comes in section 6**, not 7 as planned, because the 0930 note introduces it together with the mask.
+- [ ] **Not from the notes:** the binary conversion method (subtract from the left), "class A has room for over 16 million devices", and that the private ranges are given as full address ranges (the note lists them as networks).
+- [ ] **Left out:** the remark that you never use 0 or 255 (it's unclear in the note; network and broadcast addresses come in section 7), and the multicast RTP URL example.
+- [ ] **Example names:** a place name in the note's class example is on the forbidden list, so that example isn't used.

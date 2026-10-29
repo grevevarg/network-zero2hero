@@ -1,6 +1,8 @@
 import type { ParsedContent } from "./course.ts";
-import type { Matching, Mcq, Ordering, Question } from "./schema.ts";
+import { normalizeAnswer } from "../lib/answers.ts";
+import type { Fill, Matching, Mcq, Ordering, Question } from "./schema.ts";
 import {
+  isFillSolved,
   isMatchingSolved,
   isMcqSolved,
   isOrderingSolved,
@@ -132,6 +134,11 @@ export function countSolutions(q: Question): number {
       for (const a of assignments(q.pairs.map((p) => p.left.id), rightIds)) if (isMatchingSolved(q, a)) count++;
       return count;
     }
+    case "fill":
+      // Normalising maps every accepted input to one canonical answer per field, so the authored
+      // answers are the one solution as long as the validator accepts them (checkFill makes sure
+      // they are already canonical, so what the explanation says is exactly what is accepted).
+      return isFillSolved(q, Object.fromEntries(q.fields.map((f) => [f.id, f.answer]))) ? 1 : 0;
   }
 }
 
@@ -143,13 +150,26 @@ function duplicates(values: readonly string[]): string[] {
 function checkMcq(q: Mcq): string[] {
   const errors: string[] = [];
   if (!q.options.some((o) => o.id === q.correct)) errors.push(`"${q.id}": correct id "${q.correct}" is not an option`);
-  const sentences = countSentences(q.explanation);
-  if (sentences < 3 || sentences > 6) errors.push(`"${q.id}": explanation has ${sentences} sentences, expected 3-6`);
+  errors.push(...explanationLength(q.id, q.explanation));
   return errors;
+}
+
+function explanationLength(id: string, explanation: string): string[] {
+  const sentences = countSentences(explanation);
+  return sentences < 3 || sentences > 6 ? [`"${id}": explanation has ${sentences} sentences, expected 3-6`] : [];
 }
 
 function checkOrdering(q: Ordering): string[] {
   return duplicates(q.items.map((i) => i.text)).map((d) => `"${q.id}": duplicate item text "${d}"`);
+}
+
+function checkFill(q: Fill): string[] {
+  const errors = explanationLength(q.id, q.explanation);
+  for (const f of q.fields) {
+    const canonical = normalizeAnswer(f.answer, f.format);
+    if (canonical !== f.answer) errors.push(`"${q.id}": field "${f.id}" answer "${f.answer}" is not canonical, write "${canonical}"`);
+  }
+  return errors;
 }
 
 function checkMatching(q: Matching): string[] {
@@ -171,6 +191,7 @@ export function checkQuestions(content: ParsedContent): string[] {
       const choiceIds =
         q.kind === "mcq" ? q.options.map((o) => o.id)
         : q.kind === "ordering" ? q.items.map((i) => i.id)
+        : q.kind === "fill" ? q.fields.map((f) => f.id)
         : [...q.pairs.map((p) => p.left.id), ...matchingRightOptions(q).map((r) => r.id)];
       for (const d of duplicates(choiceIds)) errors.push(`"${q.id}": duplicate choice id "${d}"`);
       if (q.kind === "mcq") {
@@ -179,6 +200,7 @@ export function checkQuestions(content: ParsedContent): string[] {
       }
       if (q.kind === "ordering") errors.push(...checkOrdering(q));
       if (q.kind === "matching") errors.push(...checkMatching(q));
+      if (q.kind === "fill") errors.push(...checkFill(q));
       const explanation = "explanation" in q ? q.explanation : undefined;
       if (explanation !== undefined && refersToPosition(explanation)) errors.push(`"${q.id}": explanation refers to an option by letter or position`);
       const solutions = countSolutions(q);

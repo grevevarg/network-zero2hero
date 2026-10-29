@@ -62,4 +62,14 @@ export const SPECS: Record<string, Layout> = {
     { text: "3C:4D:5E", caption: "Unik del" },
   ]),
   "05-switchar/text-ram": stack(["Preamble och SFD", "Mottagarens MAC", "Avsändarens MAC", "Typ", "Data", "FCS"], 190),
+
+  // 6. IPv4-adresser. Bit values over the bits of 192; an address split into its two parts.
+  "06-ipv4/text-binar": parts(
+    [128, 64, 32, 16, 8, 4, 2, 1].map((v, i) => ({ text: String(v), caption: i < 2 ? "1" : "0", shaded: i < 2 })),
+    6,
+  ),
+  "06-ipv4/text-delar": parts([
+    { text: "192.168.1", caption: "Nätdel", shaded: true },
+    { text: "10", caption: "Värddel" },
+  ]),
 };

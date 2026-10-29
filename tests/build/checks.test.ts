@@ -12,7 +12,7 @@ import {
 } from "../../src/build/checks.ts";
 import { parseContent, type RawContent } from "../../src/build/course.ts";
 import { questionSchema, type QuestionInput } from "../../src/build/schema.ts";
-import { matching, mcq, ordering, rawContent, sectionInput, TEXT } from "../fixtures/content.ts";
+import { fill, matching, mcq, ordering, rawContent, sectionInput, TEXT } from "../fixtures/content.ts";
 
 const parsed = (raw: RawContent) => parseContent(raw);
 
@@ -178,5 +178,21 @@ describe("checkBlocks", () => {
     expect(errors).toMatch(/block 1 in section "s1" is an example and must start with a "### " heading/);
     expect(errors).toMatch(/block 1 in section "s1" is an example and must not contain a "## " heading/);
     expect(errors).toMatch(/block 2 in section "s1" is an example and must start with a "### " heading/);
+  });
+});
+
+describe("fill checks", () => {
+  it("accepts canonical answers and rejects non-canonical ones and short explanations", () => {
+    expect(checkQuestions(parsed(withQuestions([fill()])))).toEqual([]);
+    const errors = checkQuestions(
+      parsed(
+        withQuestions([
+          fill({ fields: [{ id: "n", label: "Antal", answer: "0254", format: "number" }] } as never),
+          fill({ id: "q-short", explanation: "Kort." }),
+        ]),
+      ),
+    ).join("\n");
+    expect(errors).toMatch(/field "n" answer "0254" is not canonical, write "254"/);
+    expect(errors).toMatch(/"q-short": explanation has 1 sentences/);
   });
 });
