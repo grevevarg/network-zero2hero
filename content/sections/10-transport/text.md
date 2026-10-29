@@ -100,16 +100,16 @@ TCP    192.168.200.32:50336   199.232.173.91:443     ESTABLISHED
 
 Här har datorn en anslutning från källport 50336 till port 443, alltså HTTPS. ESTABLISHED betyder att anslutningen är uppe. TIME_WAIT betyder att den snart stängs. Med `netstat -n -a` ser du också vilka portar datorn själv lyssnar på.
 
-<!-- uses: telnet, port, tcp -->
+<!-- uses: telnet, ping, port, tcp -->
 ## Telnet som porttest
 
 **Telnet** är ett gammalt program för okrypterad fjärrinloggning. I dag används SSH till det. Men telnet är fortfarande användbart vid felsökning.
 
-Ping visar att en dator svarar, men inte om en viss port är öppen. Med `telnet` och en port kan du testa just det. Får du kontakt med port 443 på en server vet du att webbservern lyssnar. Visas sidan ändå inte ligger felet hos servern, inte i nätet. Vissa servrar svarar inte ens på ping, men de måste svara på sina öppna portar.
+Det enklaste testet i ett nät är **ping**. Din dator skickar ett litet paket till en adress och väntar på svar. Får du svar vet du att datorn finns och går att nå. Men ping visar inte om en viss port är öppen. Med `telnet` och en port kan du testa just det. Får du kontakt med port 443 på en server vet du att webbservern lyssnar. Visas sidan ändå inte ligger felet hos servern, inte i nätet. Vissa servrar svarar inte ens på ping, men de måste svara på sina öppna portar.
 
 UDP går inte att testa så, eftersom det inte finns någon handskakning. Där måste du använda själva programmet som pratar med tjänsten.
 
-<!-- uses: tcp, udp, port, kallport-malport, portintervall, three-way-handshake, ack, checksumma, netstat, telnet; kind: recap -->
+<!-- uses: tcp, udp, port, kallport-malport, portintervall, three-way-handshake, ack, checksumma, netstat, ping, telnet; kind: recap -->
 ## Kort sammanfattning
 
 - Portar talar om vilket program datan ska till. Destinationsporten pekar ut tjänsten, källporten slumpas fram.
@@ -117,4 +117,4 @@ UDP går inte att testa så, eftersom det inte finns någon handskakning. Där m
 - TCP inleder med SYN, SYN + ACK och ACK, numrerar segmenten och skickar om det som saknas.
 - UDP skickar bara iväg datan. Det är snabbare och används för röst, video, spel, DNS och DHCP.
 - TCP och UDP kontrollerar checksumman hela vägen, lager 2 bara sträcka för sträcka.
-- `netstat -n` visar dina anslutningar, och telnet kan testa om en TCP-port är öppen.
+- Ping testar om en dator går att nå. `netstat -n` visar dina anslutningar, och telnet kan testa om en TCP-port är öppen.

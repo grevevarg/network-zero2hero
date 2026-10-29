@@ -78,7 +78,7 @@ export const questions: QuestionInput[] = [
   {
     kind: "mcq",
     id: "transport-telnet",
-    uses: ["telnet", "port", "tcp"],
+    uses: ["telnet", "ping", "port", "tcp"],
     prompt: "Du kan pinga en webbserver, men sidan visas inte. Hur tar du reda på om servern lyssnar på port 443?",
     options: [
       { id: "telnet", text: "Försöker ansluta med telnet till serverns port 443" },

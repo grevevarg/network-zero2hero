@@ -154,6 +154,7 @@ export const concepts: Concept[] = [
   { id: "bgp", section: "routingprotokoll", term: "BGP", explanation: "Border Gateway Protocol. Binder ihop internet, mellan olika autonoma system." },
 
   // 10. TCP, UDP och portar
+  { id: "ping", section: "transport", term: "Ping", explanation: "Ett enkelt test: datorn skickar ett litet paket till en adress och väntar på svar." },
   { id: "tcp", section: "transport", term: "TCP", explanation: "Transmission Control Protocol. Inleder med en handskakning, numrerar segmenten och skickar om det som saknas." },
   { id: "udp", section: "transport", term: "UDP", explanation: "User Datagram Protocol. Skickar bara iväg datan, utan handskakning eller omsändning. Snabbt." },
   { id: "port", section: "transport", term: "Port", explanation: "Ett nummer i varje segment som talar om vilket program eller vilken tjänst datan ska till." },

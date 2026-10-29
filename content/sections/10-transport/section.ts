@@ -7,7 +7,7 @@ const section: SectionInput = {
     number: 10,
     title: "TCP, UDP och portar",
     slug: "10-transport",
-    introduces: ["tcp", "udp", "port", "kallport-malport", "portintervall", "ack", "three-way-handshake", "checksumma", "netstat", "telnet"],
+    introduces: ["tcp", "udp", "port", "kallport-malport", "portintervall", "ack", "three-way-handshake", "checksumma", "netstat", "ping", "telnet"],
     requires: ["transportlagret", "segment", "datagram", "tjanst", "bit", "sessionslagret", "trailer", "hop"],
     diagrams: {
       // Scenes live in diagrams/10-transport/ (layouts in scripts/diagram-specs.ts).
