@@ -6,6 +6,7 @@ import {
   markSolved,
   resetProgress,
   saveProgress,
+  setPosition,
 } from "../../src/lib/storage.ts";
 
 function memoryStorage(): Storage {
@@ -34,45 +35,59 @@ describe("storage", () => {
 
   it("round-trips progress", () => {
     const s = memoryStorage();
-    saveProgress(s, { solved: ["a", "b"] });
-    expect(loadProgress(s)).toEqual({ solved: ["a", "b"] });
+    saveProgress(s, { solved: ["a", "b"], position: { natverk: 3 } });
+    expect(loadProgress(s)).toEqual({ solved: ["a", "b"], position: { natverk: 3 } });
   });
 
   it("returns empty progress for missing, corrupt or wrongly shaped data", () => {
     const s = memoryStorage();
-    expect(loadProgress(s)).toEqual({ solved: [] });
+    expect(loadProgress(s)).toEqual({ solved: [], position: {} });
     s.setItem(STORAGE_KEY, "{not json");
-    expect(loadProgress(s)).toEqual({ solved: [] });
+    expect(loadProgress(s)).toEqual({ solved: [], position: {} });
     s.setItem(STORAGE_KEY, JSON.stringify({ solved: [1, 2] }));
-    expect(loadProgress(s)).toEqual({ solved: [] });
+    expect(loadProgress(s)).toEqual({ solved: [], position: {} });
     s.setItem(STORAGE_KEY, JSON.stringify(null));
-    expect(loadProgress(s)).toEqual({ solved: [] });
-    expect(loadProgress(undefined)).toEqual({ solved: [] });
+    expect(loadProgress(s)).toEqual({ solved: [], position: {} });
+    expect(loadProgress(undefined)).toEqual({ solved: [], position: {} });
   });
 
   it("removes duplicate ids on load", () => {
     const s = memoryStorage();
     s.setItem(STORAGE_KEY, JSON.stringify({ solved: ["a", "a"] }));
-    expect(loadProgress(s)).toEqual({ solved: ["a"] });
+    expect(loadProgress(s)).toEqual({ solved: ["a"], position: {} });
   });
 
   it("never throws when storage is blocked", () => {
     const s = throwingStorage();
-    expect(loadProgress(s)).toEqual({ solved: [] });
-    expect(() => saveProgress(s, { solved: ["a"] })).not.toThrow();
-    expect(resetProgress(s)).toEqual({ solved: [] });
+    expect(loadProgress(s)).toEqual({ solved: [], position: {} });
+    expect(() => saveProgress(s, { solved: ["a"], position: {} })).not.toThrow();
+    expect(resetProgress(s)).toEqual({ solved: [], position: {} });
   });
 
   it("reset clears saved progress", () => {
     const s = memoryStorage();
-    saveProgress(s, { solved: ["a"] });
-    expect(resetProgress(s)).toEqual({ solved: [] });
-    expect(loadProgress(s)).toEqual({ solved: [] });
+    saveProgress(s, { solved: ["a"], position: {} });
+    expect(resetProgress(s)).toEqual({ solved: [], position: {} });
+    expect(loadProgress(s)).toEqual({ solved: [], position: {} });
+  });
+
+  it("drops invalid positions and tolerates the old shape without positions", () => {
+    const s = memoryStorage();
+    s.setItem(STORAGE_KEY, JSON.stringify({ solved: ["a"], position: { ok: 2, zero: 0, half: 1.5, text: "3" } }));
+    expect(loadProgress(s)).toEqual({ solved: ["a"], position: { ok: 2 } });
+    s.setItem(STORAGE_KEY, JSON.stringify({ solved: ["a"], position: [1] }));
+    expect(loadProgress(s).position).toEqual({});
+  });
+
+  it("setPosition updates only when the card changes", () => {
+    const p = setPosition({ solved: [], position: {} }, "s", 4);
+    expect(p.position).toEqual({ s: 4 });
+    expect(setPosition(p, "s", 4)).toBe(p);
   });
 
   it("markSolved adds once", () => {
-    const p = markSolved({ solved: [] }, "a");
-    expect(p).toEqual({ solved: ["a"] });
+    const p = markSolved({ solved: [], position: {} }, "a");
+    expect(p).toEqual({ solved: ["a"], position: {} });
     expect(markSolved(p, "a")).toBe(p);
   });
 

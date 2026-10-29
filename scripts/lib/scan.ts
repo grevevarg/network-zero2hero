@@ -8,6 +8,14 @@ import {
 
 export type Violation = { file: string; line: number; term: string };
 
+/**
+ * Blank out base64 payloads (inlined fonts in exported diagrams). Random base64 can spell short words,
+ * and the payload carries no text anyone reads.
+ */
+export function stripBase64(text: string): string {
+  return text.replace(/base64,[A-Za-z0-9+/=]+/g, "base64,");
+}
+
 /** Scan one file. `prose` also checks Obsidian syntax, which code legitimately contains. */
 export function scanText(
   file: string,
@@ -16,7 +24,8 @@ export function scanText(
   allow: readonly AllowEntry[],
   prose: boolean,
 ): Violation[] {
-  const found = [...findTerms(text, terms), ...(prose ? findObsidianSyntax(text) : [])];
+  const clean = stripBase64(text);
+  const found = [...findTerms(clean, terms), ...(prose ? findObsidianSyntax(clean) : [])];
   return found.filter((f) => !isAllowed(allow, file, f.term)).map((f) => ({ file, ...f }));
 }
 

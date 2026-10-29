@@ -18,7 +18,7 @@ const q = <T,>(i: number) => course.sections[0].questions[i] as T;
 describe("Mcq", () => {
   it("marks a right answer and reports it", async () => {
     const onSolved = vi.fn();
-    render(<Mcq question={q<ClientMcq>(0)} seed="s" onSolved={onSolved} />);
+    render(<Mcq question={q<ClientMcq>(0)} seed="s" onSolved={onSolved} onAnswered={() => {}} />);
     const submit = screen.getByRole("button", { name: "Svara" });
     expect((submit as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByLabelText(textOf(course, "q-mcq", "two")));
@@ -28,14 +28,16 @@ describe("Mcq", () => {
     expect(screen.getByText(/Två är rätt/)).toBeTruthy();
   });
 
-  it("explains a wrong answer and lets the student retry", async () => {
+  it("explains a wrong answer, reports it as answered and lets the student retry", async () => {
     const onSolved = vi.fn();
-    render(<Mcq question={q<ClientMcq>(0)} seed="s" onSolved={onSolved} />);
+    const onAnswered = vi.fn();
+    render(<Mcq question={q<ClientMcq>(0)} seed="s" onSolved={onSolved} onAnswered={onAnswered} />);
     fireEvent.click(screen.getByLabelText(textOf(course, "q-mcq", "one")));
     fireEvent.click(screen.getByRole("button", { name: "Svara" }));
     await screen.findByText(/Inte riktigt/);
     expect(screen.getByText(/Två är rätt/)).toBeTruthy();
     expect(onSolved).not.toHaveBeenCalled();
+    expect(onAnswered).toHaveBeenCalledWith("q-mcq");
     fireEvent.click(screen.getByRole("button", { name: "Försök igen" }));
     expect(screen.queryByText(/Inte riktigt/)).toBeNull();
     expect(screen.getByRole("button", { name: "Svara" })).toBeTruthy();
@@ -43,7 +45,7 @@ describe("Mcq", () => {
 
   it("ignores submit with nothing chosen", () => {
     const onSolved = vi.fn();
-    const { container } = render(<Mcq question={q<ClientMcq>(0)} seed="s" onSolved={onSolved} />);
+    const { container } = render(<Mcq question={q<ClientMcq>(0)} seed="s" onSolved={onSolved} onAnswered={() => {}} />);
     fireEvent.submit(container.querySelector("form") as HTMLFormElement);
     expect(screen.queryByRole("status")).toBeNull();
   });
@@ -69,7 +71,7 @@ describe("Ordering", () => {
 
   it("accepts the right order and rejects others", async () => {
     const onSolved = vi.fn();
-    render(<Ordering question={q<ClientOrdering>(1)} seed="s" onSolved={onSolved} />);
+    render(<Ordering question={q<ClientOrdering>(1)} seed="s" onSolved={onSolved} onAnswered={() => {}} />);
     const names = ["first", "second", "third"].map((id) => textOf(course, "q-order", id));
     await arrange([names[1], names[0], names[2]]);
     fireEvent.click(screen.getByRole("button", { name: "Kontrollera" }));
@@ -88,7 +90,7 @@ describe("Matching", () => {
   it("needs every select filled, then checks the pairs", async () => {
     const onSolved = vi.fn();
     const question = q<ClientMatching>(2);
-    render(<Matching question={question} seed="s" onSolved={onSolved} />);
+    render(<Matching question={question} seed="s" onSolved={onSolved} onAnswered={() => {}} />);
     const check = screen.getByRole("button", { name: "Kontrollera" }) as HTMLButtonElement;
     expect(check.disabled).toBe(true);
     expect(screen.getByText(/Bild \d/)).toBeTruthy();
@@ -115,12 +117,12 @@ describe("Matching", () => {
 
 describe("Question", () => {
   it("dispatches on kind and shows a badge when solved before", () => {
-    const { rerender } = render(<Question question={q(0)} seed="s" solved onSolved={() => {}} />);
+    const { rerender } = render(<Question question={q(0)} seed="s" solved onSolved={() => {}} onAnswered={() => {}} />);
     expect(screen.getByText("Klarad tidigare")).toBeTruthy();
-    rerender(<Question question={q(1)} seed="s" solved={false} onSolved={() => {}} />);
+    rerender(<Question question={q(1)} seed="s" solved={false} onSolved={() => {}} onAnswered={() => {}} />);
     expect(screen.queryByText("Klarad tidigare")).toBeNull();
-    expect(screen.getByRole("list")).toBeTruthy();
-    rerender(<Question question={q(2)} seed="s" solved={false} onSolved={() => {}} />);
+    expect(document.querySelector(".ordering")).toBeTruthy();
+    rerender(<Question question={q(2)} seed="s" solved={false} onSolved={() => {}} onAnswered={() => {}} />);
     expect(screen.getAllByRole("combobox")).toHaveLength(2);
   });
 });
@@ -128,10 +130,10 @@ describe("Question", () => {
 describe("shuffling", () => {
   it("shows the same option order for the same seed and attempt", async () => {
     const order = () => [...document.querySelectorAll(".option")].map((e) => e.textContent);
-    render(<Mcq question={q<ClientMcq>(0)} seed="fixed" onSolved={() => {}} />);
+    render(<Mcq question={q<ClientMcq>(0)} seed="fixed" onSolved={() => {}} onAnswered={() => {}} />);
     const first = order();
     cleanup();
-    render(<Mcq question={q<ClientMcq>(0)} seed="fixed" onSolved={() => {}} />);
+    render(<Mcq question={q<ClientMcq>(0)} seed="fixed" onSolved={() => {}} onAnswered={() => {}} />);
     await waitFor(() => expect(order()).toEqual(first));
   });
 });

@@ -8,9 +8,9 @@ import type { ClientMatching } from "../types.ts";
 import { Feedback, type Verdict } from "./Feedback.tsx";
 import { Html } from "./Html.tsx";
 
-type Props = { question: ClientMatching; seed: string; onSolved: (id: string) => void };
+type Props = { question: ClientMatching; seed: string; onSolved: (id: string) => void; onAnswered: (id: string) => void };
 
-export function Matching({ question: q, seed, onSolved }: Props) {
+export function Matching({ question: q, seed, onSolved, onAnswered }: Props) {
   const rng = useMemo(() => rngFromSeed(`${seed}:${q.id}`), [q, seed]);
   const left = useMemo(() => shuffle(q.left, rng), [q, rng]);
   const right = useMemo(() => shuffle(q.right, rng), [q, rng]);
@@ -28,6 +28,7 @@ export function Matching({ question: q, seed, onSolved }: Props) {
     e.preventDefault();
     const right = await matchesKey(q.id, matchingAnswer(q.left.map((l) => l.id), chosen), q.key);
     setVerdict(right ? "right" : "wrong");
+    onAnswered(q.id);
     if (right) onSolved(q.id);
   }
 
@@ -37,7 +38,7 @@ export function Matching({ question: q, seed, onSolved }: Props) {
       <ul class="matching">
         {left.map((l, i) => (
           <li key={l.id}>
-            {l.diagramSvg ? <Html html={l.diagramSvg} className="figure" /> : null}
+            {l.diagramHtml ? <Html html={l.diagramHtml} className="figure" /> : null}
             <label>
               {l.html ? <Html html={l.html} as="span" /> : <span>Bild {i + 1}</span>}
               <select

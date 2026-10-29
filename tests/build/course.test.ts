@@ -44,7 +44,7 @@ describe("buildCourse", () => {
     const right = { [opaqueId(x.id, "l1")]: opaqueId(x.id, "r1"), [opaqueId(x.id, "l2")]: opaqueId(x.id, "r2") };
     expect(await matchesKey(x.id, matchingAnswer(left, right), x.key)).toBe(true);
     expect(x.right).toHaveLength(3);
-    expect(x.left.find((l) => l.diagramSvg)?.html).toBe("");
+    expect(x.left.find((l) => l.diagramHtml)?.html).toBe("");
   });
 
   it("does not ship authored ids or authoring order", async () => {
@@ -61,7 +61,7 @@ describe("buildCourse", () => {
     raw.sections[0].section.questions = [mcq(), matching({ explanation: undefined })];
     const course = await buildCourse(parseContent(raw));
     const s = course.sections[0];
-    expect(s.blocks[0].html).toContain("<svg");
+    expect(s.blocks[0].html).toContain("<img");
     expect(s.newConcepts).toEqual([{ term: "A", html: "Förklaring av a." }]);
     expect((s.questions[1] as ClientMatching).explanationHtml).toBeUndefined();
     expect(course.sections[1].blocks[0].kind).toBe("recap");
@@ -73,6 +73,12 @@ describe("buildCourse", () => {
     raw.sections[0].section.questions[1] = { ...q, explanation: undefined } as typeof q;
     const course = await buildCourse(parseContent(raw));
     expect((course.sections[0].questions[1] as ClientOrdering).explanationHtml).toBeUndefined();
+  });
+
+  it("fails on diagrams that were never exported", async () => {
+    const raw = rawContent();
+    raw.images = {};
+    await expect(buildCourse(parseContent(raw))).rejects.toThrow(/has not been exported/);
   });
 
   it("fails on unknown diagrams and concepts", async () => {
@@ -89,6 +95,6 @@ describe("buildCourse", () => {
     const raw = rawContent();
     raw.sections[0] = { section: sectionInput({}, [mcq({ diagram: "dia" } as never)]), text: TEXT };
     const course = await buildCourse(parseContent(raw));
-    expect((course.sections[0].questions[0] as ClientMcq).diagramSvg).toContain("<svg");
+    expect((course.sections[0].questions[0] as ClientMcq).diagramHtml).toContain("<img");
   });
 });

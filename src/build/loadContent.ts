@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -19,5 +20,7 @@ export async function loadContent(root: string, importer: Importer = nativeImpor
       text: await readFile(path.join(root, "content/sections", section.meta.slug, "text.md"), "utf8"),
     })),
   );
-  return { title: index.title, concepts: index.concepts, sections };
+  const manifestPath = path.join(root, "diagrams/manifest.json");
+  const images = existsSync(manifestPath) ? JSON.parse(await readFile(manifestPath, "utf8")) : {};
+  return { title: index.title, concepts: index.concepts, sections, images };
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseTermList } from "../../src/build/forbidden.ts";
-import { collectStrings, isProbablyBinary, isProseFile, scanText } from "../../scripts/lib/scan.ts";
+import { collectStrings, isProbablyBinary, isProseFile, scanText, stripBase64 } from "../../scripts/lib/scan.ts";
 
 describe("scan", () => {
   const terms = parseTermList("banan\n=päron");
@@ -8,6 +8,11 @@ describe("scan", () => {
   it("finds terms in any file and Obsidian syntax only in prose", () => {
     expect(scanText("src/a.ts", "const x = a[b[0]]; // banan", terms, [], false)).toEqual([{ file: "src/a.ts", term: "banan", line: 1 }]);
     expect(scanText("content/x.md", "Se [[länk]]", terms, [], true)).toEqual([{ file: "content/x.md", term: "[[", line: 1 }]);
+  });
+
+  it("ignores words that happen to appear inside base64 payloads", () => {
+    expect(stripBase64('src="data:font/woff2;base64,QbananZ+/=" x')).toBe('src="data:font/woff2;base64," x');
+    expect(scanText("a.svg", 'url(data:font/woff2;base64,AAbananAA==) banan', terms, [], false)).toHaveLength(1);
   });
 
   it("respects the allowlist", () => {

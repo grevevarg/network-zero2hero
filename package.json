@@ -12,7 +12,10 @@
     "check:content": "node scripts/check-content.ts",
     "check:similarity": "node scripts/check-similarity.ts",
     "stats": "node scripts/stats.ts",
-    "import:image": "node scripts/import-image.ts"
+    "import:image": "node scripts/import-image.ts",
+    "diagrams": "node scripts/export-diagrams.ts",
+    "diagrams:generate": "node scripts/generate-diagrams.ts",
+    "smoke": "vite build && node scripts/smoke.ts"
   },
   "dependencies": {
     "preact": "^11.1.0"
@@ -25,6 +28,7 @@
     "fast-check": "^4.10.2",
     "happy-dom": "^21.0.4",
     "marked": "^18.1.2",
+    "playwright-core": "^1.64.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
     "vitest": "^5.0.5",

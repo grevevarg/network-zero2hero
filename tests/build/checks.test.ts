@@ -1,6 +1,7 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {
+  checkBlocks,
   checkConceptGraph,
   checkQuestions,
   countSentences,
@@ -153,5 +154,19 @@ describe("text helpers", () => {
     expect(refersToPosition("A) är fel")).toBe(true);
     expect(refersToPosition("Det sista alternativet är fel.")).toBe(true);
     expect(refersToPosition("Kameran är servern.")).toBe(false);
+  });
+});
+
+describe("checkBlocks", () => {
+  it("accepts one card per block", () => {
+    expect(checkBlocks(parsed(rawContent()))).toEqual([]);
+  });
+
+  it("needs a leading ## heading and no second one", () => {
+    const raw = rawContent();
+    raw.sections[0].text = "<!-- uses: a -->\nIngen rubrik\n\n<!-- uses: a -->\n## Ett\n\n## Två\n";
+    const errors = checkBlocks(parsed(raw)).join("\n");
+    expect(errors).toMatch(/block 1 in section "s1" must start with a "## " heading/);
+    expect(errors).toMatch(/block 2 in section "s1" has 2 "## " headings/);
   });
 });

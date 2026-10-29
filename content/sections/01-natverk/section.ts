@@ -1,5 +1,4 @@
 import type { SectionInput } from "../../../src/build/schema.ts";
-import { bus, fullMesh, ring, star, tree } from "../../../src/build/shapes.ts";
 import { questions } from "./questions.ts";
 
 const section: SectionInput = {
@@ -14,18 +13,18 @@ const section: SectionInput = {
     ],
     requires: [],
     diagrams: {
-      // Used in the text.
-      "text-star": star(4, "Fyra enheter som var och en har en egen linje till en ruta i mitten."),
-      "text-bus": bus(3, "En lång vågrät linje. Tre enheter är kopplade till den med var sin kort linje."),
-      "text-ring": ring(5, "Fem enheter i en cirkel. Varje enhet har en linje till sina två grannar."),
-      "text-tree": tree(2, 2, "En ruta överst med två rutor under sig. Varje sådan ruta har två enheter under sig."),
-      "text-mesh": fullMesh(4, "Fyra enheter där varje enhet har en linje till alla de andra tre."),
+      // Scenes live in diagrams/01-natverk/ (layouts in scripts/diagram-specs.ts). Used in the text:
+      "text-star": { scene: "01-natverk/text-star", alt: "Fyra datorer som var och en har en egen linje till en enhet i mitten." },
+      "text-bus": { scene: "01-natverk/text-bus", alt: "En lång vågrät linje. Tre datorer är kopplade till den med var sin kort linje." },
+      "text-ring": { scene: "01-natverk/text-ring", alt: "Fem datorer i en cirkel. Varje dator har en linje till sina två grannar." },
+      "text-tree": { scene: "01-natverk/text-tree", alt: "En enhet överst med två enheter under sig. Var och en av dem har två datorer under sig." },
+      "text-mesh": { scene: "01-natverk/text-mesh", alt: "Fyra datorer där varje dator har en linje till alla de andra tre." },
       // Used in the self-check. Different sizes than the text, so the student has to recognise the shape.
-      "q-star": star(6, "Sex enheter som var och en har en egen linje till en ruta i mitten."),
-      "q-bus": bus(4, "En lång vågrät linje. Fyra enheter är kopplade till den med var sin kort linje."),
-      "q-ring": ring(6, "Sex enheter i en cirkel. Varje enhet har en linje till sina två grannar."),
-      "q-tree": tree(2, 3, "En ruta överst med två rutor under sig. Varje sådan ruta har tre enheter under sig."),
-      "q-mesh": fullMesh(5, "Fem enheter där varje enhet har en linje till alla de andra fyra."),
+      "q-star": { scene: "01-natverk/q-star", alt: "Sex datorer som var och en har en egen linje till en enhet i mitten." },
+      "q-bus": { scene: "01-natverk/q-bus", alt: "En lång vågrät linje. Fyra datorer är kopplade till den med var sin kort linje." },
+      "q-ring": { scene: "01-natverk/q-ring", alt: "Sex datorer i en cirkel. Varje dator har en linje till sina två grannar." },
+      "q-tree": { scene: "01-natverk/q-tree", alt: "En enhet överst med två enheter under sig. Var och en av dem har tre datorer under sig." },
+      "q-mesh": { scene: "01-natverk/q-mesh", alt: "Fem datorer där varje dator har en linje till alla de andra fyra." },
     },
   },
   questions,

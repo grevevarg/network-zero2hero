@@ -12,8 +12,6 @@
   --wrong-bg: #fbeceb;
   --example-bg: #f1f5fb;
   --recap-bg: #f6f3ea;
-  --diagram-line: #5d6470;
-  --diagram-node: #1d5fbf;
   --radius: 10px;
 }
 
@@ -32,12 +30,15 @@
     --wrong-bg: #3a1d1b;
     --example-bg: #1b2433;
     --recap-bg: #2a271f;
-    --diagram-line: #a3a8b0;
-    --diagram-node: #7fb0ff;
   }
+  /* Excalidraw drawings are dark-on-transparent; invert them the same way Excalidraw's dark mode does. */
+  .diagram { filter: invert(93%) hue-rotate(180deg); }
 }
 
 * { box-sizing: border-box; }
+
+/* Keep focused fields clear of the sticky card navigation at the bottom. */
+html { scroll-padding-bottom: 6rem; }
 
 body {
   margin: 0;
@@ -59,41 +60,19 @@ a { color: var(--accent); }
 code { font-size: 0.95em; background: var(--recap-bg); padding: 0.05em 0.3em; border-radius: 4px; }
 
 .lead { font-size: 1.15rem; color: var(--muted); }
-.crumbs { margin: 0; font-size: 0.95rem; }
-.section-number { color: var(--muted); }
 
-.block-example, .block-recap {
-  border-radius: var(--radius);
-  padding: 0.25rem 1rem;
-  margin: 1.25rem 0;
-}
-.block-example { background: var(--example-bg); }
-.block-recap { background: var(--recap-bg); }
 
 figure { margin: 1.25rem 0; }
 .diagram { display: block; width: 100%; max-width: 22rem; height: auto; margin: 0 auto; }
-.dg-edge { stroke: var(--diagram-line); stroke-width: 2.5; }
-.dg-node { fill: var(--diagram-node); }
-.dg-junction { fill: var(--diagram-line); }
-.dg-label { fill: var(--text); font-size: 13px; }
 
 table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
 th, td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
-.block { overflow-x: auto; }
 
-.concepts dl { margin: 0; }
-.concepts dl > div { padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+.concepts { margin: 0; }
+.concepts > div { padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
 .concepts dt { font-weight: 600; }
 .concepts dd { margin: 0; color: var(--muted); }
 
-.question-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem;
-  margin: 1rem 0;
-}
-.question-card.solved { border-color: var(--right); }
 .badge { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--right); }
 .question fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .question legend { padding: 0; margin-bottom: 0.5rem; font-weight: 600; }
@@ -142,6 +121,7 @@ button:disabled { opacity: 0.45; cursor: default; }
 .ordering-buttons { display: flex; gap: 0.25rem; flex-shrink: 0; }
 .ordering-buttons button { margin: 0; min-width: 2.75rem; padding: 0.25rem; }
 .matching li { padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+.matching .diagram { max-width: 13rem; }
 .matching label { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; }
 select {
   font: inherit;
@@ -161,10 +141,71 @@ select {
 .feedback-right .verdict { color: var(--right); }
 .feedback-wrong .verdict { color: var(--wrong); }
 
-.pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; }
-
-.toc { padding-left: 1.5rem; }
-.toc li { margin: 0.6rem 0; }
-.toc .progress { display: block; font-size: 0.9rem; color: var(--muted); }
-.toc li.done .progress { color: var(--right); }
 .reset .hint { display: block; font-size: 0.9rem; color: var(--muted); }
+
+/* Card deck */
+.deck { padding-bottom: 0; }
+.deck-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+.deck-title { margin: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.deck-count { margin: 0; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem 1.25rem 1.25rem;
+  margin: 1rem 0 0;
+  min-height: 55vh;
+  overflow-x: auto;
+}
+.card h2 { margin: 0.75rem 0 1rem; }
+/* The heading only receives focus so screen readers announce the new card; it is not a control. */
+.card h2:focus, .card h2:focus-visible { outline: none; }
+.card-example { background: var(--example-bg); }
+.card-recap { background: var(--recap-bg); }
+.question-body.solved .badge { color: var(--right); }
+.finish-links { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.deck-nav {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 0 1rem;
+  background: var(--bg);
+}
+.deck-nav button { margin: 0; }
+.nav-forward { margin-left: auto; }
+.nav-hint { font-size: 0.9rem; color: var(--muted); }
+
+/* Overview */
+.section-grid {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.75rem;
+}
+.section-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.section-box.done { border-color: var(--right); }
+.section-box-number { font-size: 0.9rem; color: var(--muted); }
+.section-box-title { font-weight: 600; font-size: 1.1rem; }
+.section-box .progress { font-size: 0.9rem; color: var(--muted); }
+.section-box.done .progress { color: var(--right); }
+.resume { font-size: 0.95rem; }

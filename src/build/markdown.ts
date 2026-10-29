@@ -37,13 +37,13 @@ export function splitBlocks(source: string): SourceBlock[] {
 
 const DIAGRAM_LINE = /^<p>@diagram\(([a-z0-9-]+)\)<\/p>$/gm;
 
-/** Render block Markdown to HTML. A line `@diagram(id)` is replaced by that diagram's SVG. */
+/** Render block Markdown to HTML. A line `@diagram(id)` is replaced by that diagram's image. */
 export function renderMarkdown(markdown: string, diagrams: Readonly<Record<string, string>> = {}): string {
   const html = marked.parse(markdown, { async: false, gfm: true }).trim();
   return html.replace(DIAGRAM_LINE, (_, id: string) => {
-    const svg = diagrams[id];
-    if (!svg) throw new Error(`unknown diagram "${id}"`);
-    return `<figure>${svg}</figure>`;
+    const html = diagrams[id];
+    if (!html) throw new Error(`unknown diagram "${id}"`);
+    return `<figure>${html}</figure>`;
   });
 }
 

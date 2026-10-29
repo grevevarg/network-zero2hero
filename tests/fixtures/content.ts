@@ -55,7 +55,7 @@ export const sectionInput = (over: Partial<SectionInput["meta"]> = {}, questions
     introduces: ["a"],
     requires: [],
     diagrams: {
-      dia: { width: 10, height: 10, alt: "En punkt", nodes: [{ id: "n", x: 5, y: 5 }], edges: [] },
+      dia: { scene: "t/dia", alt: "En punkt" },
     },
     ...over,
   },
@@ -77,8 +77,9 @@ export function rawContent(): RawContent {
         section: sectionInput({ id: "s2", number: 2, title: "Andra", slug: "02-s2", introduces: ["b"], requires: ["a"] }, [
           mcq({ id: "q2", uses: ["a", "b"] }),
         ]),
-        text: "<!-- uses: a, b; kind: recap -->\nKort om a och b.\n",
+        text: "<!-- uses: a, b; kind: recap -->\n## Sammanfattning\n\nKort om a och b.\n",
       },
     ],
+    images: { "t/dia": { image: "img/0123456789abcdef0123456789abcdef.svg", width: 40, height: 30 } },
   };
 }

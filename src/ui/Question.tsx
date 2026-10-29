@@ -3,19 +3,26 @@ import { Matching } from "./Matching.tsx";
 import { Mcq } from "./Mcq.tsx";
 import { Ordering } from "./Ordering.tsx";
 
-type Props = { question: ClientQuestion; seed: string; solved: boolean; onSolved: (id: string) => void };
+type Props = {
+  question: ClientQuestion;
+  seed: string;
+  solved: boolean;
+  onSolved: (id: string) => void;
+  onAnswered: (id: string) => void;
+};
 
-export function Question({ question, seed, solved, onSolved }: Props) {
+export function Question({ question, seed, solved, onSolved, onAnswered }: Props) {
+  const handlers = { seed, onSolved, onAnswered };
   return (
-    <article class={`question-card${solved ? " solved" : ""}`}>
+    <div class={`question-body${solved ? " solved" : ""}`}>
       {solved ? <p class="badge">Klarad tidigare</p> : null}
       {question.kind === "mcq" ? (
-        <Mcq question={question} seed={seed} onSolved={onSolved} />
+        <Mcq question={question} {...handlers} />
       ) : question.kind === "ordering" ? (
-        <Ordering question={question} seed={seed} onSolved={onSolved} />
+        <Ordering question={question} {...handlers} />
       ) : (
-        <Matching question={question} seed={seed} onSolved={onSolved} />
+        <Matching question={question} {...handlers} />
       )}
-    </article>
+    </div>
   );
 }

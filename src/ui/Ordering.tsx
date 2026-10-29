@@ -8,7 +8,7 @@ import type { ClientChoice, ClientOrdering } from "../types.ts";
 import { Feedback, type Verdict } from "./Feedback.tsx";
 import { Html } from "./Html.tsx";
 
-type Props = { question: ClientOrdering; seed: string; onSolved: (id: string) => void };
+type Props = { question: ClientOrdering; seed: string; onSolved: (id: string) => void; onAnswered: (id: string) => void };
 
 /** Swap item i with its neighbour in direction dir. Out-of-range moves return the list unchanged. */
 export function move<T>(list: readonly T[], i: number, dir: -1 | 1): T[] {
@@ -19,7 +19,7 @@ export function move<T>(list: readonly T[], i: number, dir: -1 | 1): T[] {
   return out;
 }
 
-export function Ordering({ question: q, seed, onSolved }: Props) {
+export function Ordering({ question: q, seed, onSolved, onAnswered }: Props) {
   const start = useMemo(() => shuffleAwayFrom(q.items, rngFromSeed(`${seed}:${q.id}`)), [q, seed]);
   const [items, setItems] = useState<ClientChoice[]>(start);
   const [verdict, setVerdict] = useState<Verdict>();
@@ -34,6 +34,7 @@ export function Ordering({ question: q, seed, onSolved }: Props) {
     e.preventDefault();
     const right = await matchesKey(q.id, orderingAnswer(items.map((i) => i.id)), q.key);
     setVerdict(right ? "right" : "wrong");
+    onAnswered(q.id);
     if (right) onSolved(q.id);
   }
 

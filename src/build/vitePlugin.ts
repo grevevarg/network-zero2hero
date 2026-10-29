@@ -1,5 +1,5 @@
 import type { Plugin, ViteDevServer } from "vite";
-import { checkConceptGraph, checkQuestions } from "./checks.ts";
+import { checkBlocks, checkConceptGraph, checkQuestions } from "./checks.ts";
 import { buildCourse, parseContent } from "./course.ts";
 import { loadContent } from "./loadContent.ts";
 
@@ -33,7 +33,7 @@ export function coursePlugin(): Plugin {
       const dev = server;
       const raw = await loadContent(root, dev ? (file) => dev.ssrLoadModule(file) : undefined);
       const content = parseContent(raw);
-      const errors = [...checkConceptGraph(content), ...checkQuestions(content)];
+      const errors = [...checkBlocks(content), ...checkConceptGraph(content), ...checkQuestions(content)];
       if (errors.length > 0) throw new Error(`content errors:\n  ${errors.join("\n  ")}`);
       return `export default ${JSON.stringify(await buildCourse(content))};`;
     },

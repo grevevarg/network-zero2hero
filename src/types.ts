@@ -11,7 +11,7 @@ export type ClientMcq = {
   kind: "mcq";
   id: string;
   promptHtml: string;
-  diagramSvg?: string;
+  diagramHtml?: string;
   options: ClientChoice[];
   key: string;
   explanationHtml: string;
@@ -30,7 +30,7 @@ export type ClientMatching = {
   kind: "matching";
   id: string;
   promptHtml: string;
-  left: (ClientChoice & { diagramSvg?: string })[];
+  left: (ClientChoice & { diagramHtml?: string })[];
   right: ClientChoice[];
   key: string;
   explanationHtml?: string;

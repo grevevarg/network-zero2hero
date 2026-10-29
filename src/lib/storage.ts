@@ -1,19 +1,19 @@
 export type Progress = {
   /** Question ids the student has answered correctly at least once. */
   solved: string[];
+  /** Last card (1-based) the student looked at, per section id. */
+  position: Record<string, number>;
 };
 
 export const STORAGE_KEY = "fntn-progress-v1";
 
-const empty = (): Progress => ({ solved: [] });
+const empty = (): Progress => ({ solved: [], position: {} });
 
-function isProgress(value: unknown): value is Progress {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    Array.isArray((value as Progress).solved) &&
-    (value as Progress).solved.every((s) => typeof s === "string")
-  );
+function cleanPosition(value: unknown): Record<string, number> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter(([, n]) => typeof n === "number" && Number.isInteger(n) && n >= 1),
+  ) as Record<string, number>;
 }
 
 /** Storage can be missing or throw (private mode, blocked site data), so every access is guarded. */
@@ -21,8 +21,10 @@ export function loadProgress(storage: Storage | undefined): Progress {
   try {
     const raw = storage?.getItem(STORAGE_KEY);
     if (!raw) return empty();
-    const parsed: unknown = JSON.parse(raw);
-    return isProgress(parsed) ? { solved: [...new Set(parsed.solved)] } : empty();
+    const parsed = JSON.parse(raw) as { solved?: unknown; position?: unknown } | null;
+    const solved = parsed?.solved;
+    if (!Array.isArray(solved) || !solved.every((s) => typeof s === "string")) return empty();
+    return { solved: [...new Set(solved)], position: cleanPosition(parsed?.position) };
   } catch {
     return empty();
   }
@@ -47,7 +49,12 @@ export function resetProgress(storage: Storage | undefined): Progress {
 
 export function markSolved(progress: Progress, questionId: string): Progress {
   if (progress.solved.includes(questionId)) return progress;
-  return { solved: [...progress.solved, questionId] };
+  return { ...progress, solved: [...progress.solved, questionId] };
+}
+
+export function setPosition(progress: Progress, sectionId: string, card: number): Progress {
+  if (progress.position[sectionId] === card) return progress;
+  return { ...progress, position: { ...progress.position, [sectionId]: card } };
 }
 
 export function browserStorage(): Storage | undefined {

@@ -2,7 +2,7 @@ import { answerKey } from "../lib/answerHash.ts";
 import { matchingAnswer, orderingAnswer } from "../lib/answers.ts";
 import { hashString } from "../lib/prng.ts";
 import type { ClientChoice, ClientCourse, ClientQuestion, ClientSection } from "../types.ts";
-import { diagramToSvg } from "./diagram.ts";
+import { diagramHtml, type ImageInfo } from "./diagram.ts";
 import { renderInline, renderMarkdown, splitBlocks, type SourceBlock } from "./markdown.ts";
 import {
   conceptSchema,
@@ -18,10 +18,12 @@ export type RawContent = {
   title: string;
   concepts: Concept[];
   sections: { section: SectionInput; text: string }[];
+  /** Exported diagram images by scene name (diagrams/manifest.json). */
+  images: Record<string, ImageInfo>;
 };
 
 export type ParsedSection = Section & { blocks: SourceBlock[] };
-export type ParsedContent = { title: string; concepts: Concept[]; sections: ParsedSection[] };
+export type ParsedContent = { title: string; concepts: Concept[]; sections: ParsedSection[]; images: Record<string, ImageInfo> };
 
 /** Schema-validate everything and split section texts into blocks. Throws on the first problem. */
 export function parseContent(raw: RawContent): ParsedContent {
@@ -33,7 +35,7 @@ export function parseContent(raw: RawContent): ParsedContent {
     }
     return { ...parsed.data, blocks: splitBlocks(text) };
   });
-  return { title: raw.title, concepts, sections };
+  return { title: raw.title, concepts, sections, images: raw.images };
 }
 
 /** Replace an authored id with an id that says nothing about the answer. */
@@ -58,9 +60,9 @@ async function buildQuestion(q: Question, diagrams: Record<string, string>): Pro
   const promptHtml = renderMarkdown(q.prompt);
   const diagram = (id: string | undefined) => {
     if (id === undefined) return undefined;
-    const svg = diagrams[id];
-    if (!svg) throw new Error(`question ${q.id}: unknown diagram "${id}"`);
-    return svg;
+    const html = diagrams[id];
+    if (!html) throw new Error(`question ${q.id}: unknown diagram "${id}"`);
+    return html;
   };
   switch (q.kind) {
     case "mcq":
@@ -68,7 +70,7 @@ async function buildQuestion(q: Question, diagrams: Record<string, string>): Pro
         kind: "mcq",
         id: q.id,
         promptHtml,
-        diagramSvg: diagram(q.diagram),
+        diagramHtml: diagram(q.diagram),
         options: choices(q.id, q.options),
         key: await answerKey(q.id, opaqueId(q.id, q.correct)),
         explanationHtml: renderMarkdown(q.explanation),
@@ -87,7 +89,7 @@ async function buildQuestion(q: Question, diagrams: Record<string, string>): Pro
         q.pairs.map((p) => ({
           id: opaqueId(q.id, p.left.id),
           html: p.left.text === undefined ? "" : renderInline(p.left.text),
-          diagramSvg: diagram(p.left.diagram),
+          diagramHtml: diagram(p.left.diagram),
         })),
       );
       const solution = Object.fromEntries(
@@ -111,7 +113,7 @@ export async function buildCourse(content: ParsedContent): Promise<ClientCourse>
   const sections: ClientSection[] = [];
   for (const s of content.sections) {
     const diagrams = Object.fromEntries(
-      Object.entries(s.meta.diagrams).map(([id, d]) => [id, diagramToSvg(d)]),
+      Object.entries(s.meta.diagrams).map(([id, d]) => [id, diagramHtml(d, content.images)]),
     );
     const questions: ClientQuestion[] = [];
     for (const q of s.questions) questions.push(await buildQuestion(q, diagrams));

@@ -1,6 +1,6 @@
 // Rules for the real content in content/.
 import { describe, expect, it } from "vitest";
-import { checkConceptGraph, checkQuestions } from "../src/build/checks.ts";
+import { checkBlocks, checkConceptGraph, checkQuestions } from "../src/build/checks.ts";
 import { buildCourse, parseContent, type ParsedContent } from "../src/build/course.ts";
 import { loadContent } from "../src/build/loadContent.ts";
 
@@ -11,6 +11,10 @@ describe("content", async () => {
 
   it("passes the concept graph rules (DAG, no forward references, introduced once)", () => {
     expect(checkConceptGraph(content)).toEqual([]);
+  });
+
+  it("has exactly one card heading per block", () => {
+    expect(checkBlocks(content)).toEqual([]);
   });
 
   it("passes the question rules (one answer, explanations, no position references)", () => {

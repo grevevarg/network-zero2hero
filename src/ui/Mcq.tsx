@@ -6,9 +6,9 @@ import type { ClientMcq } from "../types.ts";
 import { Feedback, type Verdict } from "./Feedback.tsx";
 import { Html } from "./Html.tsx";
 
-type Props = { question: ClientMcq; seed: string; onSolved: (id: string) => void };
+type Props = { question: ClientMcq; seed: string; onSolved: (id: string) => void; onAnswered: (id: string) => void };
 
-export function Mcq({ question: q, seed, onSolved }: Props) {
+export function Mcq({ question: q, seed, onSolved, onAnswered }: Props) {
   const [attempt, setAttempt] = useState(0);
   const [chosen, setChosen] = useState<string | undefined>();
   const [verdict, setVerdict] = useState<Verdict>();
@@ -20,6 +20,7 @@ export function Mcq({ question: q, seed, onSolved }: Props) {
     if (chosen === undefined) return;
     const right = await matchesKey(q.id, chosen, q.key);
     setVerdict(right ? "right" : "wrong");
+    onAnswered(q.id);
     if (right) onSolved(q.id);
   }
 
@@ -35,7 +36,7 @@ export function Mcq({ question: q, seed, onSolved }: Props) {
         <legend>
           <Html html={q.promptHtml} />
         </legend>
-        {q.diagramSvg ? <Html html={q.diagramSvg} className="figure" /> : null}
+        {q.diagramHtml ? <Html html={q.diagramHtml} className="figure" /> : null}
         {options.map((o) => (
           <label key={o.id} class={`option${chosen === o.id ? " chosen" : ""}`}>
             <input

@@ -19,12 +19,14 @@ describe("loadContent", () => {
       return { title: raw.title, concepts: raw.concepts, sections: raw.sections.map((s) => s.section) };
     });
     expect(seen).toEqual([path.join(root, "content/index.ts")]);
-    expect(loaded).toEqual(raw);
+    // No diagrams/manifest.json in this folder, so no images.
+    expect(loaded).toEqual({ ...raw, images: {} });
   });
 
   it("loads the real content with the default importer", async () => {
     const loaded = await loadContent(process.cwd());
     expect(loaded.title).toBe("Från noll till nätverk");
     expect(loaded.sections.length).toBeGreaterThan(0);
+    expect(Object.keys(loaded.images).length).toBeGreaterThan(0);
   });
 });

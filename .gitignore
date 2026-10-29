@@ -23,6 +23,7 @@ Gemfile.lock
 CLAUDE.md
 # end trust issues
 !README.md
+!ISSUES.md
 
 # Content Markdown is ours and must be tracked (the *.md rule above hides vault-style notes)
 !content/**/*.md
@@ -40,3 +41,9 @@ review/
 
 # Local-only list of vault folder and file name fragments for check:content
 .vault-terms
+
+# Local Excalidraw library copy (only exported SVGs and our own scenes are committed)
+diagrams/library.excalidrawlib
+
+# Local Excalidraw server for npm run diagrams
+.excalidraw-url

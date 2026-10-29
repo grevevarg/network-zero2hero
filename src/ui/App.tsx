@@ -1,9 +1,16 @@
 import { useEffect, useState } from "preact/hooks";
-import { loadProgress, markSolved, resetProgress, saveProgress, type Progress } from "../lib/storage.ts";
+import {
+  loadProgress,
+  markSolved,
+  resetProgress,
+  saveProgress,
+  setPosition,
+  type Progress,
+} from "../lib/storage.ts";
 import type { ClientCourse } from "../types.ts";
+import { Deck } from "./Deck.tsx";
 import { Home } from "./Home.tsx";
 import { parseHash } from "./router.ts";
-import { SectionPage } from "./SectionPage.tsx";
 
 type Props = { course: ClientCourse; storage: Storage | undefined; seed: string; confirmReset: () => boolean };
 
@@ -26,12 +33,10 @@ export function App({ course, storage, seed, confirmReset }: Props) {
       : course.title;
   }, [route, course]);
 
-  const solved = new Set(progress.solved);
-
-  function onSolved(id: string) {
+  function update(change: (p: Progress) => Progress) {
     setProgress((p) => {
-      const next = markSolved(p, id);
-      saveProgress(storage, next);
+      const next = change(p);
+      if (next !== p) saveProgress(storage, next);
       return next;
     });
   }
@@ -44,17 +49,18 @@ export function App({ course, storage, seed, confirmReset }: Props) {
     const index = course.sections.findIndex((s) => s.id === route.id);
     if (index >= 0) {
       return (
-        <SectionPage
-          key={route.id}
+        <Deck
+          key={`${route.id}/${route.card ?? 1}`}
           section={course.sections[index]}
-          previous={course.sections[index - 1]}
           next={course.sections[index + 1]}
-          solved={solved}
+          startCard={route.card ?? 1}
+          solved={new Set(progress.solved)}
           seed={seed}
-          onSolved={onSolved}
+          onSolved={(id) => update((p) => markSolved(p, id))}
+          onPosition={(id, card) => update((p) => setPosition(p, id, card))}
         />
       );
     }
   }
-  return <Home course={course} solved={solved} onReset={onReset} />;
+  return <Home course={course} progress={progress} onReset={onReset} />;
 }

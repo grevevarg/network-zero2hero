@@ -3,6 +3,7 @@
 
 Du använder nätverk hela dagen. När du skickar ett meddelande, kollar en video eller spelar online skickas data mellan olika enheter. Det här avsnittet ger dig orden du behöver för resten av sidan. Inga siffror än. Bara bilder i huvudet.
 
+<!-- uses: natverk -->
 ## Vad är ett nätverk?
 
 Ett **nätverk** är två eller fler enheter som är kopplade så att de kan skicka data till varandra. En enhet kan vara en dator, en mobil, en skrivare eller en smart kamera. Kopplingen kan vara en kabel. Den kan också vara radiovågor, som när du kör wifi.
@@ -17,7 +18,7 @@ En **server** är en enhet som erbjuder en **tjänst**. Tjänsten kan vara en we
 En **klient** är den som använder tjänsten. Din mobil och din dator är typiska klienter. Klienten frågar, servern svarar.
 
 <!-- uses: tjanst, server, klient; kind: example -->
-### Exempel: kameran i hallen
+## Exempel: kameran i hallen
 
 Tänk dig en kamera i hallen som du kan kolla på från mobilen. Kameran har ett litet serverprogram inbyggt. Den erbjuder bilden som en tjänst. Mobilen är klienten. Den ber om bilden och visar den för dig.
 
@@ -50,40 +51,38 @@ Den **fysiska topologin** visar var allt faktiskt finns. Var står datorerna och
 
 Den **logiska topologin** visar hur nätet är uppdelat och vem som kan prata med vem. Den beskriver nätet utifrån enheterna: vad de heter och vilka tjänster de kör. Två datorer kan stå bredvid varandra i samma rum men ändå höra till olika delar av den logiska topologin.
 
-<!-- uses: topologi, stjarna -->
-## Vanliga former
+Nätverk brukar ritas i några vanliga former. Formen säger mycket om vad som händer när något går sönder. På de närmaste korten kommer de en i taget.
 
-Nätverk brukar ritas i några vanliga former. Formen säger mycket om vad som händer när något går sönder.
-
-### Stjärna
+<!-- uses: stjarna -->
+## Stjärna
 
 @diagram(text-star)
 
 I en **stjärna** har varje enhet en egen kabel till en gemensam enhet i mitten. Det är den vanligaste formen i dag. Varje enhet får en egen väg, och det gör nätet snabbt. Nackdelen är att det går åt väldigt mycket kabel. Prestandan gör det ändå värt det.
 
 <!-- uses: buss -->
-### Buss
+## Buss
 
 @diagram(text-bus)
 
 I en **buss** sitter alla enheter på en och samma kabel, som pärlor på ett snöre. Går den kabeln av slutar hela nätet att fungera. I dag drar man inte nät så här längre. Idén med en gemensam ledning lever däremot kvar inne i viss nätverksutrustning.
 
 <!-- uses: ring -->
-### Ring
+## Ring
 
 @diagram(text-ring)
 
 I en **ring** är varje enhet kopplad till sina två grannar, så att kablarna bildar en cirkel. Trafiken går bara åt ett håll runt ringen. Det blev väldigt långsamt, så ring är ovanligt i dag.
 
 <!-- uses: trad, stjarna -->
-### Träd
+## Träd
 
 @diagram(text-tree)
 
 Ett **träd** är ett sätt att bygga ut ett stjärnnät. Flera små stjärnor hänger under en gemensam punkt, ungefär som grenar på ett träd. Det är praktiskt när ett nät ska växa, till exempel när ett kontor får en våning till.
 
 <!-- uses: mesh, redundans -->
-### Mesh
+## Mesh
 
 @diagram(text-mesh)
 

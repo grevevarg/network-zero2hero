@@ -12,21 +12,11 @@ export const conceptSchema = z.strictObject({
   section: id,
 });
 
-const diagramNodeSchema = z.strictObject({
-  id,
-  x: z.number(),
-  y: z.number(),
-  label: z.string().optional(),
-  shape: z.enum(["device", "box", "junction"]).default("device"),
-});
-
 export const diagramSchema = z.strictObject({
-  width: z.number().positive(),
-  height: z.number().positive(),
+  /** Scene name under diagrams/, e.g. "01-natverk/q-star". Exported to an image by `npm run diagrams`. */
+  scene: z.string().regex(/^[a-z0-9-]+\/[a-z0-9-]+$/, "scene names look like 01-natverk/q-star"),
   /** Describes what is drawn. Must not give away a question's answer. */
   alt: text,
-  nodes: z.array(diagramNodeSchema).min(1),
-  edges: z.array(z.tuple([id, id])),
 });
 
 const choiceSchema = z.strictObject({ id, text });
@@ -87,7 +77,6 @@ export const sectionSchema = z.strictObject({
 
 export type Concept = z.input<typeof conceptSchema>;
 export type Diagram = z.output<typeof diagramSchema>;
-export type DiagramInput = z.input<typeof diagramSchema>;
 export type Question = z.output<typeof questionSchema>;
 export type QuestionInput = z.input<typeof questionSchema>;
 export type Mcq = z.output<typeof mcqSchema>;
