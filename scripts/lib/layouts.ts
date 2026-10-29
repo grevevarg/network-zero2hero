@@ -226,3 +226,23 @@ export function rackGrid(items: readonly RackItem[], numbered: readonly number[]
   }
   return { width: 10 * cell, height: 10 * cell, nodes: [], edges: [], blocks };
 }
+
+/** Characters' rough width in layout units at the default font size (scene.ts estimates 0.55 em). */
+const CHAR_W = 5.5;
+
+/**
+ * A row of boxes, each as wide as its text needs, with a caption centred under each box.
+ * Used for things split into parts, like the two halves of an address.
+ */
+export function parts(items: readonly { text: string; caption?: string; shaded?: boolean }[], pad = 10): Layout {
+  const blocks: Block[] = [];
+  const labels: Label[] = [];
+  let x = 0;
+  for (const it of items) {
+    const w = Math.max(it.text.length, (it.caption ?? "").length) * CHAR_W + pad * 2;
+    blocks.push({ x, y: 0, w, h: BLOCK_H, label: it.text, shaded: it.shaded });
+    if (it.caption) labels.push({ x: x + w / 2, y: BLOCK_H + 4, text: it.caption });
+    x += w;
+  }
+  return { width: x, height: BLOCK_H + (labels.length > 0 ? 20 : 0), nodes: [], edges: [], blocks, labels };
+}

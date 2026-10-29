@@ -57,3 +57,23 @@ Things to revisit later. Content items need checking against the notes before th
 - [ ] **Not from the notes:** the definitions of rack and patch panel (the note only uses the words), and the explanation of why several panels can share a cell (a cell is tall).
 - [ ] **Left out on purpose:** edition 6 designations (+D1S1M25:12X), the panelkort columns in detail, the procurement flow (förfrågningsunderlag, EL-AMA) and the example building. Say if any of these should go in.
 - [ ] **No clickable rack puzzle.** The rack grid is drawn as a diagram on two multiple-choice questions. A real click-the-cell puzzle could come later.
+
+## Section 5: Switchar och MAC-adresser
+
+- [ ] **Errors in the notes left out or corrected:**
+  - "Unicast börjar på 00" isn't true in general. Unicast is any address whose lowest bit in the first byte is 0.
+  - "Första 12 värden = tillverkare": it is the first 6 hex digits (24 bits), as the 0925 note says.
+  - The frame field order puts SRC before DST; the real order is destination first.
+  - The frame size "max 1528/1522" is written as about 1500 bytes of data plus headers.
+- [ ] **Not from the notes:**
+  - the name CSMA/CD and "wait and try again"
+  - each switch port being its own collision domain, and no collisions with full duplex
+  - hexadecimal as a whole (the notes use hex but never explain it)
+  - the terms OUI and flooding
+- [ ] **Left out:**
+  - bridges (only in a book quote)
+  - anycast (the note's description is unclear; IPv6 may need it)
+  - LLC/MAC sublayers and the 802 groups
+  - the switch CLI
+  - the wifi collision handling (it belongs to the wireless section)
+- [ ] **Hubs and collisions** are explained with CSMA/CD at a basic level only.

@@ -112,5 +112,17 @@
     "image": "img/4991c0bad6f3b7c218063d8af12a9ddc.svg",
     "width": 644,
     "height": 644
+  },
+  "05-switchar/text-mac": {
+    "sourceHash": "30c0d4e8fb9452c4fdc361a9fb02a2a1a3c1831775191ca561d3fdb81486c8c4",
+    "image": "img/b4057eb8ca11e100fc924e148ade37d6.svg",
+    "width": 396,
+    "height": 110
+  },
+  "05-switchar/text-ram": {
+    "sourceHash": "73dba2151f6b1f22138f8f07c4c68d937f8b7349fe00a2e2a2b6b600332e02c8",
+    "image": "img/e37f36f6be6eb077b9a90b93165a8406.svg",
+    "width": 514,
+    "height": 301
   }
 }

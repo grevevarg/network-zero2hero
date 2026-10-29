@@ -1,6 +1,6 @@
 // Generated diagrams: scene name -> layout. `npm run diagrams:generate` writes missing scenes.
 // A scene that was hand-edited in Excalidraw is never overwritten unless you pass --force.
-import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, rackGrid, ring, stack, star, tree, type Layout } from "./lib/layouts.ts";
+import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, parts, rackGrid, ring, stack, star, tree, type Layout } from "./lib/layouts.ts";
 import type { Roles } from "./lib/scene.ts";
 
 /** Which library item plays which role. */
@@ -55,4 +55,11 @@ export const SPECS: Record<string, Layout> = {
   ),
   "04-markning/q-rack-rad": rackGrid([{ row: 4, col: 1, rows: 1, cols: 10, label: "Panel" }], [1], 24),
   "04-markning/q-rack-mitt": rackGrid([{ row: 7, col: 6, rows: 1, cols: 5, label: "Panel" }], [1], 24),
+
+  // 5. Switchar och MAC-adresser
+  "05-switchar/text-mac": parts([
+    { text: "00:1A:2B", caption: "Tillverkare", shaded: true },
+    { text: "3C:4D:5E", caption: "Unik del" },
+  ]),
+  "05-switchar/text-ram": stack(["Preamble och SFD", "Mottagarens MAC", "Avsändarens MAC", "Typ", "Data", "FCS"], 190),
 };

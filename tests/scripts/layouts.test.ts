@@ -10,6 +10,7 @@ import {
   rackGrid,
   fullMesh,
   pair,
+  parts,
   ring,
   stack,
   star,
@@ -197,6 +198,19 @@ describe("rack grid", () => {
     expect(sw).toMatchObject({ x: 5 * 18, y: 4 * 18, w: 5 * 18, h: 2 * 18 });
     expect(() => rackGrid([{ row: 10, col: 1, rows: 2, cols: 1, label: "Big" }], [])).toThrow(/does not fit/);
     expect(() => rackGrid([{ row: 1, col: 0, rows: 1, cols: 1, label: "Off" }], [])).toThrow(/does not fit/);
+  });
+});
+
+describe("parts", () => {
+  it("puts boxes side by side, each wide enough for its text or caption, captions under their box", () => {
+    const d = parts([{ text: "00:1A:2B", caption: "Tillverkare", shaded: true }, { text: "3C" }]);
+    const [a, b] = d.blocks ?? [];
+    expect(a).toMatchObject({ x: 0, label: "00:1A:2B", shaded: true });
+    expect(b.x).toBe(a.x + a.w);
+    expect(a.w).toBeGreaterThan(b.w);
+    expect(d.width).toBe(b.x + b.w);
+    expect(d.labels).toEqual([{ x: a.w / 2, y: a.h + 4, text: "Tillverkare" }]);
+    expect(parts([{ text: "x" }]).labels).toEqual([]);
   });
 });
 
