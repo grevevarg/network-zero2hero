@@ -169,4 +169,14 @@ describe("checkBlocks", () => {
     expect(errors).toMatch(/block 1 in section "s1" must start with a "## " heading/);
     expect(errors).toMatch(/block 2 in section "s1" has 2 "## " headings/);
   });
+
+  it("wants examples to follow a card, start with ### and have no ##", () => {
+    const raw = rawContent();
+    raw.sections[0].text = "<!-- uses: a; kind: example -->\n## Fel nivå\n\n<!-- uses: a; kind: example -->\nIngen rubrik\n";
+    const errors = checkBlocks(parsed(raw)).join("\n");
+    expect(errors).toMatch(/block 1 in section "s1" is an example, so it needs a card before it/);
+    expect(errors).toMatch(/block 1 in section "s1" is an example and must start with a "### " heading/);
+    expect(errors).toMatch(/block 1 in section "s1" is an example and must not contain a "## " heading/);
+    expect(errors).toMatch(/block 2 in section "s1" is an example and must start with a "### " heading/);
+  });
 });

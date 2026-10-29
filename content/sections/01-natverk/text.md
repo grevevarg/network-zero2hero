@@ -10,6 +10,8 @@ Ett **nätverk** är två eller fler enheter som är kopplade så att de kan ski
 
 Två datorer med en kabel emellan är alltså redan ett nätverk. Litet, men det räknas.
 
+@diagram(text-pair)
+
 <!-- uses: natverk, tjanst, server, klient -->
 ## Klient och server
 
@@ -17,8 +19,10 @@ En **server** är en enhet som erbjuder en **tjänst**. Tjänsten kan vara en we
 
 En **klient** är den som använder tjänsten. Din mobil och din dator är typiska klienter. Klienten frågar, servern svarar.
 
+@diagram(text-client-server)
+
 <!-- uses: tjanst, server, klient; kind: example -->
-## Exempel: kameran i hallen
+### Exempel: kameran i hallen
 
 Tänk dig en kamera i hallen som du kan kolla på från mobilen. Kameran har ett litet serverprogram inbyggt. Den erbjuder bilden som en tjänst. Mobilen är klienten. Den ber om bilden och visar den för dig.
 
@@ -53,12 +57,16 @@ Den **logiska topologin** visar hur nätet är uppdelat och vem som kan prata me
 
 Nätverk brukar ritas i några vanliga former. Formen säger mycket om vad som händer när något går sönder. På de närmaste korten kommer de en i taget.
 
-<!-- uses: stjarna -->
+<!-- uses: stjarna, single-point-of-failure, redundans -->
 ## Stjärna
 
 @diagram(text-star)
 
-I en **stjärna** har varje enhet en egen kabel till en gemensam enhet i mitten. Det är den vanligaste formen i dag. Varje enhet får en egen väg, och det gör nätet snabbt. Nackdelen är att det går åt väldigt mycket kabel. Prestandan gör det ändå värt det.
+I en **stjärna** har varje enhet en egen kabel till en gemensam enhet i mitten. Det är den vanligaste formen i dag. Varje enhet får en egen väg, och det gör nätet snabbt.
+
+Stjärnan har två nackdelar. Den första är att det går åt väldigt mycket kabel. Den andra är att allt hänger på enheten i mitten. Går den sönder tappar alla kontakten med varandra. En sådan punkt kallas **single point of failure**: en enda del som kan sänka hela nätet.
+
+Det går att bygga bort med redundans, till exempel med två enheter i mitten och kabel till båda. Det går vi inte djupare in på här. Prestandan gör ändå stjärnan värd det.
 
 <!-- uses: buss -->
 ## Buss
@@ -90,11 +98,11 @@ I ett **mesh** har enheterna flera kopplingar till varandra, så det finns mer �
 
 Ordet mesh används också om wifi hemma. Då har en enhet kabel, och de andra pratar trådlöst med den och med varandra. På så vis når wifi längre.
 
-<!-- uses: server, klient, peer-to-peer, lan, wan, fysisk-topologi, logisk-topologi, stjarna, buss, ring, trad, mesh; kind: recap -->
+<!-- uses: server, klient, peer-to-peer, lan, wan, fysisk-topologi, logisk-topologi, stjarna, single-point-of-failure, buss, ring, trad, mesh; kind: recap -->
 ## Kort sammanfattning
 
 - En server erbjuder en tjänst, en klient använder den. Rollen räknas, inte storleken.
 - I peer-to-peer är alla både klient och server.
 - Ett LAN är lokalt. Ett WAN binder ihop nät som ligger långt ifrån varandra.
 - Fysisk topologi visar var saker finns. Logisk topologi visar vem som kan prata med vem.
-- Stjärna är vanligast. Buss och ring är ovanliga i dag. Träd bygger ut en stjärna, och full mesh kopplar alla till alla.
+- Stjärna är vanligast, men enheten i mitten är en single point of failure. Buss och ring är ovanliga i dag. Träd bygger ut en stjärna, och full mesh kopplar alla till alla.

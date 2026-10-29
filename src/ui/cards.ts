@@ -2,7 +2,7 @@ import { htmlToText } from "../lib/text.ts";
 import type { ClientBlock, ClientQuestion, ClientSection } from "../types.ts";
 
 export type Card =
-  | { kind: "text"; title: string; bodyHtml: string; block: ClientBlock }
+  | { kind: "text"; title: string; bodyHtml: string; block: ClientBlock; examplesHtml: string[] }
   | { kind: "concepts"; title: string }
   | { kind: "question"; title: string; question: ClientQuestion }
   | { kind: "finish"; title: string };
@@ -16,9 +16,17 @@ export function splitTitle(html: string): { title: string; bodyHtml: string } {
   return { title: htmlToText(m[1]), bodyHtml: html.slice(m[0].length) };
 }
 
-/** The deck for one section: text cards, the new-concepts card, one card per question, a finish card. */
+/**
+ * The deck for one section: text cards, the new-concepts card, one card per question, a finish card.
+ * An example block is not a card of its own; it becomes a box inside the card before it.
+ */
 export function sectionCards(section: ClientSection): Card[] {
-  const cards: Card[] = section.blocks.map((block) => ({ kind: "text", block, ...splitTitle(block.html) }));
+  const cards: Card[] = [];
+  for (const block of section.blocks) {
+    const previous = cards.at(-1);
+    if (block.kind === "example" && previous?.kind === "text") previous.examplesHtml.push(block.html);
+    else cards.push({ kind: "text", block, examplesHtml: [], ...splitTitle(block.html) });
+  }
   if (section.newConcepts.length > 0) cards.push({ kind: "concepts", title: "Nya begrepp" });
   section.questions.forEach((question, i) =>
     cards.push({ kind: "question", question, title: `Fråga ${i + 1} av ${section.questions.length}` }),

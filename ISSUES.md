@@ -16,3 +16,4 @@ Things to revisit later. Content items need checking against the notes before th
 - [ ] **Which meaning of "host"?** The notes say "server (host)", but later topics (host part of an address, number of hosts) use host for any device with an address. Section 1 avoids the word for now.
 - [ ] **Mesh.** The notes list "mesh" (wifi mesh) and "fully connected" separately; the text merges them as mesh / full mesh. Hybrid (textbook only) and line (on a slide, never explained) are left out.
 - [ ] **Tor as a P2P example** was dropped as a shaky example.
+- [ ] **Star: single point of failure** was added on request and is not from the notes. That includes the hint about building around it ("två enheter i mitten och kabel till båda"). Check the wording.

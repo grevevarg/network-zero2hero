@@ -62,6 +62,7 @@ describe("Deck", () => {
     expect(screen.getByText("1 / 6")).toBeTruthy();
     expect(back().disabled).toBe(true);
     expect(document.querySelector("figure img.diagram")).toBeTruthy();
+    expect(document.querySelector(".card .example")?.textContent).toContain("Ett exempel.");
 
     fireEvent.click(forward());
     expect(title()).toBe("Nya begrepp");

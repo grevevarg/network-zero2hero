@@ -62,7 +62,7 @@ export const sectionInput = (over: Partial<SectionInput["meta"]> = {}, questions
   questions: questions ?? [mcq(), ordering(), matching()],
 });
 
-export const TEXT = "<!-- uses: a -->\n## Rubrik\n\nText om **a**.\n\n@diagram(dia)\n";
+export const TEXT = "<!-- uses: a -->\n## Rubrik\n\nText om **a**.\n\n@diagram(dia)\n\n<!-- uses: a; kind: example -->\n### Exempel\n\nEtt exempel.\n";
 
 export function rawContent(): RawContent {
   return {

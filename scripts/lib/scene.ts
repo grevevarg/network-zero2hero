@@ -1,5 +1,5 @@
 import { hashString } from "../../src/lib/prng.ts";
-import type { Layout, LayoutNode } from "./layouts.ts";
+import type { Layout, LayoutNode, Message } from "./layouts.ts";
 
 /** The parts of an Excalidraw element this module reads or rewrites. Everything else is copied as is. */
 export type ExElement = {
@@ -19,7 +19,7 @@ export type ExElement = {
 export type LibraryItem = { id: string; name?: string; elements: ExElement[] };
 export type Library = { libraryItems: LibraryItem[] };
 export type Box = { minX: number; minY: number; maxX: number; maxY: number };
-export type Roles = { device: string; box: string };
+export type Roles = { device: string; box: string; server: string };
 export type Scene = {
   type: "excalidraw";
   version: 2;
@@ -125,7 +125,81 @@ export function lineElement(id: string, x1: number, y1: number, x2: number, y2: 
   };
 }
 
-/** Build a scene: library items on every device/box node, lines for every edge, lines drawn first. */
+const BASE = {
+  angle: 0,
+  strokeColor: "#1e1e1e",
+  backgroundColor: "transparent",
+  fillStyle: "solid",
+  strokeWidth: 2,
+  strokeStyle: "solid",
+  roughness: 1,
+  opacity: 100,
+  groupIds: [],
+  frameId: null,
+  roundness: null,
+  version: 1,
+  isDeleted: false,
+  boundElements: null,
+  updated: 1,
+  link: null,
+  locked: false,
+};
+
+export const FONT_SIZE = 26;
+/** Rough width of Excalifont text. Excalidraw measures it again when the scene loads. */
+export function textWidth(text: string, fontSize = FONT_SIZE): number {
+  return Math.ceil(text.length * fontSize * 0.55);
+}
+
+export function textElement(id: string, text: string, cx: number, top: number, fontSize = FONT_SIZE): ExElement {
+  const width = textWidth(text, fontSize);
+  return {
+    ...BASE,
+    id,
+    type: "text",
+    x: cx - width / 2,
+    y: top,
+    width,
+    height: fontSize * 1.25,
+    seed: hashString(`${id}:seed`),
+    versionNonce: hashString(`${id}:nonce`),
+    text,
+    originalText: text,
+    fontSize,
+    fontFamily: 5,
+    textAlign: "center",
+    verticalAlign: "top",
+    containerId: null,
+    autoResize: true,
+    lineHeight: 1.25,
+  };
+}
+
+export function arrowElement(id: string, x1: number, y1: number, x2: number, y2: number): ExElement {
+  return {
+    ...lineElement(id, x1, y1, x2, y2),
+    type: "arrow",
+    endArrowhead: "arrow",
+    elbowed: false,
+  };
+}
+
+/** Distance between the cable line and a message arrow, and between the arrow and its label. */
+const MESSAGE_OFFSET = 18;
+const LABEL_GAP = 8;
+
+/** An arrow parallel to the line between two boxes, offset above or below, with its label outside it. */
+export function messageElements(m: Message, from: Box, to: Box, index: number): ExElement[] {
+  const cy = (b: Box) => (b.minY + b.maxY) / 2;
+  const dir = (to.minX + to.maxX) / 2 >= (from.minX + from.maxX) / 2 ? 1 : -1;
+  const y = (cy(from) + cy(to)) / 2 + (m.side === "above" ? -MESSAGE_OFFSET : MESSAGE_OFFSET);
+  const x1 = dir === 1 ? from.maxX + 10 : from.minX - 10;
+  const x2 = dir === 1 ? to.minX - 10 : to.maxX + 10;
+  const top = m.side === "above" ? y - LABEL_GAP - FONT_SIZE * 1.25 : y + LABEL_GAP;
+  return [arrowElement(`message-${index}`, x1, y, x2, y), textElement(`message-${index}-label`, m.label, (x1 + x2) / 2, top)];
+}
+
+/** Build a scene: library items on every node, lines for every edge, labelled message arrows. Lines come first. */
 export function buildScene(layout: Layout, library: Library, roles: Roles, scale = 2.6): Scene {
   const icons: ExElement[] = [];
   const boxes = new Map<string, Box>();
@@ -149,11 +223,17 @@ export function buildScene(layout: Layout, library: Library, roles: Roles, scale
     const [x2, y2] = exitPoint(bb, ...center(ba), bb.maxX === bb.minX ? 0 : 6);
     return lineElement(`edge-${a}-${b}`, x1, y1, x2, y2);
   });
+  const messages = (layout.messages ?? []).flatMap((m, i) => {
+    const from = boxes.get(m.from);
+    const to = boxes.get(m.to);
+    if (!from || !to) throw new Error(`message ${m.from}->${m.to} points to a missing node`);
+    return messageElements(m, from, to, i);
+  });
   return {
     type: "excalidraw",
     version: 2,
     source: "network-zero2hero",
-    elements: [...lines, ...icons],
+    elements: [...lines, ...icons, ...messages],
     appState: { viewBackgroundColor: "#ffffff", gridSize: null },
     files: {},
   };

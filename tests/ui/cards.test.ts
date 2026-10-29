@@ -22,7 +22,15 @@ describe("sectionCards", () => {
     const cards = sectionCards(course.sections[0]);
     expect(cards.map((c) => c.kind)).toEqual(["text", "concepts", "question", "question", "question", "finish"]);
     expect(cards[0].title).toBe("Rubrik");
+    // The example block is a box inside the first card, not a card of its own.
+    expect(cards[0].kind === "text" && cards[0].examplesHtml).toEqual(["<h3>Exempel</h3>\n<p>Ett exempel.</p>"]);
     expect(cards[3].title).toBe("Fråga 2 av 3");
+  });
+
+  it("keeps an example as its own card when no text card comes before it", () => {
+    const example = { kind: "example" as const, html: "<h3>Ex</h3>" };
+    const cards = sectionCards({ ...course.sections[1], blocks: [example], newConcepts: [] });
+    expect(cards[0]).toMatchObject({ kind: "text", title: "", examplesHtml: [] });
   });
 
   it("skips the concepts card when a section introduces nothing", () => {

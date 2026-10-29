@@ -1,7 +1,21 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { bus, fullMesh, ring, star, tree } from "../../scripts/lib/layouts.ts";
-import { bounds, buildScene, exitPoint, findItem, lineElement, placeItem, type ExElement, type Library } from "../../scripts/lib/scene.ts";
+import { bus, clientServer, fullMesh, pair, ring, star, tree } from "../../scripts/lib/layouts.ts";
+import {
+  arrowElement,
+  bounds,
+  buildScene,
+  exitPoint,
+  findItem,
+  FONT_SIZE,
+  lineElement,
+  messageElements,
+  placeItem,
+  textElement,
+  textWidth,
+  type ExElement,
+  type Library,
+} from "../../scripts/lib/scene.ts";
 
 const el = (over: Partial<ExElement>): ExElement => ({ id: "e", type: "rectangle", x: 0, y: 0, width: 10, height: 10, ...over });
 
@@ -17,9 +31,10 @@ const library: Library = {
       ],
     },
     { id: "sw", name: "Hub", elements: [el({ id: "box", x: -5, y: -5, width: 50, height: 20 })] },
+    { id: "srv", name: "Rack", elements: [el({ id: "rack", x: 0, y: 0, width: 30, height: 60 })] },
   ],
 };
-const roles = { device: "PC", box: "Hub" };
+const roles = { device: "PC", box: "Hub", server: "Rack" };
 
 describe("bounds", () => {
   it("uses points for lines and width/height for shapes", () => {
@@ -80,7 +95,7 @@ describe("exitPoint", () => {
 
 describe("buildScene", () => {
   it("draws one line per edge before the icons, and one icon group per device or box", () => {
-    for (const layout of [star(5), ring(4), bus(3), tree(2, 2), fullMesh(4)]) {
+    for (const layout of [star(5), ring(4), bus(3), tree(2, 2), fullMesh(4), pair()]) {
       const scene = buildScene(layout, library, roles);
       const lines = scene.elements.filter((e) => e.id.startsWith("edge-"));
       expect(lines).toHaveLength(layout.edges.length);
@@ -101,5 +116,44 @@ describe("buildScene", () => {
   it("lineElement spans the two points", () => {
     const l = lineElement("l", 10, 20, 4, 30);
     expect(l).toMatchObject({ x: 10, y: 20, width: 6, height: 10, points: [[0, 0], [-6, 10]] });
+  });
+
+  it("draws a labelled arrow per message, after the icons", () => {
+    const scene = buildScene(clientServer("Fråga", "Svar"), library, roles);
+    const arrows = scene.elements.filter((e) => e.type === "arrow");
+    const labels = scene.elements.filter((e) => e.type === "text" && String(e.id).startsWith("message-"));
+    expect(arrows).toHaveLength(2);
+    expect(labels.map((l) => l.text)).toEqual(["Fråga", "Svar"]);
+    expect(scene.elements.at(-1)?.id).toBe("message-1-label");
+    const broken = { ...clientServer("a", "b"), messages: [{ from: "client", to: "ghost", label: "x", side: "above" as const }] };
+    expect(() => buildScene(broken, library, roles)).toThrow(/missing node/);
+  });
+});
+
+describe("messages", () => {
+  const left = { minX: 0, minY: 0, maxX: 20, maxY: 20 };
+  const right = { minX: 100, minY: 0, maxX: 120, maxY: 20 };
+
+  it("runs between the facing edges, above with the label on top or below with it underneath", () => {
+    const [above, aboveLabel] = messageElements({ from: "a", to: "b", label: "Hej", side: "above" }, left, right, 0);
+    expect(above).toMatchObject({ type: "arrow", x: 30, endArrowhead: "arrow", points: [[0, 0], [60, 0]] });
+    expect(above.y).toBeLessThan(10);
+    expect(aboveLabel.y + aboveLabel.height).toBeLessThan(above.y);
+
+    const [below, belowLabel] = messageElements({ from: "b", to: "a", label: "Hej", side: "below" }, right, left, 1);
+    expect(below).toMatchObject({ x: 90, points: [[0, 0], [-60, 0]] });
+    expect(below.y).toBeGreaterThan(10);
+    expect(belowLabel.y).toBeGreaterThan(below.y);
+  });
+
+  it("centres text and estimates its width", () => {
+    expect(textWidth("abcd", 10)).toBe(22);
+    const t = textElement("t", "abcd", 100, 5);
+    expect(t).toMatchObject({ type: "text", text: "abcd", originalText: "abcd", y: 5, fontSize: FONT_SIZE, containerId: null });
+    expect(t.x + t.width / 2).toBeCloseTo(100);
+  });
+
+  it("arrowElement is a line with an arrowhead at the end", () => {
+    expect(arrowElement("a", 0, 0, 10, 0)).toMatchObject({ type: "arrow", endArrowhead: "arrow", startArrowhead: null, width: 10 });
   });
 });

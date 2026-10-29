@@ -16,6 +16,7 @@ export const concepts: Concept[] = [
   { id: "fysisk-topologi", section: "natverk", term: "Fysisk topologi", explanation: "Var allt faktiskt finns: enheter, kablar och uttag. Fungerar som ritning och dokumentation." },
   { id: "logisk-topologi", section: "natverk", term: "Logisk topologi", explanation: "Hur nätet är uppdelat och vem som kan prata med vem, sett från enheterna." },
   { id: "stjarna", section: "natverk", term: "Stjärna", explanation: "Alla enheter har en egen kabel till en gemensam enhet i mitten. Vanligast i dag." },
+  { id: "single-point-of-failure", section: "natverk", term: "Single point of failure", explanation: "En enda del som får hela nätet att sluta fungera om den går sönder, till exempel enheten i mitten av en stjärna." },
   { id: "buss", section: "natverk", term: "Buss", explanation: "Alla enheter sitter på en och samma kabel." },
   { id: "ring", section: "natverk", term: "Ring", explanation: "Varje enhet är kopplad till två grannar, och trafiken går åt ett håll runt ringen." },
   { id: "trad", section: "natverk", term: "Träd", explanation: "Flera stjärnor som hänger under en gemensam punkt. Ett sätt att bygga ut ett stjärnnät." },

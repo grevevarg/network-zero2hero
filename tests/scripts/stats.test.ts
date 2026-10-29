@@ -6,7 +6,7 @@ import { rawContent } from "../fixtures/content.ts";
 describe("stats", () => {
   it("counts prose words and estimates minutes", () => {
     const s = sectionStats(parseContent(rawContent()).sections[0]);
-    expect(s).toMatchObject({ id: "s1", words: 4, questions: 3, minutes: 3 });
+    expect(s).toMatchObject({ id: "s1", words: 7, questions: 3, minutes: 3 });
   });
 
   it("formats a table with a total and LIX warnings", () => {

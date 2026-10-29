@@ -1,8 +1,10 @@
-export type NodeShape = "device" | "box" | "junction";
+export type NodeShape = "device" | "box" | "server" | "junction";
 export type LayoutNode = { id: string; x: number; y: number; shape: NodeShape };
 export type Edge = [string, string];
+/** A labelled arrow drawn beside the straight line between two nodes, above or below it. */
+export type Message = { from: string; to: string; label: string; side: "above" | "below" };
 /** Positions for a diagram in a 200 x 160 box. Scenes scale this up and place library items on it. */
-export type Layout = { width: number; height: number; nodes: LayoutNode[]; edges: Edge[] };
+export type Layout = { width: number; height: number; nodes: LayoutNode[]; edges: Edge[]; messages?: Message[] };
 type Node = LayoutNode;
 
 const W = 200;
@@ -79,4 +81,34 @@ export function tree(branches: number, leaves: number): Layout {
     }
   }
   return { width: W, height: H, nodes, edges };
+}
+
+/** Two devices and one cable: the smallest possible network. */
+export function pair(): Layout {
+  return {
+    width: W,
+    height: H,
+    nodes: [
+      { id: "d1", x: 45, y: CY, shape: "device" },
+      { id: "d2", x: 155, y: CY, shape: "device" },
+    ],
+    edges: [["d1", "d2"]],
+  };
+}
+
+/** A client on the left asking a server on the right, and the server answering. */
+export function clientServer(question: string, answer: string): Layout {
+  return {
+    width: W,
+    height: H,
+    nodes: [
+      { id: "client", x: 22, y: CY, shape: "device" },
+      { id: "server", x: 178, y: CY, shape: "server" },
+    ],
+    edges: [],
+    messages: [
+      { from: "client", to: "server", label: question, side: "above" },
+      { from: "server", to: "client", label: answer, side: "below" },
+    ],
+  };
 }

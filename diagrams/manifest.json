@@ -35,11 +35,23 @@
     "width": 478,
     "height": 346
   },
+  "01-natverk/text-client-server": {
+    "sourceHash": "36f6bbe6dcaaa18e83ddde519d6f5097e06ade1f5ef5ea12bc85a46e1351d63d",
+    "image": "img/7447ff578d9d2098197f7ea2e6688cf0.svg",
+    "width": 492,
+    "height": 137
+  },
   "01-natverk/text-mesh": {
     "sourceHash": "0c8ce67ad4015f30dea69071b533792f4158f9487e74c15575a67850bd578ded",
     "image": "img/3c28a312ba7f116f58799bc7806f7a09.svg",
     "width": 385,
     "height": 398
+  },
+  "01-natverk/text-pair": {
+    "sourceHash": "cea8c379d2490b661fcb6eb9f1a1c4a6975b96ca07c375b7b65f6c033ae8a4cc",
+    "image": "img/2ca81d7add2daa5dd774200838647291.svg",
+    "width": 369,
+    "height": 96
   },
   "01-natverk/text-ring": {
     "sourceHash": "7454d94fa14c31f88522f7ccae3695b1345f2a955620c7fd5cee6811eea98842",

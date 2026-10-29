@@ -63,7 +63,7 @@ export const questions: QuestionInput[] = [
   {
     kind: "mcq",
     id: "natverk-stjarna-nackdel",
-    uses: ["stjarna", "buss", "ring", "mesh"],
+    uses: ["stjarna", "single-point-of-failure", "buss", "ring", "mesh"],
     prompt: "Stjärna är den vanligaste formen i dag. Vilken nackdel har den?",
     options: [
       { id: "kabel", text: "Det går åt väldigt mycket kabel" },
@@ -73,7 +73,7 @@ export const questions: QuestionInput[] = [
     ],
     correct: "kabel",
     explanation:
-      "I en stjärna har varje enhet en egen kabel till mitten, så det går åt mycket kabel. Att trafiken bara går åt ett håll gäller ringen. En gemensam kabel för alla är bussen. Kabel från varje enhet till alla andra är full mesh, inte stjärna.",
+      "I en stjärna har varje enhet en egen kabel till mitten, så det går åt mycket kabel. Stjärnans andra nackdel, att enheten i mitten är en single point of failure, finns inte bland svaren. Att trafiken bara går åt ett håll gäller ringen. En gemensam kabel för alla är bussen. Kabel från varje enhet till alla andra är full mesh, inte stjärna.",
   },
   {
     kind: "matching",

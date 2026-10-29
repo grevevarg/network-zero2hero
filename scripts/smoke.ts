@@ -61,7 +61,10 @@ try {
     await page.click(".section-box-title");
     await page.waitForSelector("#card-title");
     // Walk the deck: right arrow until a question blocks, answering questions wrongly to unlock them.
+    // The navigation bar must sit in the same place on every card.
+    const navTops = new Set<number>();
     for (let step = 0; step < 60; step++) {
+      navTops.add(await page.evaluate(() => Math.round(document.querySelector(".deck-nav")?.getBoundingClientRect().top ?? -1)));
       const where = `${mode.name} card ${await count(page)} "${await title(page)}"`;
       await page.waitForFunction(() => [...document.querySelectorAll("img.diagram")].every((i) => (i as HTMLImageElement).complete));
       await checkLayout(page, where);
@@ -76,6 +79,7 @@ try {
       await page.locator("body").press("ArrowRight");
     }
     if ((await title(page)) !== "Avsnittet är klart") fail(mode.name, `deck ended on "${await title(page)}"`);
+    if (navTops.size !== 1) fail(mode.name, `navigation bar moved between cards (tops: ${[...navTops].join(", ")})`);
     await page.close();
   }
 

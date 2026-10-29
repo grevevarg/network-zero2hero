@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { bus, circlePoints, fullMesh, ring, star, tree, type Layout } from "../../scripts/lib/layouts.ts";
+import { bus, circlePoints, clientServer, fullMesh, pair, ring, star, tree, type Layout } from "../../scripts/lib/layouts.ts";
 
 function degrees(d: Layout): Map<string, number> {
   const deg = new Map(d.nodes.map((n) => [n.id, 0]));
@@ -86,5 +86,22 @@ describe("shapes", () => {
         expect(d.edges).toHaveLength(b + b * l);
       }),
     );
+  });
+
+  it("pair is two devices and one cable", () => {
+    const d = pair();
+    expect(valid(d)).toBe(true);
+    expect(devicesOf(d)).toHaveLength(2);
+    expect(d.edges).toEqual([["d1", "d2"]]);
+  });
+
+  it("clientServer is a question one way and an answer back, no cable", () => {
+    const d = clientServer("Fråga", "Svar");
+    expect(d.nodes.map((n) => n.shape)).toEqual(["device", "server"]);
+    expect(d.edges).toEqual([]);
+    expect(d.messages).toEqual([
+      { from: "client", to: "server", label: "Fråga", side: "above" },
+      { from: "server", to: "client", label: "Svar", side: "below" },
+    ]);
   });
 });

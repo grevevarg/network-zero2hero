@@ -119,7 +119,14 @@ type BodyProps = {
 function CardBody({ card, section, next, solved, seed, onSolved, onAnswered }: BodyProps) {
   switch (card.kind) {
     case "text":
-      return <Html html={card.bodyHtml} className="card-body" />;
+      return (
+        <>
+          <Html html={card.bodyHtml} className="card-body" />
+          {card.examplesHtml.map((html, i) => (
+            <Html key={i} html={html} className="example" />
+          ))}
+        </>
+      );
     case "concepts":
       return (
         <dl class="concepts">

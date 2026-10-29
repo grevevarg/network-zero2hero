@@ -188,12 +188,21 @@ export function checkQuestions(content: ParsedContent): string[] {
   return errors;
 }
 
-/** Every block is one card: it must start with a `##` heading and contain no other `##` heading. */
+/**
+ * Every block is one card: it must start with a `##` heading and contain no other `##` heading.
+ * Example blocks are boxes inside the card before them: they start with `###` and have no `##`.
+ */
 export function checkBlocks(content: ParsedContent): string[] {
   const errors: string[] = [];
   for (const s of content.sections) {
     s.blocks.forEach((b, i) => {
       const where = `block ${i + 1} in section "${s.meta.id}"`;
+      if (b.kind === "example") {
+        if (i === 0) errors.push(`${where} is an example, so it needs a card before it`);
+        if (!/^### \S/.test(b.markdown)) errors.push(`${where} is an example and must start with a "### " heading`);
+        if (/^## /m.test(b.markdown)) errors.push(`${where} is an example and must not contain a "## " heading`);
+        return;
+      }
       if (!/^## \S/.test(b.markdown)) errors.push(`${where} must start with a "## " heading (it becomes the card title)`);
       const count = b.markdown.match(/^## /gm)?.length ?? 0;
       if (count > 1) errors.push(`${where} has ${count} "## " headings; split it into one card per heading`);
