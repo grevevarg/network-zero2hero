@@ -152,4 +152,16 @@ export const concepts: Concept[] = [
   { id: "area", section: "routingprotokoll", term: "Area", explanation: "En del av ett OSPF-nät. Utanför arean skickas bara en sammanfattning." },
   { id: "autonomt-system", section: "routingprotokoll", term: "Autonomt system (AS)", explanation: "Ett nät som sköts av en organisation, till exempel ett företag eller en internetleverantör." },
   { id: "bgp", section: "routingprotokoll", term: "BGP", explanation: "Border Gateway Protocol. Binder ihop internet, mellan olika autonoma system." },
+
+  // 10. TCP, UDP och portar
+  { id: "tcp", section: "transport", term: "TCP", explanation: "Transmission Control Protocol. Inleder med en handskakning, numrerar segmenten och skickar om det som saknas." },
+  { id: "udp", section: "transport", term: "UDP", explanation: "User Datagram Protocol. Skickar bara iväg datan, utan handskakning eller omsändning. Snabbt." },
+  { id: "port", section: "transport", term: "Port", explanation: "Ett nummer i varje segment som talar om vilket program eller vilken tjänst datan ska till." },
+  { id: "kallport-malport", section: "transport", term: "Käll- och destinationsport", explanation: "Destinationsporten pekar ut tjänsten. Källporten slumpas fram och skiljer anslutningarna åt." },
+  { id: "portintervall", section: "transport", term: "Portintervall", explanation: "Well-known 0–1023, registered 1024–49151 och dynamiska 49152–65535." },
+  { id: "ack", section: "transport", term: "ACK", explanation: "En bekräftelse på att data har kommit fram." },
+  { id: "three-way-handshake", section: "transport", term: "Three-way handshake", explanation: "TCP:s start: SYN, SYN + ACK och ACK." },
+  { id: "checksumma", section: "transport", term: "Checksumma", explanation: "TCP:s och UDP:s kontrollsumma, som bara kontrolleras av mottagaren längst bort." },
+  { id: "netstat", section: "transport", term: "netstat", explanation: "Kommando som visar datorns anslutningar med adresser, portar och status." },
+  { id: "telnet", section: "transport", term: "Telnet", explanation: "Gammalt program för okrypterad fjärrinloggning. Används i dag för att testa om en TCP-port är öppen." },
 ];

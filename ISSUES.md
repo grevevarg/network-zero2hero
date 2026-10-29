@@ -119,3 +119,11 @@ Things to revisit later. Content items need checking against the notes before th
   - "16 hops counts as unreachable" is phrased as "more than 15 hops counts as impossible"
 - [ ] **Left out:** OSPF router roles (the note says they go beyond what is needed), RIP v2 auto-summary, and the Cisco routing-table output.
 - [ ] **The path-choice diagram** (one slow direct link against two fast ones) is used by two questions, RIP vs OSPF. It is not on a text card, so the questions don't just repeat a picture.
+
+## Section 10: TCP, UDP och portar
+
+- [ ] **Off-by-one in the notes:** dynamic ports are written "49151–65535", which overlaps the registered range. The text uses 49152–65535.
+- [ ] **DNS and DHCP are named before section 11**, in the port table and on the UDP card. Each has a short Swedish gloss and a pointer ("Båda kommer i nästa avsnitt"), so the student isn't expected to know them yet. They are not in `uses`.
+- [ ] **Not from the notes:** the plain-language lines for each handshake step, and the "a word that disappeared a second ago" example for UDP.
+- [ ] **"Kontroll på två ställen"** comes from the assistant-written paraphrase in the book notes (the end-to-end checksum vs the per-hop FCS). Check that you're happy with it as a source.
+- [ ] **Left out:** the TCP header fields (sequence, window and so on), port 0, the "talk to a mail server by hand" demo, and port forwarding (it comes with NAT in section 12).

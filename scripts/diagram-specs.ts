@@ -1,6 +1,6 @@
 // Generated diagrams: scene name -> layout. `npm run diagrams:generate` writes missing scenes.
 // A scene that was hand-edited in Excalidraw is never overwritten unless you pass --force.
-import { bus, chain, clientServer, compareModels, encapsulation, fullMesh, pair, parts, pathChoice, rackGrid, ring, stack, star, tree, twoLans, type Layout } from "./lib/layouts.ts";
+import { bus, chain, clientServer, compareModels, encapsulation, fullMesh, pair, parts, pathChoice, rackGrid, ring, sequence, stack, star, tree, twoLans, type Layout } from "./lib/layouts.ts";
 import type { Roles } from "./lib/scene.ts";
 
 /** Which library item plays which role. */
@@ -92,4 +92,11 @@ export const SPECS: Record<string, Layout> = {
 
   // 9. Routingprotokoll. One direct slow link against two fast ones.
   "09-routingprotokoll/q-vag": pathChoice("10 Mbit/s", "1 Gbit/s", "1 Gbit/s"),
+
+  // 10. TCP, UDP och portar. The three-way handshake.
+  "10-transport/text-handskakning": sequence([
+    { toRight: true, label: "SYN" },
+    { toRight: false, label: "SYN + ACK" },
+    { toRight: true, label: "ACK" },
+  ]),
 };

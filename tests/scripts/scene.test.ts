@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, rackGrid, ring, stack, star, tree } from "../../scripts/lib/layouts.ts";
+import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, rackGrid, ring, sequence, stack, star, tree } from "../../scripts/lib/layouts.ts";
 import {
   arrowElement,
   blockElements,
@@ -8,6 +8,7 @@ import {
   buildScene,
   exitPoint,
   findItem,
+  freeArrowElements,
   FONT_SIZE,
   labelElement,
   lineElement,
@@ -196,6 +197,22 @@ describe("blocks and labels", () => {
       expect(scene.elements.slice(drawn).every((e) => e.id.startsWith("label-"))).toBe(true);
       expect(new Set(scene.elements.map((e) => e.id)).size).toBe(scene.elements.length);
     }
+  });
+});
+
+describe("free arrows", () => {
+  it("scale the points and put the label above the arrow, or draw no label when there is none", () => {
+    const [arrow, label] = freeArrowElements({ from: [10, 20], to: [0, 20], label: "ACK" }, 2, 2);
+    expect(arrow).toMatchObject({ id: "arrow-2", type: "arrow", x: 20, y: 40, points: [[0, 0], [-20, 0]] });
+    expect(label).toMatchObject({ id: "arrow-2-label", text: "ACK" });
+    expect(label.y + label.height).toBeLessThan(40);
+    expect(freeArrowElements({ from: [0, 0], to: [1, 1] }, 0, 1)).toHaveLength(1);
+  });
+
+  it("buildScene draws sequence arrows after the icons", () => {
+    const scene = buildScene(sequence([{ toRight: true, label: "SYN" }]), library, roles);
+    expect(scene.elements.at(-1)?.id).toBe("arrow-0-label");
+    expect(scene.elements.filter((e) => e.type === "arrow")).toHaveLength(1);
   });
 });
 

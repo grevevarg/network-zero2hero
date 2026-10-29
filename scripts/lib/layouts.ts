@@ -10,6 +10,8 @@ export type Message = { from: string; to: string; label: string; side: "above" |
 export type Block = { x: number; y: number; w: number; h: number; label: string; shaded?: boolean; fill?: string };
 /** Free text centred on x, with its top at y. */
 export type Label = { x: number; y: number; text: string };
+/** A free arrow between two points, with an optional label centred above it. */
+export type Arrow = { from: [number, number]; to: [number, number]; label?: string };
 /** Positions for a diagram in a 200 x 160 box. Scenes scale this up and place library items on it. */
 export type Layout = {
   width: number;
@@ -19,6 +21,7 @@ export type Layout = {
   messages?: Message[];
   blocks?: Block[];
   labels?: Label[];
+  arrows?: Arrow[];
 };
 type Node = LayoutNode;
 
@@ -300,4 +303,24 @@ export function pathChoice(direct: string, viaLeft: string, viaRight: string): L
     { x: 190, y: 45, text: viaRight },
   ];
   return { width: 220, height: 145, nodes, edges, labels };
+}
+
+/**
+ * A sequence picture: a device on the left and a server on the right with a line down from each,
+ * and one labelled arrow per message, top to bottom, in the direction it is sent.
+ */
+export function sequence(messages: readonly { toRight: boolean; label: string }[], width = 200, step = 30): Layout {
+  const bottom = 40 + messages.length * step;
+  const nodes: LayoutNode[] = [
+    { id: "client", x: 0, y: 0, shape: "device" },
+    { id: "server", x: width, y: 0, shape: "server" },
+    { id: "client-end", x: 0, y: bottom, shape: "junction" },
+    { id: "server-end", x: width, y: bottom, shape: "junction" },
+  ];
+  const edges: Edge[] = [["client", "client-end"], ["server", "server-end"]];
+  const arrows = messages.map((m, i): Arrow => {
+    const y = 40 + (i + 1) * step - 6;
+    return m.toRight ? { from: [0, y], to: [width, y], label: m.label } : { from: [width, y], to: [0, y], label: m.label };
+  });
+  return { width, height: bottom, nodes, edges, arrows };
 }

@@ -9,6 +9,7 @@ import {
   encapsulation,
   rackCell,
   rackGrid,
+  sequence,
   fullMesh,
   pair,
   parts,
@@ -246,6 +247,19 @@ describe("pathChoice", () => {
     expect(d.nodes.every((n) => n.shape === "router")).toBe(true);
     expect([...degrees(d).values()]).toEqual([2, 2, 2]);
     expect(d.labels?.map((l) => l.text)).toEqual(["R1", "R2", "R3", "direkt", "vänster", "höger"]);
+  });
+});
+
+describe("sequence", () => {
+  it("draws a line down from each end and one arrow per message, top to bottom, in its direction", () => {
+    const d = sequence([{ toRight: true, label: "SYN" }, { toRight: false, label: "SYN + ACK" }], 100, 20);
+    expect(valid(d)).toBe(true);
+    expect(d.edges).toEqual([["client", "client-end"], ["server", "server-end"]]);
+    const [a, b] = d.arrows ?? [];
+    expect(a).toMatchObject({ from: [0, a.from[1]], to: [100, a.from[1]], label: "SYN" });
+    expect(b).toMatchObject({ from: [100, b.from[1]], to: [0, b.from[1]], label: "SYN + ACK" });
+    expect(b.from[1]).toBeGreaterThan(a.from[1]);
+    expect(d.height).toBeGreaterThan(b.from[1]);
   });
 });
 

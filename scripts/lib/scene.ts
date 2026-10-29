@@ -1,5 +1,5 @@
 import { hashString } from "../../src/lib/prng.ts";
-import type { Block, Label, Layout, LayoutNode, Message } from "./layouts.ts";
+import type { Arrow, Block, Label, Layout, LayoutNode, Message } from "./layouts.ts";
 
 /** The parts of an Excalidraw element this module reads or rewrites. Everything else is copied as is. */
 export type ExElement = {
@@ -226,6 +226,14 @@ export function blockElements(b: Block, index: number, scale: number): ExElement
   return b.label === "" ? [rect] : [rect, textElement(`block-${index}-label`, b.label, x + w / 2, top)];
 }
 
+/** A free arrow with its label centred just above it, in scene units. */
+export function freeArrowElements(a: Arrow, index: number, scale: number): ExElement[] {
+  const [x1, y1, x2, y2] = [a.from[0] * scale, a.from[1] * scale, a.to[0] * scale, a.to[1] * scale];
+  const arrow = arrowElement(`arrow-${index}`, x1, y1, x2, y2);
+  if (a.label === undefined) return [arrow];
+  return [arrow, textElement(`arrow-${index}-label`, a.label, (x1 + x2) / 2, Math.min(y1, y2) - LABEL_GAP - FONT_SIZE * 1.25)];
+}
+
 export function labelElement(l: Label, index: number, scale: number): ExElement {
   return textElement(`label-${index}`, l.text, l.x * scale, l.y * scale);
 }
@@ -268,6 +276,7 @@ export function buildScene(layout: Layout, library: Library, roles: Roles, scale
       ...(layout.blocks ?? []).flatMap((b, i) => blockElements(b, i, scale)),
       ...icons,
       ...messages,
+      ...(layout.arrows ?? []).flatMap((a, i) => freeArrowElements(a, i, scale)),
       ...(layout.labels ?? []).map((l, i) => labelElement(l, i, scale)),
     ],
     appState: { viewBackgroundColor: "#ffffff", gridSize: null },

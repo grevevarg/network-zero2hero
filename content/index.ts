@@ -8,7 +8,8 @@ import ipv4 from "./sections/06-ipv4/section.ts";
 import subnat from "./sections/07-subnat/section.ts";
 import routing from "./sections/08-routing/section.ts";
 import routingprotokoll from "./sections/09-routingprotokoll/section.ts";
+import transport from "./sections/10-transport/section.ts";
 
 export const title = "Från noll till nätverk";
 export { concepts };
-export const sections = [natverk, lager, kablar, markning, switchar, ipv4, subnat, routing, routingprotokoll];
+export const sections = [natverk, lager, kablar, markning, switchar, ipv4, subnat, routing, routingprotokoll, transport];
