@@ -135,4 +135,21 @@ export const concepts: Concept[] = [
   { id: "default-route", section: "routing", term: "Default route", explanation: "Raden 0.0.0.0/0, som passar alla mottagare. Används när ingen annan rad passar, ofta mot internet." },
   { id: "hop", section: "routing", term: "Hopp (hop)", explanation: "Varje gång ett paket passerar en router." },
   { id: "ttl", section: "routing", term: "TTL", explanation: "Time To Live. Ett tal i paketet som minskar med ett per router. Vid noll slängs paketet." },
+
+  // 9. Routingprotokoll
+  { id: "dynamisk-routing", section: "routingprotokoll", term: "Dynamisk routing", explanation: "Routrarna berättar själva för varandra vilka nät de känner till, med ett routingprotokoll." },
+  { id: "metric", section: "routingprotokoll", term: "Metric", explanation: "Ett mått på hur bra en väg är. Lägst metric vinner." },
+  { id: "rip", section: "routingprotokoll", term: "RIP", explanation: "Routing Information Protocol. Räknar hopp och tillåter högst 15. Version 2 använder multicast, klarar prefix och har lösenord." },
+  { id: "distance-vector", section: "routingprotokoll", term: "Distance-vector", explanation: "Sorts routingprotokoll där routrarna skickar sina tabeller till grannarna och bara vet avstånd och riktning. RIP är ett exempel." },
+  { id: "konvergens", section: "routingprotokoll", term: "Konvergens", explanation: "Tiden det tar efter en ändring innan alla routrar är överens." },
+  { id: "routingloop", section: "routingprotokoll", term: "Routingloop", explanation: "När paket skickas runt mellan routrar i stället för att komma fram." },
+  { id: "split-horizon", section: "routingprotokoll", term: "Split horizon", explanation: "En router berättar aldrig om en route för grannen som den lärde sig routen av." },
+  { id: "poison-reverse", section: "routingprotokoll", term: "Poison reverse", explanation: "När en route slutar fungera berättar routern det åt det håll den lärde sig routen." },
+  { id: "hold-down", section: "routingprotokoll", term: "Hold-down timer", explanation: "Routern väntar en stund efter att en länk gått ner innan den litar på nya besked om den." },
+  { id: "ospf", section: "routingprotokoll", term: "OSPF", explanation: "Open Shortest Path First. Öppen standard för större nät som räknar cost utifrån länkarnas hastighet." },
+  { id: "link-state", section: "routingprotokoll", term: "Link state", explanation: "Sorts routingprotokoll där varje router bygger en egen karta över nätet. OSPF är ett exempel." },
+  { id: "ospf-cost", section: "routingprotokoll", term: "Cost", explanation: "OSPF:s metric: 100 000 000 delat med hastigheten i bitar per sekund, men aldrig under 1." },
+  { id: "area", section: "routingprotokoll", term: "Area", explanation: "En del av ett OSPF-nät. Utanför arean skickas bara en sammanfattning." },
+  { id: "autonomt-system", section: "routingprotokoll", term: "Autonomt system (AS)", explanation: "Ett nät som sköts av en organisation, till exempel ett företag eller en internetleverantör." },
+  { id: "bgp", section: "routingprotokoll", term: "BGP", explanation: "Border Gateway Protocol. Binder ihop internet, mellan olika autonoma system." },
 ];

@@ -279,3 +279,25 @@ export function chain(items: readonly { shape: NodeShape; label?: string }[], st
   const labels = items.flatMap((it, i): Label[] => (it.label ? [{ x: i * step, y: 0, text: it.label }] : []));
   return { width: (items.length - 1) * step, height: 60, nodes, edges, labels };
 }
+
+/**
+ * Three routers in a triangle: R1 and R3 joined directly at the bottom, and a second way round
+ * through R2 at the top. Each link is labelled (for example with its speed).
+ */
+export function pathChoice(direct: string, viaLeft: string, viaRight: string): Layout {
+  const nodes: LayoutNode[] = [
+    { id: "r1", x: 0, y: 110, shape: "router" },
+    { id: "r2", x: 110, y: 20, shape: "router" },
+    { id: "r3", x: 220, y: 110, shape: "router" },
+  ];
+  const edges: Edge[] = [["r1", "r3"], ["r1", "r2"], ["r2", "r3"]];
+  const labels: Label[] = [
+    { x: 0, y: 132, text: "R1" },
+    { x: 110, y: -8, text: "R2" },
+    { x: 220, y: 132, text: "R3" },
+    { x: 110, y: 117, text: direct },
+    { x: 30, y: 45, text: viaLeft },
+    { x: 190, y: 45, text: viaRight },
+  ];
+  return { width: 220, height: 145, nodes, edges, labels };
+}

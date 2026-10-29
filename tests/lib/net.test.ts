@@ -20,6 +20,7 @@ import {
   isPrivate,
   maskToPrefix,
   networkAddress,
+  ospfCost,
   parseIPv4,
   prefixToMask,
   splitNetwork,
@@ -198,3 +199,19 @@ describe("IPv6", () => {
     expect(() => eui64("00:1A:2B:3C:4D:ZZ")).toThrow(/not a MAC/);
   });
 });
+
+describe("ospfCost", () => {
+  it("divides the reference by the speed, rounds down and never goes below 1", () => {
+    expect([10e6, 100e6, 1e9, 64e3].map((b) => ospfCost(b))).toEqual([10, 1, 1, 1562]);
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 1e11 }), (b) => {
+        const c = ospfCost(b);
+        expect(c).toBeGreaterThanOrEqual(1);
+        expect(Number.isInteger(c)).toBe(true);
+        if (b <= 1e8) expect(c).toBe(Math.floor(1e8 / b));
+      }),
+    );
+    expect(() => ospfCost(0)).toThrow(/link speed/);
+  });
+});
+

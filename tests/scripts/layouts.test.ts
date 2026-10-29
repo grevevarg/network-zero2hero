@@ -12,6 +12,7 @@ import {
   fullMesh,
   pair,
   parts,
+  pathChoice,
   ring,
   stack,
   star,
@@ -235,6 +236,16 @@ describe("router layouts", () => {
     expect(d.edges).toEqual([["n1", "n2"], ["n2", "n3"]]);
     expect(d.labels).toEqual([{ x: 0, y: 0, text: "A" }, { x: 100, y: 0, text: "C" }]);
     expect(d.width).toBe(100);
+  });
+});
+
+describe("pathChoice", () => {
+  it("is a triangle of routers with a label per router and per link", () => {
+    const d = pathChoice("direkt", "vänster", "höger");
+    expect(valid(d)).toBe(true);
+    expect(d.nodes.every((n) => n.shape === "router")).toBe(true);
+    expect([...degrees(d).values()]).toEqual([2, 2, 2]);
+    expect(d.labels?.map((l) => l.text)).toEqual(["R1", "R2", "R3", "direkt", "vänster", "höger"]);
   });
 });
 

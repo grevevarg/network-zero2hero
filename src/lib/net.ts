@@ -186,3 +186,9 @@ export function eui64(mac: string): string {
   const id = [bytes[0] ^ 0x02, bytes[1], bytes[2], 0xff, 0xfe, bytes[3], bytes[4], bytes[5]];
   return [0, 2, 4, 6].map((i) => (toHex(id[i]) + toHex(id[i + 1])).toLowerCase()).join(":");
 }
+
+/** OSPF cost: reference bandwidth (default 100 Mbit/s) divided by the link speed, never below 1. */
+export function ospfCost(bitsPerSecond: number, reference = 100_000_000): number {
+  if (!(bitsPerSecond > 0)) throw new Error(`${bitsPerSecond} is not a link speed`);
+  return Math.max(1, Math.floor(reference / bitsPerSecond));
+}

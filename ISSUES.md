@@ -107,3 +107,15 @@ Things to revisit later. Content items need checking against the notes before th
 - [ ] **Longest match is only implicit.** The routing-table question relies on "default route is used only when no other row fits", not on longest-prefix matching, which the notes don't cover.
 - [ ] **Left out:** Request Timed Out vs Destination Unreachable (better in section 16).
 - [ ] **Tables inside question prompts** are now normal weight, not bold.
+
+## Section 9: Routingprotokoll
+
+- [ ] **Errors in the notes corrected:**
+  - "Max hop count v2 = 255" is fixed by the note's own addendum: both versions allow 15. 255 is EIGRP (spelled "EGRIP" in the note), which is left out.
+  - The OSPF cost formula is written "10*10^8 / bandbredd". The text uses 10^8 (100 000 000), which matches the note's example of 100 Mbit/s = 1.
+- [ ] **Not from the notes:**
+  - the general definition of metric
+  - the explanation of distance-vector (the note says "kolla upp") and of link state ("each router builds its own map")
+  - "16 hops counts as unreachable" is phrased as "more than 15 hops counts as impossible"
+- [ ] **Left out:** OSPF router roles (the note says they go beyond what is needed), RIP v2 auto-summary, and the Cisco routing-table output.
+- [ ] **The path-choice diagram** (one slow direct link against two fast ones) is used by two questions, RIP vs OSPF. It is not on a text card, so the questions don't just repeat a picture.
