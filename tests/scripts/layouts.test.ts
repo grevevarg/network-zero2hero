@@ -1,6 +1,20 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { bus, circlePoints, clientServer, fullMesh, pair, ring, star, tree, type Layout } from "../../scripts/lib/layouts.ts";
+import {
+  bus,
+  circlePoints,
+  clientServer,
+  compareModels,
+  encapsulation,
+  fullMesh,
+  pair,
+  ring,
+  stack,
+  star,
+  tree,
+  type Block,
+  type Layout,
+} from "../../scripts/lib/layouts.ts";
 
 function degrees(d: Layout): Map<string, number> {
   const deg = new Map(d.nodes.map((n) => [n.id, 0]));
@@ -105,3 +119,54 @@ describe("shapes", () => {
     ]);
   });
 });
+
+describe("block diagrams", () => {
+  const overlaps = (a: Block, b: Block) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  const noOverlaps = (blocks: readonly Block[]) =>
+    blocks.every((a, i) => blocks.slice(i + 1).every((b) => !overlaps(a, b)));
+
+  it("stack: one box per label, top first, touching and never overlapping", () => {
+    fc.assert(
+      fc.property(fc.array(fc.string({ minLength: 1, maxLength: 12 }), { minLength: 1, maxLength: 9 }), (labels) => {
+        const d = stack(labels);
+        expect(d.blocks?.map((b) => b.label)).toEqual(labels);
+        expect(noOverlaps(d.blocks ?? [])).toBe(true);
+        d.blocks?.forEach((b, i) => i > 0 && expect(b.y).toBe(d.blocks![i - 1].y + d.blocks![i - 1].h));
+        expect(d.height).toBe((d.blocks ?? []).reduce((h, b) => h + b.h, 0));
+      }),
+    );
+  });
+
+  it("encapsulation: each row adds the next header in front, layer 2 also adds a trailer", () => {
+    const d = encapsulation(["A", "B", "C", "D", "E"], "0101");
+    const blocks = d.blocks ?? [];
+    expect(noOverlaps(blocks)).toBe(true);
+    const rows = [...new Set(blocks.map((b) => b.y))].map((y) => blocks.filter((b) => b.y === y).sort((a, b) => a.x - b.x));
+    expect(rows.map((r) => r.map((b) => b.label))).toEqual([
+      ["Data"],
+      ["4", "Data"],
+      ["3", "4", "Data"],
+      ["2", "3", "4", "Data", "2"],
+    ]);
+    // The data block stays in the same place on every row, and only headers and trailers are shaded.
+    expect(new Set(rows.map((r) => r.find((b) => b.label === "Data")?.x)).size).toBe(1);
+    expect(blocks.filter((b) => b.shaded).every((b) => b.label !== "Data")).toBe(true);
+    // Names on the right of each row, bits under the last row, all below or beside the blocks.
+    expect(d.labels?.map((l) => l.text)).toEqual(["A", "B", "C", "D", "E", "0101"]);
+    const right = Math.max(...blocks.map((b) => b.x + b.w));
+    expect(d.labels?.slice(0, 5).every((l) => l.x > right)).toBe(true);
+    expect(d.labels?.at(-1)!.y).toBeGreaterThan(Math.max(...blocks.map((b) => b.y)));
+  });
+
+  it("compareModels: the right model spans the left one row for row", () => {
+    const d = compareModels(["L", "R"], ["a", "b", "c", "d"], [{ label: "x", span: 3 }, { label: "y", span: 1 }]);
+    const blocks = d.blocks ?? [];
+    expect(noOverlaps(blocks)).toBe(true);
+    const [a, , c, dd, x, y] = blocks;
+    expect(x).toMatchObject({ label: "x", y: a.y, h: c.y + c.h - a.y });
+    expect(y).toMatchObject({ label: "y", y: dd.y, h: dd.h });
+    expect(d.labels?.map((l) => l.text)).toEqual(["L", "R"]);
+    expect(() => compareModels(["L", "R"], ["a", "b"], [{ label: "x", span: 3 }])).toThrow(/spans 3 layers/);
+  });
+});
+

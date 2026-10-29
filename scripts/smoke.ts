@@ -66,28 +66,36 @@ try {
     await checkLayout(page, `${mode.name} home`);
     await page.screenshot({ path: path.join(shots, `${mode.name}-home.png`) });
 
-    await page.click(".section-box-title");
-    await page.waitForSelector("#card-title");
-    // Walk the deck: right arrow until a question blocks, answering questions wrongly to unlock them.
-    // The navigation bar must sit in the same place on every card.
-    const navTops = new Set<number>();
-    for (let step = 0; step < 60; step++) {
-      navTops.add(await page.evaluate(() => Math.round(document.querySelector(".deck-nav")?.getBoundingClientRect().top ?? -1)));
-      const where = `${mode.name} card ${await count(page)} "${await title(page)}"`;
-      await page.waitForFunction(() => [...document.querySelectorAll("img.diagram")].every((i) => (i as HTMLImageElement).complete));
-      await checkLayout(page, where);
-      const name = (await title(page)).replace(/[^\p{L}\p{N}]+/gu, "-").toLowerCase();
-      if (/stjarna|stjärna|fråga-1|avsnittet/.test(name)) await page.screenshot({ path: path.join(shots, `${mode.name}-${name}.png`), fullPage: true });
-      const forward = page.getByRole("button", { name: "Nästa ›" });
-      if (await forward.isDisabled()) {
-        if ((await page.locator(".question-body").count()) === 0) break; // finish card
-        await answerSomething(page, where);
-        if (await forward.isDisabled()) fail(where, "still blocked after answering");
+    const sections = await page.locator(".section-box-title").count();
+    for (let sec = 0; sec < sections; sec++) {
+      await page.goto(base);
+      await page.waitForSelector(".section-grid");
+      await page.locator(".section-box-title").nth(sec).click();
+      await page.waitForSelector("#card-title");
+      const deck = `${mode.name} §${sec + 1}`;
+      // Walk the deck: right arrow until a question blocks, answering questions wrongly to unlock them.
+      // The navigation bar must sit in the same place on every card.
+      const navTops = new Set<number>();
+      for (let step = 0; step < 60; step++) {
+        navTops.add(await page.evaluate(() => Math.round(document.querySelector(".deck-nav")?.getBoundingClientRect().top ?? -1)));
+        const where = `${deck} card ${await count(page)} "${await title(page)}"`;
+        await page.waitForFunction(() => [...document.querySelectorAll("img.diagram")].every((i) => (i as HTMLImageElement).complete));
+        await checkLayout(page, where);
+        const name = (await title(page)).replace(/[^\p{L}\p{N}]+/gu, "-").toLowerCase();
+        if (/stjärna|inkapsling|osi-modellen|tcp-ip|fråga-1|avsnittet/.test(name)) {
+          await page.screenshot({ path: path.join(shots, `${mode.name}-${sec + 1}-${name}.png`), fullPage: true });
+        }
+        const forward = page.getByRole("button", { name: "Nästa ›" });
+        if (await forward.isDisabled()) {
+          if ((await page.locator(".question-body").count()) === 0) break; // finish card
+          await answerSomething(page, where);
+          if (await forward.isDisabled()) fail(where, "still blocked after answering");
+        }
+        await page.locator("body").press("ArrowRight");
       }
-      await page.locator("body").press("ArrowRight");
+      if ((await title(page)) !== "Avsnittet är klart") fail(deck, `deck ended on "${await title(page)}"`);
+      if (navTops.size !== 1) fail(deck, `navigation bar moved between cards (tops: ${[...navTops].join(", ")})`);
     }
-    if ((await title(page)) !== "Avsnittet är klart") fail(mode.name, `deck ended on "${await title(page)}"`);
-    if (navTops.size !== 1) fail(mode.name, `navigation bar moved between cards (tops: ${[...navTops].join(", ")})`);
     await page.close();
   }
 

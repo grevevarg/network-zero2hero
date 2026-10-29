@@ -1,5 +1,5 @@
 import { hashString } from "../../src/lib/prng.ts";
-import type { Layout, LayoutNode, Message } from "./layouts.ts";
+import type { Block, Label, Layout, LayoutNode, Message } from "./layouts.ts";
 
 /** The parts of an Excalidraw element this module reads or rewrites. Everything else is copied as is. */
 export type ExElement = {
@@ -200,6 +200,38 @@ export function messageElements(m: Message, from: Box, to: Box, index: number): 
 }
 
 /** Build a scene: library items on every node, lines for every edge, labelled message arrows. Lines come first. */
+/** Light grey that the dark-mode invert filter turns into a dark grey. */
+const SHADE = "#e9ecef";
+
+export function rectElement(id: string, x: number, y: number, width: number, height: number, shaded: boolean): ExElement {
+  return {
+    ...BASE,
+    id,
+    type: "rectangle",
+    x,
+    y,
+    width,
+    height,
+    backgroundColor: shaded ? SHADE : "transparent",
+    seed: hashString(`${id}:seed`),
+    versionNonce: hashString(`${id}:nonce`),
+  };
+}
+
+/** A block's rectangle with its label centred inside it, in scene units. */
+export function blockElements(b: Block, index: number, scale: number): ExElement[] {
+  const [x, y, w, h] = [b.x * scale, b.y * scale, b.w * scale, b.h * scale];
+  const top = y + (h - FONT_SIZE * 1.25) / 2;
+  return [
+    rectElement(`block-${index}`, x, y, w, h, b.shaded ?? false),
+    textElement(`block-${index}-label`, b.label, x + w / 2, top),
+  ];
+}
+
+export function labelElement(l: Label, index: number, scale: number): ExElement {
+  return textElement(`label-${index}`, l.text, l.x * scale, l.y * scale);
+}
+
 export function buildScene(layout: Layout, library: Library, roles: Roles, scale = 2.6): Scene {
   const icons: ExElement[] = [];
   const boxes = new Map<string, Box>();
@@ -233,7 +265,13 @@ export function buildScene(layout: Layout, library: Library, roles: Roles, scale
     type: "excalidraw",
     version: 2,
     source: "network-zero2hero",
-    elements: [...lines, ...icons, ...messages],
+    elements: [
+      ...lines,
+      ...(layout.blocks ?? []).flatMap((b, i) => blockElements(b, i, scale)),
+      ...icons,
+      ...messages,
+      ...(layout.labels ?? []).map((l, i) => labelElement(l, i, scale)),
+    ],
     appState: { viewBackgroundColor: "#ffffff", gridSize: null },
     files: {},
   };

@@ -70,5 +70,23 @@
     "image": "img/4dcece2c554ddd272ff36151293043e3.svg",
     "width": 473,
     "height": 383
+  },
+  "02-lager/text-inkapsling": {
+    "sourceHash": "f2b99b387235327244af0a666eeb227c18449f72fcab7909b6522dc63a1120af",
+    "image": "img/1acb14df6e4d01be7c0331bd7c558593.svg",
+    "width": 528,
+    "height": 349
+  },
+  "02-lager/text-osi": {
+    "sourceHash": "eda28c15d098cb96d02eedd67c5a041ef20f8ff9c484d54519475947de9576d8",
+    "image": "img/499b31ff8df52d256cc87155e44c6043.svg",
+    "width": 514,
+    "height": 348
+  },
+  "02-lager/text-tcpip": {
+    "sourceHash": "a2fd4ee754f1c8090ea97b5e9ea74f63bf9fd5d62b2a7bf1b98929eccd3c05eb",
+    "image": "img/38e8d440be6950a231b6114a1f9a45ea.svg",
+    "width": 514,
+    "height": 405
   }
 }

@@ -3,8 +3,20 @@ export type LayoutNode = { id: string; x: number; y: number; shape: NodeShape };
 export type Edge = [string, string];
 /** A labelled arrow drawn beside the straight line between two nodes, above or below it. */
 export type Message = { from: string; to: string; label: string; side: "above" | "below" };
+/** A labelled rectangle with its top-left corner at (x, y). Shaded blocks stand out, like headers. */
+export type Block = { x: number; y: number; w: number; h: number; label: string; shaded?: boolean };
+/** Free text centred on x, with its top at y. */
+export type Label = { x: number; y: number; text: string };
 /** Positions for a diagram in a 200 x 160 box. Scenes scale this up and place library items on it. */
-export type Layout = { width: number; height: number; nodes: LayoutNode[]; edges: Edge[]; messages?: Message[] };
+export type Layout = {
+  width: number;
+  height: number;
+  nodes: LayoutNode[];
+  edges: Edge[];
+  messages?: Message[];
+  blocks?: Block[];
+  labels?: Label[];
+};
 type Node = LayoutNode;
 
 const W = 200;
@@ -111,4 +123,72 @@ export function clientServer(question: string, answer: string): Layout {
       { from: "server", to: "client", label: answer, side: "below" },
     ],
   };
+}
+
+const BLOCK_H = 18;
+
+/** Boxes stacked on top of each other, first label at the top. */
+export function stack(labels: readonly string[], width = 190): Layout {
+  const blocks = labels.map((label, i): Block => ({ x: 0, y: i * BLOCK_H, w: width, h: BLOCK_H, label }));
+  return { width, height: labels.length * BLOCK_H, nodes: [], edges: [], blocks };
+}
+
+/**
+ * Encapsulation, one row per step on the way down. The data block stays put while each layer
+ * puts its numbered header in front of what it got; layer 2 also adds a trailer at the end.
+ * Each row is named on the right. The last row is the bits that go out on the wire.
+ */
+export function encapsulation(names: readonly [string, string, string, string, string], bits: string): Layout {
+  const row = (i: number) => i * (BLOCK_H + 10);
+  const head = 24;
+  const dataX = 120;
+  const dataW = 50;
+  const header = (layer: number, i: number): Block => ({
+    x: dataX - head * (5 - layer),
+    y: row(i),
+    w: head,
+    h: BLOCK_H,
+    label: String(layer),
+    shaded: true,
+  });
+  const data = (i: number): Block => ({ x: dataX, y: row(i), w: dataW, h: BLOCK_H, label: "Data" });
+  const blocks: Block[] = [
+    data(0),
+    header(4, 1), data(1),
+    header(3, 2), header(4, 2), data(2),
+    header(2, 3), header(3, 3), header(4, 3), data(3),
+    { x: dataX + dataW, y: row(3), w: head, h: BLOCK_H, label: "2", shaded: true },
+  ];
+  const left = dataX - head * 3;
+  const right = dataX + dataW + head;
+  const labels: Label[] = names.map((text, i) => ({ x: right + 30, y: row(i) + 2, text }));
+  labels.push({ x: (left + right) / 2, y: row(4) + 2, text: bits });
+  return { width: right + 60 - left, height: row(4) + BLOCK_H, nodes: [], edges: [], blocks, labels };
+}
+
+/**
+ * Two layer models side by side, both with the top layer first. `right` gives each layer of the
+ * second model a label and how many layers of the first model it spans.
+ */
+export function compareModels(
+  titles: readonly [string, string],
+  left: readonly string[],
+  right: readonly { label: string; span: number }[],
+): Layout {
+  const total = right.reduce((n, r) => n + r.span, 0);
+  if (total !== left.length) throw new Error(`the right model spans ${total} layers, the left has ${left.length}`);
+  const top = 22;
+  const w = 90;
+  const gap = 10;
+  const blocks: Block[] = left.map((label, i) => ({ x: 0, y: top + i * BLOCK_H, w, h: BLOCK_H, label }));
+  let row = 0;
+  for (const r of right) {
+    blocks.push({ x: w + gap, y: top + row * BLOCK_H, w, h: r.span * BLOCK_H, label: r.label });
+    row += r.span;
+  }
+  const labels: Label[] = [
+    { x: w / 2, y: 0, text: titles[0] },
+    { x: w + gap + w / 2, y: 0, text: titles[1] },
+  ];
+  return { width: 2 * w + gap, height: top + total * BLOCK_H, nodes: [], edges: [], blocks, labels };
 }

@@ -1,16 +1,19 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { bus, clientServer, fullMesh, pair, ring, star, tree } from "../../scripts/lib/layouts.ts";
+import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, ring, stack, star, tree } from "../../scripts/lib/layouts.ts";
 import {
   arrowElement,
+  blockElements,
   bounds,
   buildScene,
   exitPoint,
   findItem,
   FONT_SIZE,
+  labelElement,
   lineElement,
   messageElements,
   placeItem,
+  rectElement,
   textElement,
   textWidth,
   type ExElement,
@@ -157,3 +160,37 @@ describe("messages", () => {
     expect(arrowElement("a", 0, 0, 10, 0)).toMatchObject({ type: "arrow", endArrowhead: "arrow", startArrowhead: null, width: 10 });
   });
 });
+
+describe("blocks and labels", () => {
+  it("rectElement is shaded only when asked", () => {
+    expect(rectElement("r", 1, 2, 3, 4, false)).toMatchObject({ type: "rectangle", x: 1, y: 2, width: 3, height: 4, backgroundColor: "transparent" });
+    expect(rectElement("r", 1, 2, 3, 4, true).backgroundColor).not.toBe("transparent");
+  });
+
+  it("blockElements scales the box and centres its label inside it", () => {
+    const [rect, text] = blockElements({ x: 10, y: 20, w: 30, h: 40, label: "Data", shaded: true }, 3, 2);
+    expect(rect).toMatchObject({ id: "block-3", x: 20, y: 40, width: 60, height: 80 });
+    expect(text).toMatchObject({ id: "block-3-label", text: "Data" });
+    expect(text.x + text.width / 2).toBeCloseTo(50);
+    expect(text.y + text.height / 2).toBeCloseTo(80);
+  });
+
+  it("labelElement scales the anchor", () => {
+    const l = labelElement({ x: 10, y: 5, text: "Hej" }, 0, 2);
+    expect(l).toMatchObject({ id: "label-0", text: "Hej", y: 10 });
+    expect(l.x + l.width / 2).toBeCloseTo(20);
+  });
+
+  it("buildScene draws blocks first and free labels last, with unique ids", () => {
+    for (const layout of [stack(["a", "b"]), encapsulation(["a", "b", "c", "d", "e"], "01"), compareModels(["L", "R"], ["a", "b"], [{ label: "x", span: 2 }])]) {
+      const scene = buildScene(layout, library, roles);
+      const blocks = layout.blocks ?? [];
+      const labels = layout.labels ?? [];
+      expect(scene.elements).toHaveLength(blocks.length * 2 + labels.length);
+      expect(scene.elements.slice(0, blocks.length * 2).every((e) => e.id.startsWith("block-"))).toBe(true);
+      expect(scene.elements.slice(blocks.length * 2).every((e) => e.id.startsWith("label-"))).toBe(true);
+      expect(new Set(scene.elements.map((e) => e.id)).size).toBe(scene.elements.length);
+    }
+  });
+});
+

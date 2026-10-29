@@ -1,6 +1,6 @@
 // Generated diagrams: scene name -> layout. `npm run diagrams:generate` writes missing scenes.
 // A scene that was hand-edited in Excalidraw is never overwritten unless you pass --force.
-import { bus, clientServer, fullMesh, pair, ring, star, tree, type Layout } from "./lib/layouts.ts";
+import { bus, clientServer, compareModels, encapsulation, fullMesh, pair, ring, stack, star, tree, type Layout } from "./lib/layouts.ts";
 import type { Roles } from "./lib/scene.ts";
 
 /** Which library item plays which role. */
@@ -21,4 +21,18 @@ export const SPECS: Record<string, Layout> = {
   "01-natverk/q-ring": ring(6),
   "01-natverk/q-tree": tree(2, 3),
   "01-natverk/q-mesh": fullMesh(5),
+
+  // 2. Lager på lager
+  "02-lager/text-osi": stack(["7 Applikation", "6 Presentation", "5 Session", "4 Transport", "3 Nätverk", "2 Datalänk", "1 Fysiskt"]),
+  "02-lager/text-inkapsling": encapsulation(["Data", "Segment", "Paket", "Frame", "Bitar"], "0110 1001 0011 …"),
+  "02-lager/text-tcpip": compareModels(
+    ["OSI", "TCP/IP"],
+    ["Applikation", "Presentation", "Session", "Transport", "Nätverk", "Datalänk", "Fysiskt"],
+    [
+      { label: "Applikation", span: 3 },
+      { label: "Transport", span: 1 },
+      { label: "Internet", span: 1 },
+      { label: "Network Access", span: 2 },
+    ],
+  ),
 };
