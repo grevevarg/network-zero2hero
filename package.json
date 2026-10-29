@@ -1,0 +1,33 @@
+{
+  "name": "network-zero2hero",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "check:content": "node scripts/check-content.ts",
+    "check:similarity": "node scripts/check-similarity.ts",
+    "stats": "node scripts/stats.ts",
+    "import:image": "node scripts/import-image.ts"
+  },
+  "dependencies": {
+    "preact": "^11.1.0"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@testing-library/preact": "^3.2.6",
+    "@types/node": "^26.6.6",
+    "@vitest/coverage-v8": "^5.0.5",
+    "fast-check": "^4.10.2",
+    "happy-dom": "^21.0.4",
+    "marked": "^18.1.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5",
+    "zod": "^4.6.7"
+  }
+}

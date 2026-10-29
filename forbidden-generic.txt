@@ -1,0 +1,27 @@
+# Generic terms that must never appear in tracked files or the build.
+# One per line. A leading "=" means whole word only (case-insensitive).
+# Specific names live in the gitignored .forbidden-terms file.
+lärare
+tenta
+=prov
+=provet
+=proven
+=provfråga
+kurs
+lektion
+föreläsning
+=elev
+=elever
+skolan
+=YH
+yrkeshögskola
+inlämning
+plugg
+certifiering
+=examen
+Network+
+CompTIA
+N10-
+=teacher
+=exam
+=exams
