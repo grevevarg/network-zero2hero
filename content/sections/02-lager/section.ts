@@ -12,7 +12,7 @@ const section: SectionInput = {
       "applikationslagret", "presentationslagret", "sessionslagret", "transportlagret",
       "natverkslagret", "datalankslagret", "fysiska-lagret",
       "header", "logisk-adress", "fysisk-adress", "trailer", "inkapsling",
-      "pdu", "segment", "paket", "frame", "tcp-ip-modellen",
+      "pdu", "segment", "datagram", "paket", "frame", "tcp-ip-modellen",
     ],
     requires: ["natverk", "klient", "server"],
     diagrams: {

@@ -108,12 +108,12 @@ export const questions: QuestionInput[] = [
     kind: "mcq",
     id: "lager-uppackning",
     uses: ["inkapsling", "header", "trailer", "datalankslagret", "natverkslagret", "transportlagret", "applikationslagret"],
-    prompt: "Mottagaren har tagit emot bitarna och börjar packa upp. Vilket lagers header läses och tas bort först?",
+    prompt: "Mottagaren har tagit emot bitarna och börjar packa upp. Vilket lager får sin header behandlad (läst och kastad) först?",
     options: [
-      { id: "lager2", text: "Datalänkslagrets (lager 2)" },
-      { id: "lager3", text: "Nätverkslagrets (lager 3)" },
-      { id: "lager4", text: "Transportlagrets (lager 4)" },
-      { id: "lager7", text: "Applikationslagrets (lager 7)" },
+      { id: "lager2", text: "Datalänkslagret (lager 2)" },
+      { id: "lager3", text: "Nätverkslagret (lager 3)" },
+      { id: "lager4", text: "Transportlagret (lager 4)" },
+      { id: "lager7", text: "Applikationslagret (lager 7)" },
     ],
     correct: "lager2",
     explanation:

@@ -30,6 +30,6 @@ Things to revisit later. Content items need checking against the notes before th
   - TCP/IP layer names and how they map to OSI. Only "Network Access Layer" appears in the notes.
 - [ ] **Errors in the notes left out.** ASCII is 7 bits (128 characters, not 127), extended ASCII is 8 bits (256 in total), and UTF-8 is variable length, not 16 bits. The text names ASCII and UTF-8 without any numbers.
 - [ ] **Compression at layer 6** is a classic textbook fact but is missing from the lecture notes, so it is left out. Add it?
-- [ ] **"Datagram"** is left out. The notes use it for UDP and call the difference unimportant; it can come with TCP/UDP later.
+- [ ] **"Datagram"** is now on the PDU card as layer 4's other name, without naming UDP (that comes later). "Används ibland även om andra lager" is from the OSI note; check the wording.
 - [ ] **LLC/MAC sublayers and the IEEE 802 groups** are not covered. The notes have them, but the plan doesn't place them anywhere. Section 5, maybe?
 - [ ] **Bookshelf analogy:** the brand and the city are removed (the city is on the local forbidden list).

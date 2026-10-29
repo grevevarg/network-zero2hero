@@ -3,7 +3,7 @@
 
 I förra avsnittet bad en klient en server om lite hårdrock. Det låter enkelt, men det är många jobb som ska göras på vägen. Datan ska delas upp, få en adress, hitta rätt väg och till slut bli signaler i en kabel.
 
-Om ett enda program skulle sköta allt det blev det ett jättelikt och rörigt program. Därför delar man upp jobbet i lager. Varje lager gör sin del och litar på att de andra lagren gör sin.
+Om ett enda program skulle sköta allt detta hade det blivit ett massivt och rörigt program. Därför delar man upp jobbet i lager. Varje lager gör sin del och litar på att de andra lagren gör sin.
 
 Det är lite som när du skickar ett brev. Du skriver adressen på kuvertet, men du behöver inte veta hur lastbilen körs. Det är någon annans jobb.
 
@@ -106,7 +106,7 @@ Lagren 7, 6 och 5 kan också lägga till information, men för lagren under räk
 
 Hos mottagaren går det baklänges. Lager 2 läser och tar bort sin header och trailer, sedan gör lager 3 likadant med sin header, och så vidare uppåt. Till slut ligger bara datan kvar, och programmet får den.
 
-<!-- uses: pdu, segment, paket, frame, bit -->
+<!-- uses: pdu, segment, datagram, paket, frame, bit -->
 ## Datan byter namn
 
 Datan har olika namn beroende på vilket lager den är i. Ett samlingsnamn för dem är **PDU**, som står för Protocol Data Unit.
@@ -114,10 +114,12 @@ Datan har olika namn beroende på vilket lager den är i. Ett samlingsnamn för 
 | Lager | PDU |
 | --- | --- |
 | 7, 6 och 5 | Data |
-| 4 | Segment |
+| 4 | Segment eller datagram |
 | 3 | Paket |
 | 2 | Frame |
 | 1 | Bitar |
+
+Lager 4 kan skicka data på två olika sätt. Det ena kallar sin PDU för segment, det andra för **datagram**. Skillnaden kommer i ett senare avsnitt. Ordet datagram används ibland även om andra lager, så läs det utifrån sammanhanget.
 
 När du skickar går kedjan alltså data, segment, paket, frame, bitar. Hos mottagaren går den åt andra hållet.
 
@@ -147,7 +149,7 @@ TCP/IP slår ihop några av OSI-lagren. Applikation, presentation och session bl
 
 Folk som jobbar med nätverk pratar ändå oftast i OSI-lager. Säger någon att det är ett lager 1-problem vet alla att det är kabeln som ska kollas. De fyra lägsta lagren är de viktigaste när man bygger nät, och det är dem resten av avsnitten handlar mest om.
 
-<!-- uses: protokoll, bit, byte, osi-modellen, logisk-adress, fysisk-adress, inkapsling, header, trailer, pdu, tcp-ip-modellen; kind: recap -->
+<!-- uses: protokoll, bit, byte, osi-modellen, logisk-adress, fysisk-adress, inkapsling, header, trailer, pdu, datagram, tcp-ip-modellen; kind: recap -->
 ## Kort sammanfattning
 
 - Ett protokoll är regler för hur enheter pratar med varandra.
@@ -155,5 +157,5 @@ Folk som jobbar med nätverk pratar ändå oftast i OSI-lager. Säger någon att
 - OSI-modellen har sju lager: applikation, presentation, session, transport, nätverk, datalänk och fysiskt.
 - Lager 3 har den logiska adressen till slutmålet. Lager 2 har den fysiska adressen till grannen.
 - Vid inkapsling sätter varje lager sin header framför datan, och lager 2 lägger också en trailer i slutet. Mottagaren packar upp baklänges.
-- Datan heter data, segment, paket, frame och bitar på vägen ner.
+- Datan heter data, segment (eller datagram), paket, frame och bitar på vägen ner.
 - TCP/IP-modellen har fyra lager: Applikation, Transport, Internet och Network Access.
