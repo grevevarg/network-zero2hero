@@ -195,4 +195,16 @@ export const concepts: Concept[] = [
   { id: "dot1q", section: "vlan", term: "802.1Q", explanation: "Standarden för VLAN-taggen, 4 bytes som stoppas in i framen på en trunk." },
   { id: "vlan-id", section: "vlan", term: "VLAN ID", explanation: "Talet i taggen som säger vilket VLAN framen hör till. 12 bitar, VLAN 1 till 4094 går att använda." },
   { id: "inter-vlan-routing", section: "vlan", term: "Routing mellan VLAN", explanation: "Trafik mellan VLAN måste gå via en router eller lager 3-switch, ofta via en trunk-port." },
+
+  // 14. Trådlöst nätverk
+  { id: "wlan", section: "wlan", term: "WLAN", explanation: "Wireless LAN, alltså wifi. Smidigt men störningskänsligt, och alla delar på bandbredden." },
+  { id: "ieee-80211", section: "wlan", term: "802.11", explanation: "IEEE:s standarder för WLAN. 802.11n kallas också Wi-Fi 4, 802.11ac Wi-Fi 5, 802.11ax Wi-Fi 6 och 802.11be Wi-Fi 7." },
+  { id: "accesspunkt", section: "wlan", term: "Accesspunkt (AP)", explanation: "Kopplar ihop trådlösa klienter med det trådbundna nätet. Jobbar på lager 2, som en trådlös switch." },
+  { id: "tradlos-brygga", section: "wlan", term: "Trådlös brygga", explanation: "En fast länk genom luften, till exempel mellan två byggnader." },
+  { id: "antenn", section: "wlan", term: "Rundstrålande och riktad antenn", explanation: "En rundstrålande antenn sänder åt alla håll. En riktad sänder åt ett håll men längre." },
+  { id: "ssid", section: "wlan", term: "SSID", explanation: "Det trådlösa nätets namn, högst 32 tecken. Samma SSID betyder samma broadcastdomän." },
+  { id: "kanal", section: "wlan", term: "Kanal", explanation: "En del av frekvensbandet. Grannar ska ha olika kanaler, på 2,4 GHz 1, 6 och 11." },
+  { id: "csma-ca", section: "wlan", term: "CSMA/CA", explanation: "Wifi:s sätt att undvika krockar: lyssna, vänta en slumpad stund och bekräfta varje frame med ACK." },
+  { id: "wpa", section: "wlan", term: "WEP, WPA2 och WPA3", explanation: "Kryptering för wifi. WEP är knäckt, WPA2 är minimum och WPA3 är bäst." },
+  { id: "eap", section: "wlan", term: "EAP", explanation: "Inloggning där varje användare har eget namn och lösenord mot en server, ofta RADIUS." },
 ];

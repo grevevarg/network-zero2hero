@@ -125,4 +125,16 @@ export const SPECS: Record<string, Layout> = {
     190,
     ["#d0ebff", "#d0ebff", "#d3f9d8", "#d3f9d8", "#fff3bf", "transparent"],
   ),
+
+  // 14. Trådlöst nätverk. Access points in a corridor, with their channels.
+  "14-wlan/text-kanaler": parts(
+    ["1", "6", "11", "1"].map((ch, i) => ({ text: `Kanal ${ch}`, caption: `AP ${i + 1}`, shaded: i % 2 === 1 })),
+    6,
+    true,
+  ),
+  "14-wlan/q-kanaler": parts(
+    ["1", "?", "11"].map((ch, i) => ({ text: ch === "?" ? "?" : `Kanal ${ch}`, caption: `AP ${i + 1}`, shaded: i === 1 })),
+    6,
+    true,
+  ),
 };

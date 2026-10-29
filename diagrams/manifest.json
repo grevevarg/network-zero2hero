@@ -190,5 +190,17 @@
     "image": "img/47ab5cb27a0ab552ee37ed736a71ce0a.svg",
     "width": 514,
     "height": 301
+  },
+  "14-wlan/q-kanaler": {
+    "sourceHash": "7919a7498b17b029e7ed4ffe9e2236672ad1bef5cbb285155bfcfd15e84259d2",
+    "image": "img/6931dfee2ec805bf751a3feeef615b02.svg",
+    "width": 457,
+    "height": 110
+  },
+  "14-wlan/text-kanaler": {
+    "sourceHash": "c86f866184198ccca7825bfb07a1076b231e67b1df00506d0f838537782147d3",
+    "image": "img/77a27dffaf57f7c44c4ae15017b33c70.svg",
+    "width": 602,
+    "height": 110
   }
 }
