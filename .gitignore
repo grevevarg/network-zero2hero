@@ -23,3 +23,20 @@ Gemfile.lock
 CLAUDE.md
 # end trust issues
 !README.md
+
+# Content Markdown is ours and must be tracked (the *.md rule above hides vault-style notes)
+!content/**/*.md
+
+# Node / build
+node_modules/
+dist/
+coverage/
+
+# Local-only review material (source mapping to private notes)
+review/
+
+# Local path to the old quiz for check:similarity
+.quiz-path
+
+# Local-only list of vault folder and file name fragments for check:content
+.vault-terms
