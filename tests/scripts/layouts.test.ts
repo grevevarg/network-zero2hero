@@ -135,6 +135,8 @@ describe("block diagrams", () => {
         expect(d.height).toBe((d.blocks ?? []).reduce((h, b) => h + b.h, 0));
       }),
     );
+    expect(stack(["a", "b"], 50, ["#111111", "#222222"]).blocks?.map((b) => b.fill)).toEqual(["#111111", "#222222"]);
+    expect(stack(["a"]).blocks?.[0].fill).toBeUndefined();
   });
 
   it("encapsulation: each row adds the next header in front, layer 2 also adds a trailer", () => {

@@ -162,9 +162,12 @@ describe("messages", () => {
 });
 
 describe("blocks and labels", () => {
-  it("rectElement is shaded only when asked", () => {
-    expect(rectElement("r", 1, 2, 3, 4, false)).toMatchObject({ type: "rectangle", x: 1, y: 2, width: 3, height: 4, backgroundColor: "transparent" });
-    expect(rectElement("r", 1, 2, 3, 4, true).backgroundColor).not.toBe("transparent");
+  it("rectElement takes its background as given, and blocks pick fill over shading over none", () => {
+    expect(rectElement("r", 1, 2, 3, 4, "#123456")).toMatchObject({ type: "rectangle", x: 1, y: 2, width: 3, height: 4, backgroundColor: "#123456" });
+    const bg = (b: { shaded?: boolean; fill?: string }) => blockElements({ x: 0, y: 0, w: 1, h: 1, label: "", ...b }, 0, 1)[0].backgroundColor;
+    expect(bg({})).toBe("transparent");
+    expect(bg({ shaded: true })).not.toBe("transparent");
+    expect(bg({ shaded: true, fill: "#ff0000" })).toBe("#ff0000");
   });
 
   it("blockElements scales the box and centres its label inside it", () => {

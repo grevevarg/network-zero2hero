@@ -33,3 +33,14 @@ Things to revisit later. Content items need checking against the notes before th
 - [ ] **"Datagram"** is now on the PDU card as layer 4's other name, without naming UDP (that comes later). "Används ibland även om andra lager" is from the OSI note; check the wording.
 - [ ] **LLC/MAC sublayers and the IEEE 802 groups** are not covered. The notes have them, but the plan doesn't place them anywhere. Section 5, maybe?
 - [ ] **Bookshelf analogy:** the brand and the city are removed (the city is on the local forbidden list).
+
+## Section 3: Kablar och kontakter
+
+- [ ] **Not in the notes, left out:** crossover and rollover cables, fiber connectors (ST/SC/LC), transceivers (SFP/QSFP) and crosstalk vs EMI. They only appear in the graded-quiz notes, which I don't use as a source. They were in the approved outline, so add them from another source if they should be covered.
+- [ ] **Errors in the notes, corrected from the lecture slide:**
+  - The note says SMF uses "LED/Laser"; it uses lasers. LEDs are for MMF.
+  - The note says MMF needs "equipment for different colours". Multimode means many light paths, not colours.
+- [ ] **Fiber distance:** the note says "upp till 40 km" and the slide says 100+ km for SMF. The text says "flera mil", which covers both.
+- [ ] **Left out:** "ljus är snabbare än el" (shaky as a claim), and the ±2.5 V = 1/0 signalling picture (simplified to the point of being misleading for gigabit). Add them back if you want them.
+- [ ] **Speed table** is from the lecture slide. Cat6 is 1 Gbit/s there (the 10 Gbit/s at 55 m detail is not in the notes).
+- [ ] **Patch cable** is moved to section 4, together with the patch panel.

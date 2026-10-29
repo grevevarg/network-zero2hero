@@ -3,8 +3,11 @@ export type LayoutNode = { id: string; x: number; y: number; shape: NodeShape };
 export type Edge = [string, string];
 /** A labelled arrow drawn beside the straight line between two nodes, above or below it. */
 export type Message = { from: string; to: string; label: string; side: "above" | "below" };
-/** A labelled rectangle with its top-left corner at (x, y). Shaded blocks stand out, like headers. */
-export type Block = { x: number; y: number; w: number; h: number; label: string; shaded?: boolean };
+/**
+ * A labelled rectangle with its top-left corner at (x, y). Shaded blocks stand out, like headers.
+ * `fill` sets an exact background colour instead, for things that have a real colour (wires).
+ */
+export type Block = { x: number; y: number; w: number; h: number; label: string; shaded?: boolean; fill?: string };
 /** Free text centred on x, with its top at y. */
 export type Label = { x: number; y: number; text: string };
 /** Positions for a diagram in a 200 x 160 box. Scenes scale this up and place library items on it. */
@@ -127,9 +130,9 @@ export function clientServer(question: string, answer: string): Layout {
 
 const BLOCK_H = 18;
 
-/** Boxes stacked on top of each other, first label at the top. */
-export function stack(labels: readonly string[], width = 190): Layout {
-  const blocks = labels.map((label, i): Block => ({ x: 0, y: i * BLOCK_H, w: width, h: BLOCK_H, label }));
+/** Boxes stacked on top of each other, first label at the top. `fills` colours them in the same order. */
+export function stack(labels: readonly string[], width = 190, fills?: readonly string[]): Layout {
+  const blocks = labels.map((label, i): Block => ({ x: 0, y: i * BLOCK_H, w: width, h: BLOCK_H, label, fill: fills?.[i] }));
   return { width, height: labels.length * BLOCK_H, nodes: [], edges: [], blocks };
 }
 

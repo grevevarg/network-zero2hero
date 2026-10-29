@@ -203,7 +203,7 @@ export function messageElements(m: Message, from: Box, to: Box, index: number): 
 /** Light grey that the dark-mode invert filter turns into a dark grey. */
 const SHADE = "#e9ecef";
 
-export function rectElement(id: string, x: number, y: number, width: number, height: number, shaded: boolean): ExElement {
+export function rectElement(id: string, x: number, y: number, width: number, height: number, background: string): ExElement {
   return {
     ...BASE,
     id,
@@ -212,7 +212,7 @@ export function rectElement(id: string, x: number, y: number, width: number, hei
     y,
     width,
     height,
-    backgroundColor: shaded ? SHADE : "transparent",
+    backgroundColor: background,
     seed: hashString(`${id}:seed`),
     versionNonce: hashString(`${id}:nonce`),
   };
@@ -223,7 +223,7 @@ export function blockElements(b: Block, index: number, scale: number): ExElement
   const [x, y, w, h] = [b.x * scale, b.y * scale, b.w * scale, b.h * scale];
   const top = y + (h - FONT_SIZE * 1.25) / 2;
   return [
-    rectElement(`block-${index}`, x, y, w, h, b.shaded ?? false),
+    rectElement(`block-${index}`, x, y, w, h, b.fill ?? (b.shaded ? SHADE : "transparent")),
     textElement(`block-${index}-label`, b.label, x + w / 2, top),
   ];
 }

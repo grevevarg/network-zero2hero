@@ -35,4 +35,11 @@ export const SPECS: Record<string, Layout> = {
       { label: "Network Access", span: 2 },
     ],
   ),
+
+  // 3. Kablar och kontakter. Wire colours: solid colours for the plain wires, pale tints for the striped ones.
+  "03-kablar/text-t568b": stack(
+    ["1 Vit/orange", "2 Orange", "3 Vit/grön", "4 Blå", "5 Vit/blå", "6 Grön", "7 Vit/brun", "8 Brun"],
+    190,
+    ["#fff0dc", "#ffa94d", "#e3f7e6", "#74c0fc", "#e3f1fd", "#69db7c", "#f3e9df", "#c4996c"],
+  ),
 };
