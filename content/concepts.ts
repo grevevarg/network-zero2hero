@@ -230,4 +230,11 @@ export const concepts: Concept[] = [
   { id: "eui-64", section: "ipv6", term: "EUI-64", explanation: "Bygger interface-ID av MAC-adressen: FF:FE i mitten och den sjunde biten vänd." },
   { id: "aaaa", section: "ipv6", term: "AAAA", explanation: "DNS-posten som ger ett namns IPv6-adress." },
   { id: "dual-stack", section: "ipv6", term: "Dual stack", explanation: "IPv4 och IPv6 körs samtidigt. Varje enhet har adresser i båda, och allt ställs in två gånger." },
+
+  // 16. Felsökning
+  { id: "felsokningsmetod", section: "felsokning", term: "Nerifrån och upp", explanation: "Felsök ett lager i taget, från kabeln och uppåt, och fortsätt från den yttersta punkt som svarar." },
+  { id: "ipconfig", section: "felsokning", term: "ipconfig", explanation: "Visar datorns IP-adress, mask och default gateway i Windows." },
+  { id: "ping-svar", section: "felsokning", term: "Destination Unreachable och Request Timed Out", explanation: "Unreachable är ett känt fel, till exempel en saknad route. Timed Out betyder bara att inget svar kom." },
+  { id: "tracert", section: "felsokning", term: "tracert", explanation: "Visar varje router på vägen, med hjälp av TTL." },
+  { id: "nslookup", section: "felsokning", term: "nslookup", explanation: "Frågar DNS direkt vilken adress ett namn har." },
 ];

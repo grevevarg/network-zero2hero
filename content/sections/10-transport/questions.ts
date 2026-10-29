@@ -81,12 +81,12 @@ export const questions: QuestionInput[] = [
     uses: ["telnet", "ping", "port", "tcp"],
     prompt: "Du kan pinga en webbserver, men sidan visas inte. Hur tar du reda på om servern lyssnar på port 443?",
     options: [
-      { id: "telnet", text: "Försöker ansluta med telnet till serverns port 443" },
+      { id: "telnet-till-porten", text: "Försöker ansluta med telnet till serverns port 443" },
       { id: "ping", text: "Pingar servern igen, flera gånger" },
       { id: "netstat", text: "Kör netstat -n -a på din egen dator" },
       { id: "arp", text: "Tittar i ARP-tabellen med arp -a" },
     ],
-    correct: "telnet",
+    correct: "telnet-till-porten",
     explanation:
       "Telnet försöker öppna en TCP-anslutning till just den porten, så du ser om servern lyssnar där. Ping svarar bara på om datorn finns, inte på om en viss port är öppen. Med netstat -n -a ser du vilka portar din egen dator lyssnar på, inte serverns. ARP-tabellen visar bara MAC-adresser i ditt eget nät.",
   },

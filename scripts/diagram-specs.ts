@@ -152,4 +152,15 @@ export const SPECS: Record<string, Layout> = {
     { text: "FF:FE", caption: "Inlagt", shaded: true },
     { text: "3C:4D:5E", caption: "Andra halvan" },
   ]),
+
+  // 16. Felsökning. Ping outwards step by step, from the machine itself to beyond the gateway.
+  "16-felsokning/text-ping": chain(
+    [
+      { shape: "device", label: "Steg 1 och 2" },
+      { shape: "box" },
+      { shape: "router", label: "Steg 3" },
+      { shape: "server", label: "Steg 4" },
+    ],
+    80,
+  ),
 };
