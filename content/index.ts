@@ -11,7 +11,8 @@ import routingprotokoll from "./sections/09-routingprotokoll/section.ts";
 import transport from "./sections/10-transport/section.ts";
 import dhcpdns from "./sections/11-dhcpdns/section.ts";
 import natacl from "./sections/12-natacl/section.ts";
+import vlan from "./sections/13-vlan/section.ts";
 
 export const title = "Från noll till nätverk";
 export { concepts };
-export const sections = [natverk, lager, kablar, markning, switchar, ipv4, subnat, routing, routingprotokoll, transport, dhcpdns, natacl];
+export const sections = [natverk, lager, kablar, markning, switchar, ipv4, subnat, routing, routingprotokoll, transport, dhcpdns, natacl, vlan];

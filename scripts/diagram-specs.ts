@@ -118,4 +118,11 @@ export const SPECS: Record<string, Layout> = {
     ],
     95,
   ),
+
+  // 13. VLAN. Switch ports coloured by VLAN; the last port is a trunk that carries all three.
+  "13-vlan/text-portar": stack(
+    ["Port 1: VLAN 10", "Port 2: VLAN 10", "Port 3: VLAN 20", "Port 4: VLAN 20", "Port 5: VLAN 30", "Port 6: trunk, alla VLAN"],
+    190,
+    ["#d0ebff", "#d0ebff", "#d3f9d8", "#d3f9d8", "#fff3bf", "transparent"],
+  ),
 };

@@ -184,5 +184,11 @@
     "image": "img/63766bfe076563624dfe2214bd2b7b13.svg",
     "width": 686,
     "height": 168
+  },
+  "13-vlan/text-portar": {
+    "sourceHash": "7ac7d52f52c3a8e413a74e019aeba2489c900a068de04fa6cced5ac78f710a8e",
+    "image": "img/47ab5cb27a0ab552ee37ed736a71ce0a.svg",
+    "width": 514,
+    "height": 301
   }
 }

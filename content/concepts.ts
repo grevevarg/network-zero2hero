@@ -187,4 +187,12 @@ export const concepts: Concept[] = [
   { id: "implicit-deny", section: "natacl", term: "Implicit deny", explanation: "Den osynliga sista regeln i varje ACL, som nekar allt som inte passat någon regel." },
   { id: "standard-extended-acl", section: "natacl", term: "Standard- och extended-ACL", explanation: "Standard tittar bara på avsändaren. Extended kan också titta på mottagare, protokoll och portar." },
   { id: "wildcard-mask", section: "natacl", term: "Wildcard-mask", explanation: "Masken vänd ut och in, 255 minus masken i varje oktett. /24 blir 0.0.0.255." },
+
+  // 13. VLAN
+  { id: "vlan", section: "vlan", term: "VLAN", explanation: "Virtual LAN. En logisk uppdelning av switchens portar i flera nät. Varje VLAN är en egen broadcastdomän." },
+  { id: "access-port", section: "vlan", term: "Access-port", explanation: "En switchport som hör till ett enda VLAN. Datorer och skrivare kopplas hit." },
+  { id: "trunk-port", section: "vlan", term: "Trunk-port", explanation: "En switchport som bär trafik från flera VLAN, med en tagg på varje frame." },
+  { id: "dot1q", section: "vlan", term: "802.1Q", explanation: "Standarden för VLAN-taggen, 4 bytes som stoppas in i framen på en trunk." },
+  { id: "vlan-id", section: "vlan", term: "VLAN ID", explanation: "Talet i taggen som säger vilket VLAN framen hör till. 12 bitar, VLAN 1 till 4094 går att använda." },
+  { id: "inter-vlan-routing", section: "vlan", term: "Routing mellan VLAN", explanation: "Trafik mellan VLAN måste gå via en router eller lager 3-switch, ofta via en trunk-port." },
 ];
