@@ -115,4 +115,14 @@ export const concepts: Concept[] = [
   { id: "loopback", section: "ipv4", term: "Loopback", explanation: "127.0.0.1 och resten av 127.x.x.x. Betyder datorn själv och används för att testa IP." },
   { id: "apipa", section: "ipv4", term: "APIPA", explanation: "En adress på 169.254 som datorn hittar på när den inte fick någon adress automatiskt." },
   { id: "arp", section: "ipv4", term: "ARP", explanation: "Tar reda på MAC-adressen till en IP-adress i samma broadcastdomän med en broadcast-fråga." },
+
+  // 7. Subnätting
+  { id: "host", section: "subnat", term: "Host", explanation: "En enhet som har en IP-adress i nätet, till exempel en dator eller en skrivare." },
+  { id: "natverksadress", section: "subnat", term: "Nätverksadress", explanation: "Den lägsta adressen i ett nät, där värddelen bara är nollor. Namnet på hela nätet." },
+  { id: "broadcastadress", section: "subnat", term: "Broadcastadress", explanation: "Den högsta adressen i ett nät, där värddelen bara är ettor. Går till alla i nätet." },
+  { id: "antal-hosts", section: "subnat", term: "Antal hosts", explanation: "2 upphöjt till antalet värdbitar, minus 2. Ett /24 har 254 hosts." },
+  { id: "subnatting", section: "subnat", term: "Subnätting", explanation: "Att dela ett nät i mindre nät genom att låna bitar från värddelen." },
+  { id: "blockstorlek", section: "subnat", term: "Blockstorlek", explanation: "Hur många adresser varje subnät har: 256 minus maskens värde i oktetten där masken slutar." },
+  { id: "vlsm", section: "subnat", term: "VLSM", explanation: "Variable Length Subnet Masking. Varje subnät får den mask som passar det. Dela ut från störst till minst." },
+  { id: "ip-plan", section: "subnat", term: "IP-plan", explanation: "Ett dokument med alla nät, masker, host-adresser och broadcastadresser." },
 ];

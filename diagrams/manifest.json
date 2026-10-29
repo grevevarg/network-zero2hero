@@ -136,5 +136,11 @@
     "image": "img/5654ab48048407353db9d80bc5e37993.svg",
     "width": 353,
     "height": 110
+  },
+  "07-subnat/text-block": {
+    "sourceHash": "2745166605b5792f88718e950343fb60e0ce6914e04722f0fb39ae836f161fd1",
+    "image": "img/9f972e5eb0c0d17cc2d06c83a8bbd1a6.svg",
+    "width": 545,
+    "height": 110
   }
 }

@@ -211,6 +211,8 @@ describe("parts", () => {
     expect(d.width).toBe(b.x + b.w);
     expect(d.labels).toEqual([{ x: a.w / 2, y: a.h + 4, text: "Tillverkare" }]);
     expect(parts([{ text: "x" }]).labels).toEqual([]);
+    const eq = parts([{ text: "x" }, { text: "longer" }], 10, true).blocks ?? [];
+    expect(eq[0].w).toBe(eq[1].w);
   });
 });
 

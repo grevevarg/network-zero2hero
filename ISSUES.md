@@ -85,3 +85,12 @@ Things to revisit later. Content items need checking against the notes before th
 - [ ] **Not from the notes:** the binary conversion method (subtract from the left), "class A has room for over 16 million devices", and that the private ranges are given as full address ranges (the note lists them as networks).
 - [ ] **Left out:** the remark that you never use 0 or 255 (it's unclear in the note; network and broadcast addresses come in section 7), and the multicast RTP URL example.
 - [ ] **Example names:** a place name in the note's class example is on the forbidden list, so that example isn't used.
+
+## Section 7: Subnätting
+
+- [ ] **"Host" is defined here** as any device with an IP address. That answers the open question from section 1 for later sections. Section 1 still avoids the word.
+- [ ] **Method and examples come from the subnetting cheat sheet** (Misc), which is your own summary of the 1005 and 1007 notes. The VLSM example is marked there as made-up numbers. Check that you're happy using it.
+- [ ] **Note error not copied:** the IP plan in the 1005 note gives broadcast "100.32" for 192.168.100.0/27. The right answer is .31, as the cheat sheet points out.
+- [ ] **Left out:** supernetting, /31 and /32, and the class A/B subnetting examples from the 1007 note. They could be extra practice questions later.
+- [ ] **No generated practice.** Every subnetting question is written by hand, with answers computed by `net.ts`. A seeded "new exercise" generator (a bit-grid puzzle) was in the plan and is still open.
+- [ ] **LIX is 21.9**, well under the 30–40 target. The sentences are short and full of numbers, which is probably fine for this section.
