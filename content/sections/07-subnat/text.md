@@ -94,7 +94,7 @@ Alla delar av ett nät behöver inte vara lika stora. Med **VLSM** (Variable Len
 Säg att du ska dela 192.168.10.0/24 i tre LAN med 100, 50 och 20 hosts, plus en länk mellan två enheter som bara behöver två adresser.
 
 1. Sortera från störst till minst. Det är det viktigaste steget.
-2. Välj mask för varje nät, som på förra kortet.
+2. Välj mask för varje nät, som på förra sidan.
 3. Ge varje nät nästa lediga adress som är en multipel av dess blockstorlek.
 
 | Nät | Hosts | Mask | Nätverksadress | Broadcast |
