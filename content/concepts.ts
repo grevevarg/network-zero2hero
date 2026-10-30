@@ -107,7 +107,7 @@ export const concepts: Concept[] = [
   { id: "oktett", section: "ipv4", term: "Oktett", explanation: "En av de fyra delarna i en IPv4-adress. Åtta bitar, ett tal från 0 till 255." },
   { id: "binart", section: "ipv4", term: "Binärt", explanation: "Tal skrivna med bara ettor och nollor. Bitvärdena i en oktett är 128, 64, 32, 16, 8, 4, 2 och 1." },
   { id: "natdel-vardel", section: "ipv4", term: "Nätdel och värddel", explanation: "Nätdelen säger vilket nät, värddelen vilken enhet i nätet. Som riktnummer och telefonnummer." },
-  { id: "subnatmask", section: "ipv4", term: "Subnätmask", explanation: "32 bitar där ettorna visar nätdelen och nollorna värddelen, till exempel 255.255.255.0." },
+  { id: "subnatmask", section: "ipv4", term: "Subnet mask", explanation: "32 bitar där ettorna visar nätdelen och nollorna värddelen, till exempel 255.255.255.0." },
   { id: "prefix", section: "ipv4", term: "Prefix", explanation: "Antalet ettor i masken, skrivet med snedstreck. 255.255.255.0 är /24." },
   { id: "adressklass", section: "ipv4", term: "Klass A, B och C", explanation: "Den gamla indelningen efter första oktetten: A 1–126 (/8), B 128–191 (/16), C 192–223 (/24)." },
   { id: "privat-adress", section: "ipv4", term: "Privat adress", explanation: "Adress för lokala nät som inte används på internet: 10.x.x.x, 172.16–172.31 och 192.168." },
@@ -116,13 +116,13 @@ export const concepts: Concept[] = [
   { id: "apipa", section: "ipv4", term: "APIPA", explanation: "En adress på 169.254 som datorn hittar på när den inte fick någon adress automatiskt." },
   { id: "arp", section: "ipv4", term: "ARP", explanation: "Tar reda på MAC-adressen till en IP-adress i samma broadcastdomän med en broadcast-fråga." },
 
-  // 7. Subnätting
+  // 7. Subnetting
   { id: "host", section: "subnat", term: "Host", explanation: "En enhet som har en IP-adress i nätet, till exempel en dator eller en skrivare." },
   { id: "natverksadress", section: "subnat", term: "Nätverksadress", explanation: "Den lägsta adressen i ett nät, där värddelen bara är nollor. Namnet på hela nätet." },
   { id: "broadcastadress", section: "subnat", term: "Broadcastadress", explanation: "Den högsta adressen i ett nät, där värddelen bara är ettor. Går till alla i nätet." },
   { id: "antal-hosts", section: "subnat", term: "Antal hosts", explanation: "2 upphöjt till antalet värdbitar, minus 2. Ett /24 har 254 hosts." },
-  { id: "subnatting", section: "subnat", term: "Subnätting", explanation: "Att dela ett nät i mindre nät genom att låna bitar från värddelen." },
-  { id: "blockstorlek", section: "subnat", term: "Blockstorlek", explanation: "Hur många adresser varje subnät har: 256 minus maskens värde i oktetten där masken slutar." },
-  { id: "vlsm", section: "subnat", term: "VLSM", explanation: "Variable Length Subnet Masking. Varje subnät får den mask som passar det. Dela ut från störst till minst." },
+  { id: "subnatting", section: "subnat", term: "Subnetting", explanation: "Att dela ett nät i mindre nät genom att låna bitar från värddelen." },
+  { id: "blockstorlek", section: "subnat", term: "Blockstorlek", explanation: "Hur många adresser varje subnet har: 256 minus maskens värde i oktetten där masken slutar." },
+  { id: "vlsm", section: "subnat", term: "VLSM", explanation: "Variable Length Subnet Masking. Varje subnet får den mask som passar det. Dela ut från störst till minst." },
   { id: "ip-plan", section: "subnat", term: "IP-plan", explanation: "Ett dokument med alla nät, masker, host-adresser och broadcastadresser." },
 ];

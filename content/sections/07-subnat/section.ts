@@ -5,7 +5,7 @@ const section: SectionInput = {
   meta: {
     id: "subnat",
     number: 7,
-    title: "Subnätting",
+    title: "Subnetting",
     slug: "07-subnat",
     introduces: ["host", "natverksadress", "broadcastadress", "antal-hosts", "subnatting", "blockstorlek", "vlsm", "ip-plan"],
     requires: ["broadcastdoman", "broadcast", "privat-adress", "prefix", "subnatmask", "natdel-vardel", "bit", "oktett"],

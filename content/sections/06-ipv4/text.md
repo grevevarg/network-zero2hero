@@ -35,9 +35,9 @@ En IP-adress består av två delar. **Nätdelen** säger vilket nät enheten fin
 Det är som ett telefonnummer med riktnummer. Riktnumret säger vilken ort det gäller, och resten säger vilken telefon på orten. Alla enheter i samma nät har samma nätdel, men olika värddelar.
 
 <!-- uses: subnatmask, prefix, natdel-vardel, bit -->
-## Subnätmasken
+## Subnet mask
 
-Hur vet en dator var nätdelen slutar? Det berättar **subnätmasken**. Den är också 32 bitar lång och skrivs som en IP-adress. Där masken har ettor är det nätdel, och där den har nollor är det värddel.
+Hur vet en dator var nätdelen slutar? Det berättar **subnet masken**. Den är också 32 bitar lång och skrivs som en IP-adress. Där masken har ettor är det nätdel, och där den har nollor är det värddel.
 
 Masken är alltid en rad ettor följda av en rad nollor, aldrig blandat. Den vanligaste masken i ett litet nät är 255.255.255.0. Då är de tre första oktetterna nätdel och den sista värddel.
 
@@ -94,7 +94,7 @@ ARP fungerar bara inom den egna broadcastdomänen, eftersom det bygger på broad
 
 - En IPv4-adress är 32 bitar i fyra oktetter, skrivna som tal mellan 0 och 255 med punkter emellan.
 - Bitvärdena i en oktett är 128, 64, 32, 16, 8, 4, 2 och 1.
-- Adressen har en nätdel och en värddel. Subnätmasken visar var gränsen går, och /24 betyder 24 ettor i masken.
+- Adressen har en nätdel och en värddel. Subnet masken visar var gränsen går, och /24 betyder 24 ettor i masken.
 - Klass A, B och C har masken /8, /16 och /24. Klasserna används inte så mycket i dag.
 - Privata adresser: 10.x.x.x, 172.16 till 172.31 och 192.168. De används inte på internet.
 - 127.0.0.1 är loopback. En adress på 169.254 (APIPA) betyder att datorn inte fick någon adress.

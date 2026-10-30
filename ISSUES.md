@@ -86,7 +86,7 @@ Things to revisit later. Content items need checking against the notes before th
 - [ ] **Left out:** the remark that you never use 0 or 255 (it's unclear in the note; network and broadcast addresses come in section 7), and the multicast RTP URL example.
 - [ ] **Example names:** a place name in the note's class example is on the forbidden list, so that example isn't used.
 
-## Section 7: Subnätting
+## Section 7: Subnetting
 
 - [ ] **"Host" is defined here** as any device with an IP address. That answers the open question from section 1 for later sections. Section 1 still avoids the word.
 - [ ] **Method and examples come from the subnetting cheat sheet** (Misc), which is your own summary of the 1005 and 1007 notes. The VLSM example is marked there as made-up numbers. Check that you're happy using it.

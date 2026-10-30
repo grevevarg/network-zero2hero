@@ -73,7 +73,7 @@ export const SPECS: Record<string, Layout> = {
     { text: "10", caption: "Värddel" },
   ]),
 
-  // 7. Subnätting. A /24 split into four /26 blocks.
+  // 7. Subnetting. A /24 split into four /26 blocks.
   "07-subnat/text-block": parts(
     ["0–63", "64–127", "128–191", "192–255"].map((text, i) => ({ text, caption: `Nät ${i + 1}`, shaded: i % 2 === 0 })),
     6,

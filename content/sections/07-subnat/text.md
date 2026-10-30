@@ -1,7 +1,7 @@
 <!-- uses: broadcastdoman, broadcast, privat-adress, prefix -->
 ## Varför dela upp nät?
 
-Ett stort nät där alla sitter i samma broadcastdomän blir stökigt. Alla hör allas broadcast, och det är svårt att hålla ordning. Därför delar man ofta upp ett nät i flera mindre. Det kallas **subnätting**.
+Ett stort nät där alla sitter i samma broadcastdomän blir stökigt. Alla hör allas broadcast, och det är svårt att hålla ordning. Därför delar man ofta upp ett nät i flera mindre. Det kallas **subnetting**.
 
 Det låter krångligt, men det bygger bara på det du redan kan: binärt, masker och prefix. Det här avsnittet är matematiskt. Ta det lugnt och räkna med på exemplen. Allt räknas en oktett i taget, och du behöver aldrig skriva ut alla 32 bitar.
 
@@ -51,7 +51,7 @@ Samma regler gäller i varje nät. Båda har en egen nätverksadress och en egen
 
 @diagram(text-block)
 
-Varje subnät är lika stort, och storleken kallas **blockstorlek**. Du räknar ut den med 256 minus maskens värde i den oktett där masken slutar.
+Varje subnet är lika stort, och storleken kallas **blockstorlek**. Du räknar ut den med 256 minus maskens värde i den oktett där masken slutar.
 
 För /26 är masken 255.255.255.192. 256 minus 192 är 64. Ett /24 delat i /26 blir alltså fyra block med 64 adresser i varje: 0 till 63, 64 till 127, 128 till 191 och 192 till 255.
 
@@ -89,7 +89,7 @@ Ofta är frågan den omvända: du vet hur många hosts ett nät ska ha och vill 
 <!-- uses: vlsm, blockstorlek, antal-hosts, natverksadress -->
 ## VLSM
 
-Alla delar av ett nät behöver inte vara lika stora. Med **VLSM** (Variable Length Subnet Masking) får varje subnät den mask som passar just det. Så slösar du inte adresser.
+Alla delar av ett nät behöver inte vara lika stora. Med **VLSM** (Variable Length Subnet Masking) får varje subnet den mask som passar just det. Så slösar du inte adresser.
 
 Säg att du ska dela 192.168.10.0/24 i tre LAN med 100, 50 och 20 hosts, plus en länk mellan två enheter som bara behöver två adresser.
 
