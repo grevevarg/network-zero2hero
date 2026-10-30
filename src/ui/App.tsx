@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import {
   loadProgress,
   markSolved,
@@ -17,6 +17,12 @@ type Props = { course: ClientCourse; storage: Storage | undefined; seed: string;
 export function App({ course, storage, seed, confirmReset }: Props) {
   const [route, setRoute] = useState(() => parseHash(location.hash));
   const [progress, setProgress] = useState<Progress>(() => loadProgress(storage));
+  // A new shuffle seed each time a section is entered. Moving between its cards (or trying a
+  // question again) keeps the order; leaving the section, for the overview or another section,
+  // gives a fresh one next time.
+  const visit = useRef<{ id: string | undefined; n: number }>({ id: undefined, n: 0 });
+  const sectionId = route.page === "section" ? route.id : undefined;
+  if (visit.current.id !== sectionId) visit.current = { id: sectionId, n: visit.current.n + 1 };
 
   useEffect(() => {
     const onHash = () => {
@@ -55,7 +61,7 @@ export function App({ course, storage, seed, confirmReset }: Props) {
           next={course.sections[index + 1]}
           startCard={route.card ?? 1}
           solved={new Set(progress.solved)}
-          seed={seed}
+          seed={`${seed}:${visit.current.n}`}
           onSolved={(id) => update((p) => markSolved(p, id))}
           onPosition={(id, card) => update((p) => setPosition(p, id, card))}
         />

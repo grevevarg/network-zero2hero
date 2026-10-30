@@ -38,9 +38,11 @@ describe("Mcq", () => {
     expect(screen.getByText(/Två är rätt/)).toBeTruthy();
     expect(onSolved).not.toHaveBeenCalled();
     expect(onAnswered).toHaveBeenCalledWith("q-mcq");
+    const order = [...document.querySelectorAll(".option")].map((e) => e.textContent);
     fireEvent.click(screen.getByRole("button", { name: "Försök igen" }));
     expect(screen.queryByText(/Inte riktigt/)).toBeNull();
     expect(screen.getByRole("button", { name: "Svara" })).toBeTruthy();
+    expect([...document.querySelectorAll(".option")].map((e) => e.textContent)).toEqual(order);
   });
 
   it("ignores submit with nothing chosen", () => {
@@ -118,9 +120,9 @@ describe("Matching", () => {
 describe("Question", () => {
   it("dispatches on kind and shows a badge when solved before", () => {
     const { rerender } = render(<Question question={q(0)} seed="s" solved onSolved={() => {}} onAnswered={() => {}} />);
-    expect(screen.getByText("Klarad tidigare")).toBeTruthy();
+    expect(screen.getByText("Klarad")).toBeTruthy();
     rerender(<Question question={q(1)} seed="s" solved={false} onSolved={() => {}} onAnswered={() => {}} />);
-    expect(screen.queryByText("Klarad tidigare")).toBeNull();
+    expect(screen.queryByText("Klarad")).toBeNull();
     expect(document.querySelector(".ordering")).toBeTruthy();
     rerender(<Question question={q(2)} seed="s" solved={false} onSolved={() => {}} onAnswered={() => {}} />);
     expect(screen.getAllByRole("combobox")).toHaveLength(2);
@@ -128,7 +130,7 @@ describe("Question", () => {
 });
 
 describe("shuffling", () => {
-  it("shows the same option order for the same seed and attempt", async () => {
+  it("shows the same option order for the same seed", async () => {
     const order = () => [...document.querySelectorAll(".option")].map((e) => e.textContent);
     render(<Mcq question={q<ClientMcq>(0)} seed="fixed" onSolved={() => {}} onAnswered={() => {}} />);
     const first = order();

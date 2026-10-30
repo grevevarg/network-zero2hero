@@ -9,10 +9,10 @@ import { Html } from "./Html.tsx";
 type Props = { question: ClientMcq; seed: string; onSolved: (id: string) => void; onAnswered: (id: string) => void };
 
 export function Mcq({ question: q, seed, onSolved, onAnswered }: Props) {
-  const [attempt, setAttempt] = useState(0);
   const [chosen, setChosen] = useState<string | undefined>();
   const [verdict, setVerdict] = useState<Verdict>();
-  const options = useMemo(() => shuffle(q.options, rngFromSeed(`${seed}:${q.id}:${attempt}`)), [q, seed, attempt]);
+  // Same order on every try: retrying should not move the options the student just read.
+  const options = useMemo(() => shuffle(q.options, rngFromSeed(`${seed}:${q.id}`)), [q, seed]);
   const answered = verdict !== undefined;
 
   function submit(e: Event) {
@@ -25,7 +25,6 @@ export function Mcq({ question: q, seed, onSolved, onAnswered }: Props) {
   }
 
   function retry() {
-    setAttempt((a) => a + 1);
     setChosen(undefined);
     setVerdict(undefined);
   }
@@ -41,7 +40,7 @@ export function Mcq({ question: q, seed, onSolved, onAnswered }: Props) {
           <label key={o.id} class={`option${chosen === o.id ? " chosen" : ""}`}>
             <input
               type="radio"
-              name={`${q.id}-${attempt}`}
+              name={q.id}
               value={o.id}
               checked={chosen === o.id}
               onChange={() => setChosen(o.id)}

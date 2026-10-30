@@ -34,7 +34,7 @@ Storleken på data räknas oftast i bytes. Det kommer du att se snart.
 
 Modellen hjälper på två sätt. Alla pratar om samma saker på samma sätt, oavsett tillverkare. Och felsökning blir lättare. I stället för att säga att nätet är trasigt kan du peka ut vilket lager felet sitter i.
 
-När du skickar något går datan uppifrån och ner genom lagren. Hos mottagaren går den nerifrån och upp. På de närmaste korten går vi igenom lagren ett i taget, från toppen.
+När du skickar något går datan uppifrån och ner genom lagren. Hos mottagaren går den nerifrån och upp. På de närmaste sidorna går vi igenom lagren ett i taget, från toppen.
 
 <!-- uses: applikationslagret, klient, server -->
 ## Lager 7: Applikation

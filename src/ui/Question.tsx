@@ -15,7 +15,7 @@ export function Question({ question, seed, solved, onSolved, onAnswered }: Props
   const handlers = { seed, onSolved, onAnswered };
   return (
     <div class={`question-body${solved ? " solved" : ""}`}>
-      {solved ? <p class="badge">Klarad tidigare</p> : null}
+      {solved ? <p class="badge">Klarad</p> : null}
       {question.kind === "mcq" ? (
         <Mcq question={question} {...handlers} />
       ) : question.kind === "ordering" ? (

@@ -6,6 +6,11 @@ Things to revisit later. Content items need checking against the notes before th
 
 - [ ] **Reset copy is clunky.** "Nollställ mina framsteg" and "Framstegen sparas bara i den här webbläsaren" read stiffly. Find more natural wording.
 
+## Feature requests
+
+- [ ] **Drag and drop for ordering questions** (the OSI layers, the T568B wire order). Drag an item to its place instead of pressing ↑/↓ many times. Keep the arrow buttons for keyboard users and as a fallback on phones.
+- [ ] **Draw lines for text-only matching questions** (four or five descriptions to pair with as many terms). Drag a line from an item on the left to one on the right, the way you join devices in a topology drawing. This is only for matching where both sides are text. Matching with pictures, like the topology question in section 1, keeps its dropdowns. It still needs a keyboard way to pair items.
+
 ## Section 1: Vad är ett nätverk?
 
 - [ ] **Wording not taken from the notes.** I wrote these myself because the notes use the terms without defining them. Review:

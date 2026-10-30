@@ -1,7 +1,9 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/preact";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { STORAGE_KEY } from "../../src/lib/storage.ts";
-import type { ClientCourse } from "../../src/types.ts";
+import { rngFromSeed } from "../../src/lib/prng.ts";
+import { shuffle } from "../../src/lib/shuffle.ts";
+import type { ClientCourse, ClientMcq } from "../../src/types.ts";
 import { App } from "../../src/ui/App.tsx";
 import { Deck } from "../../src/ui/Deck.tsx";
 import { Feedback } from "../../src/ui/Feedback.tsx";
@@ -110,7 +112,7 @@ describe("Deck", () => {
     press("ArrowLeft");
     expect(title()).toBe("Fråga 3 av 3");
     press("ArrowLeft");
-    expect(screen.getByText("Klarad tidigare")).toBeTruthy();
+    expect(screen.getByText("Klarad")).toBeTruthy();
   });
 
   it("has no next-section link on the last section", () => {
@@ -152,6 +154,34 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Nollställ mina framsteg" }));
     await screen.findByText("0 av 1 frågor klara");
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+
+  it("keeps the option order within a visit and reshuffles after leaving the section", async () => {
+    const order = () => [...document.querySelectorAll(".option")].map((e) => e.textContent).join("|");
+    const go = (hash: string) => {
+      location.hash = hash;
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    };
+    // The first visit and the first one after coming back use different seeds; find a base seed
+    // where those two seeds actually give different orders, so the test can tell them apart.
+    const options = (course.sections[1].questions[0] as ClientMcq).options;
+    const orderFor = (seed: string) => shuffle(options, rngFromSeed(`${seed}:q2`)).map((o) => o.html).join("|");
+    const base = ["a", "b", "c", "d", "e", "f"].find((b) => orderFor(`${b}:1`) !== orderFor(`${b}:3`)) as string;
+    expect(base).toBeDefined();
+
+    location.hash = "#/avsnitt/s2/3";
+    render(<App course={course} storage={undefined} seed={base} confirmReset={() => true} />);
+    const first = order();
+    expect(first).toBe(orderFor(`${base}:1`));
+    fireEvent.click(back());
+    fireEvent.click(forward());
+    expect(order()).toBe(first);
+
+    go("#/");
+    await screen.findByText("0 av 1 frågor klara");
+    go("#/avsnitt/s2/3");
+    await screen.findByText("Fråga 1 av 1");
+    expect(order()).toBe(orderFor(`${base}:3`));
   });
 
   it("starts a section on its first card when no card is given", async () => {

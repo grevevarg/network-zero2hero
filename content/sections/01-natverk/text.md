@@ -55,7 +55,7 @@ Den **fysiska topologin** visar var allt faktiskt finns. Var står datorerna och
 
 Den **logiska topologin** visar hur nätet är uppdelat och vem som kan prata med vem. Den beskriver nätet utifrån enheterna: vad de heter och vilka tjänster de kör. Två datorer kan stå bredvid varandra i samma rum men ändå höra till olika delar av den logiska topologin.
 
-Nätverk brukar ritas i några vanliga former. Formen säger mycket om vad som händer när något går sönder. På de närmaste korten kommer de en i taget.
+Nätverk brukar ritas i några vanliga former. Formen säger mycket om vad som händer när något går sönder. På de närmaste sidorna kommer de en i taget.
 
 <!-- uses: stjarna, single-point-of-failure, redundans -->
 ## Stjärna

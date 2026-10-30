@@ -55,7 +55,7 @@ Twisted pair delas in i **kategorier**, som skrivs Cat följt av en siffra. En h
 
 Hastigheten mäts i **bitar per sekund**. Mbit/s betyder miljoner bitar per sekund och Gbit/s miljarder. Observera att det är bitar, inte bytes.
 
-Lägg märke till den sista raden. Cat8 är snabbast men räcker bara 30 meter. Alla andra klarar 100 meter. Behöver du längre än så får du byta till fiber, som kommer om några kort.
+Lägg märke till den sista raden. Cat8 är snabbast men räcker bara 30 meter. Alla andra klarar 100 meter. Behöver du längre än så får du byta till fiber, som kommer några sidor längre fram.
 
 <!-- uses: rj45, t568b, twisted-pair -->
 ## RJ45 och T568B

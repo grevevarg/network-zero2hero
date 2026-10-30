@@ -75,7 +75,7 @@ export function Deck({ section, next, startCard, solved, seed, onSolved, onPosit
         <p class="deck-title">
           {section.number}. {section.title}
         </p>
-        <p class="deck-count" aria-label={`Kort ${index + 1} av ${cards.length}`}>
+        <p class="deck-count" aria-label={`Sida ${index + 1} av ${cards.length}`}>
           {index + 1} / {cards.length}
         </p>
       </header>
@@ -93,7 +93,7 @@ export function Deck({ section, next, startCard, solved, seed, onSolved, onPosit
           onAnswered={markAnswered}
         />
       </article>
-      <nav class="deck-nav" aria-label="Kort">
+      <nav class="deck-nav" aria-label="Sidor">
         <button type="button" class="nav-back" disabled={!canBack} onClick={() => go(-1)}>
           ‹ Föregående
         </button>
