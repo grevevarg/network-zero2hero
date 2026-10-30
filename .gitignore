@@ -23,7 +23,6 @@ Gemfile.lock
 CLAUDE.md
 # end trust issues
 !README.md
-!ISSUES.md
 
 # Content Markdown is ours and must be tracked (the *.md rule above hides vault-style notes)
 !content/**/*.md
