@@ -95,7 +95,7 @@ export const questions: QuestionInput[] = [
     kind: "mcq",
     id: "markning-bada-andar",
     uses: ["uttag", "panel", "patchpanel"],
-    prompt: "Kabeln från uttag 10 i rum 308 slutar på panel AC0311A. Vad står det på uttaget i rummet?",
+    prompt: "En kabel går från ett uttag i rum 308 till port 10 på panel AC0311A. Vilken beteckning står på uttaget i rummet?",
     options: [
       { id: "hela-beteckningen", text: "AC0311A10" },
       { id: "rum", text: "308-10" },
@@ -104,6 +104,6 @@ export const questions: QuestionInput[] = [
     ],
     correct: "hela-beteckningen",
     explanation:
-      "Uttaget får panelens beteckning plus sitt eget nummer, och samma beteckning står i båda ändarna av kabeln. Därför står det AC0311A10 även i rummet. Rummets nummer ingår inte i beteckningen. Bara panelens beteckning säger inte vilket av panelens uttag det gäller.",
+      "Uttaget får panelens beteckning plus numret på porten i panelen, alltså AC0311A10. Samma beteckning står i båda ändarna av kabeln, så det står AC0311A10 även på väggen i rummet. Rummets nummer ingår inte i beteckningen, varken ensamt eller efter panelens beteckning. Bara panelens beteckning säger inte vilken av panelens portar kabeln går till.",
   },
 ];
