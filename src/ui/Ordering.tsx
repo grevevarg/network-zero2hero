@@ -1,10 +1,11 @@
-import { useMemo, useState } from "preact/hooks";
+import { useMemo, useRef, useState } from "preact/hooks";
 import { matchesKey } from "../lib/answerHash.ts";
 import { orderingAnswer } from "../lib/answers.ts";
 import { rngFromSeed } from "../lib/prng.ts";
 import { shuffleAwayFrom } from "../lib/shuffle.ts";
 import { htmlToText } from "../lib/text.ts";
 import type { ClientChoice, ClientOrdering } from "../types.ts";
+import { dropIndex, moveTo } from "./drag.ts";
 import { Feedback, type Verdict } from "./Feedback.tsx";
 import { Html } from "./Html.tsx";
 
@@ -24,10 +25,47 @@ export function Ordering({ question: q, seed, onSolved, onAnswered }: Props) {
   const [items, setItems] = useState<ClientChoice[]>(start);
   const [verdict, setVerdict] = useState<Verdict>();
   const solved = verdict === "right";
+  const list = useRef<HTMLOListElement>(null);
+  // The item being dragged, where the pointer grabbed it, and the order to go back to on cancel.
+  const drag = useRef<{ pointerId: number; id: string; startY: number; startTop: number; before: ClientChoice[] }>(undefined);
+  const [dragging, setDragging] = useState<{ id: string; dy: number }>();
 
   function shift(i: number, dir: -1 | 1) {
     setItems((list) => move(list, i, dir));
     setVerdict(undefined);
+  }
+
+  const rows = () => [...(list.current as HTMLOListElement).children] as HTMLElement[];
+
+  /** Drag by the grip: the list captures the pointer, so the grip can move around in the DOM. */
+  function grab(e: PointerEvent, id: string, i: number) {
+    if (solved || e.button !== 0) return;
+    e.preventDefault();
+    list.current?.setPointerCapture?.(e.pointerId);
+    drag.current = { pointerId: e.pointerId, id, startY: e.clientY, startTop: rows()[i].offsetTop, before: items };
+    setDragging({ id, dy: 0 });
+  }
+
+  function follow(e: PointerEvent) {
+    const d = drag.current;
+    if (d?.pointerId !== e.pointerId) return;
+    const els = rows();
+    const from = items.findIndex((it) => it.id === d.id);
+    const to = dropIndex(e.clientY, els.map((el) => el.getBoundingClientRect()), from);
+    if (to !== from) {
+      setItems(moveTo(items, from, to));
+      setVerdict(undefined);
+    }
+    // Keep the row under the finger: offsetTop ignores the transform, so this is the row's own slot.
+    setDragging({ id: d.id, dy: e.clientY - d.startY - (els[from].offsetTop - d.startTop) });
+  }
+
+  function drop(e: PointerEvent) {
+    const d = drag.current;
+    if (d?.pointerId !== e.pointerId) return;
+    if (e.type === "pointercancel") setItems(d.before);
+    drag.current = undefined;
+    setDragging(undefined);
   }
 
   function check(e: Event) {
@@ -41,9 +79,14 @@ export function Ordering({ question: q, seed, onSolved, onAnswered }: Props) {
   return (
     <form class="question" onSubmit={check}>
       <Html html={q.promptHtml} className="prompt" />
-      <ol class="ordering">
+      <ol class="ordering" ref={list} onPointerMove={follow} onPointerUp={drop} onPointerCancel={drop}>
         {items.map((item, i) => (
-          <li key={item.id}>
+          <li
+            key={item.id}
+            class={dragging?.id === item.id ? "dragging" : undefined}
+            style={dragging?.id === item.id ? { transform: `translateY(${dragging.dy}px)` } : undefined}
+          >
+            {solved ? null : <span class="drag-handle" aria-hidden="true" onPointerDown={(e) => grab(e, item.id, i)} />}
             <Html html={item.html} as="span" className="ordering-text" />
             <span class="ordering-buttons">
               <button

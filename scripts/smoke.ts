@@ -1,6 +1,7 @@
 // Local-only: drive the built site in headless Chromium and check what tests can't see.
 // Phone and desktop, light and dark: every card fits without sideways scrolling, diagrams load,
-// no requests to other origins, no console errors. Plus a keyboard pass with question gating.
+// no requests to other origins, no console errors. Plus a keyboard pass with question gating, and
+// real drags on ordering and line-matching questions: the mouse on desktop, touch on a phone.
 import { existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Page } from "playwright-core";
@@ -44,15 +45,16 @@ async function checkLayout(page: Page, where: string) {
 }
 
 const modes = [
-  { name: "phone-light", viewport: { width: 390, height: 844 }, colorScheme: "light" as const },
-  { name: "phone-dark", viewport: { width: 390, height: 844 }, colorScheme: "dark" as const },
+  { name: "phone-light", viewport: { width: 390, height: 844 }, colorScheme: "light" as const, hasTouch: true, isMobile: true },
+  { name: "phone-dark", viewport: { width: 390, height: 844 }, colorScheme: "dark" as const, hasTouch: true, isMobile: true },
   { name: "desktop-light", viewport: { width: 1280, height: 900 }, colorScheme: "light" as const },
   { name: "desktop-dark", viewport: { width: 1280, height: 900 }, colorScheme: "dark" as const },
 ];
 
 try {
   for (const mode of modes) {
-    const page = await newPage({ viewport: mode.viewport, colorScheme: mode.colorScheme });
+    const { name: _, ...options } = mode;
+    const page = await newPage(options);
     page.on("request", (r) => {
       if (!r.url().startsWith(origin) && !r.url().startsWith("data:")) fail(mode.name, `request to ${r.url()}`);
     });
@@ -88,6 +90,7 @@ try {
         const forward = page.getByRole("button", { name: "Nästa ›" });
         if (await forward.isDisabled()) {
           if ((await page.locator(".question-body").count()) === 0) break; // finish card
+          await dragSomething(page, where, "hasTouch" in mode);
           await answerSomething(page, where);
           if (await forward.isDisabled()) fail(where, "still blocked after answering");
         }
@@ -128,6 +131,65 @@ async function isClearOfNav(page: Page): Promise<boolean> {
   });
 }
 
+type Spot = { x: number; y: number };
+
+/** Press at `from`, move to `to` in small steps and let go, with the mouse or with one finger. */
+async function pointerDrag(page: Page, from: Spot, to: Spot, touch: boolean) {
+  const steps = 10;
+  const at = (i: number) => ({ x: from.x + ((to.x - from.x) * i) / steps, y: from.y + ((to.y - from.y) * i) / steps });
+  if (!touch) {
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    for (let i = 1; i <= steps; i++) await page.mouse.move(at(i).x, at(i).y);
+    await page.mouse.up();
+    return;
+  }
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [from] });
+  for (let i = 1; i <= steps; i++) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [at(i)] });
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await cdp.detach();
+}
+
+async function centreOf(page: Page, selector: string, nth: number): Promise<Spot> {
+  const el = page.locator(selector).nth(nth);
+  await el.scrollIntoViewIfNeeded();
+  const box = await el.boundingBox();
+  if (!box) throw new Error(`${selector} #${nth} has no box`);
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+/** On ordering and line-matching questions, drag something for real and check that it took. */
+async function dragSomething(page: Page, where: string, touch: boolean) {
+  const how = touch ? "touch" : "mouse";
+  if ((await page.locator(".drag-handle").count()) > 0) {
+    const texts = () => page.locator(".ordering-text").allInnerTexts();
+    const before = await texts();
+    await page.locator(".ordering").scrollIntoViewIfNeeded();
+    const from = await centreOf(page, ".drag-handle", 0);
+    const to = await centreOf(page, ".ordering li", before.length - 1);
+    const scrolled = await page.evaluate(() => scrollY);
+    await pointerDrag(page, from, { x: from.x, y: to.y + 5 }, touch);
+    const after = await texts();
+    if (after.at(-1) !== before[0]) fail(where, `${how} drag did not move the first row to the end (got ${after.join(" / ")})`);
+    if ((await page.evaluate(() => scrollY)) !== scrolled) fail(where, `${how} drag on the grip scrolled the page`);
+    if ((await page.locator(".dragging").count()) > 0) fail(where, `${how} drag left a row lifted`);
+  } else if ((await page.locator(".match-lines").count()) > 0) {
+    await page.locator(".match-lines").scrollIntoViewIfNeeded();
+    const from = await centreOf(page, '.match-item[data-side="left"] .match-dot', 0);
+    const to = await centreOf(page, '.match-item[data-side="right"]', 0);
+    await pointerDrag(page, from, to, touch);
+    const lines = await page.locator(".match-line:not(.loose)").count();
+    if (lines !== 1) fail(where, `${how} drag drew ${lines} line(s), expected 1`);
+    const linked = await page.locator('.match-item[data-side="right"]').first().getAttribute("class");
+    if (!linked?.includes("linked")) fail(where, `${how} drag did not join the first items`);
+  } else {
+    return;
+  }
+  const name = where.replace(/ card .*/, "").replace(/[^\p{L}\p{N}]+/gu, "-");
+  await page.screenshot({ path: path.join(shots, `drag-${name}-${await count(page).then((c) => c.replace(/\D+/g, "-"))}.png`), fullPage: true });
+}
+
 /** Answer the current question using only the keyboard. Right or wrong does not matter here. */
 async function answerSomething(page: Page, where: string) {
   const selects = page.locator(".matching select");
@@ -140,12 +202,12 @@ async function answerSomething(page: Page, where: string) {
       if ((await select.inputValue()) === "") fail(where, `select ${i + 1} did not change with ArrowDown`);
       if (!(await isClearOfNav(page))) fail(where, `focused select ${i + 1} is hidden behind the card navigation`);
     }
-    await page.getByRole("button", { name: "Kontrollera" }).focus();
+    await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
     await page.keyboard.press("Enter");
   } else if ((await radios.count()) > 0) {
     await radios.first().focus();
     await page.keyboard.press("Space");
-    await page.getByRole("button", { name: "Svara" }).focus();
+    await page.getByRole("button", { name: "Svara", exact: true }).focus();
     await page.keyboard.press("Enter");
   } else if ((await page.locator(".fill input").count()) > 0) {
     const inputs = page.locator(".fill input");
@@ -154,10 +216,22 @@ async function answerSomething(page: Page, where: string) {
       await page.keyboard.type("1");
       if (!(await isClearOfNav(page))) fail(where, `focused input ${i + 1} is hidden behind the card navigation`);
     }
-    await page.getByRole("button", { name: "Kontrollera" }).focus();
+    await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
+    await page.keyboard.press("Enter");
+  } else if ((await page.locator(".match-lines").count()) > 0) {
+    // Press a free item on the left, then a free one on the right, until every left item has a line.
+    const free = (side: string) => page.locator(`.match-item[data-side="${side}"]:not(.linked)`);
+    for (let guard = 0; guard < 8 && (await free("left").count()) > 0; guard++) {
+      for (const side of ["left", "right"]) {
+        await free(side).first().focus();
+        await page.keyboard.press("Enter");
+        if (!(await isClearOfNav(page))) fail(where, `focused ${side} item is hidden behind the card navigation`);
+      }
+    }
+    await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
     await page.keyboard.press("Enter");
   } else if ((await page.locator(".ordering").count()) > 0) {
-    await page.getByRole("button", { name: "Kontrollera" }).focus();
+    await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
     await page.keyboard.press("Enter");
   } else {
     fail(where, "unknown question type");
