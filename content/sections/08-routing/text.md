@@ -19,7 +19,7 @@ Kopplar du ihop två routrar blir länken mellan dem också ett eget nät, med e
 <!-- uses: natdel-vardel, subnatmask, arp, default-gateway, host -->
 ## Samma nät eller inte?
 
-När en dator ska skicka något jämför den först mottagarens adress med sin egen, med hjälp av subnet masken. Har de samma nätdel ligger mottagaren i samma nät. Då tar datorn reda på mottagarens MAC-adress med ARP och skickar direkt.
+När en dator ska skicka något jämför den först mottagarens adress med sin egen, med hjälp av subnet-masken. Har de samma nätdel ligger mottagaren i samma nät. Då tar datorn reda på mottagarens MAC-adress med ARP och skickar direkt.
 
 Har de olika nätdel ligger mottagaren i ett annat nät. Då kan datorn inte nå den själv. Den skickar i stället allt till sin **default gateway**, som tar det vidare.
 
