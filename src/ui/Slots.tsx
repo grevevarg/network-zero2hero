@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "preact/hooks";
 import { matchesKey } from "../lib/answerHash.ts";
-import { orderingAnswer } from "../lib/answers.ts";
+import { slotAnswer } from "../lib/answers.ts";
 import { rngFromSeed } from "../lib/prng.ts";
 import { shuffle } from "../lib/shuffle.ts";
 import { htmlToText } from "../lib/text.ts";
@@ -13,9 +13,9 @@ type Props = { question: ClientSlots; seed: string; onSolved: (id: string) => vo
 type Pick = { kind: "tile"; id: string } | { kind: "slot"; index: number };
 
 /** The row with one slot set (or emptied), leaving the input alone. */
-export function setSlot(filled: readonly (string | undefined)[], index: number, id: string | undefined): (string | undefined)[] {
+export function setSlot<T>(filled: readonly (T | undefined)[], index: number, value: T | undefined): (T | undefined)[] {
   const out = filled.slice();
-  out[index] = id;
+  out[index] = value;
   return out;
 }
 
@@ -30,6 +30,8 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
   const html = useMemo(() => new Map(q.blocks.map((b) => [b.id, b.html])), [q]);
   const [filled, setFilled] = useState<(string | undefined)[]>(() => Array.from({ length: q.slots }, () => undefined));
   const [picked, setPicked] = useState<Pick>();
+  // Right or wrong per slot after a check. A slot loses its mark when it changes.
+  const [marks, setMarks] = useState<(boolean | undefined)[]>([]);
   const [verdict, setVerdict] = useState<Verdict>();
   const [showSolution, setShowSolution] = useState(false);
   const solved = verdict === "right";
@@ -43,6 +45,7 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
 
   function put(index: number, id: string | undefined) {
     setFilled((f) => setSlot(f, index, id));
+    setMarks((m) => setSlot(m, index, undefined));
     setVerdict(undefined);
   }
 
@@ -116,7 +119,9 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
 
   function check(e: Event) {
     e.preventDefault();
-    const ok = matchesKey(q.id, orderingAnswer(filled as string[]), q.key);
+    const result = filled.map((id, i) => matchesKey(q.id, slotAnswer(i, id as string), q.keys[i]));
+    setMarks(result);
+    const ok = result.every(Boolean);
     setVerdict(ok ? "right" : "wrong");
     onAnswered(q.id);
     if (ok) onSolved(q.id);
@@ -133,8 +138,8 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
             <li key={i}>
               <button
                 type="button"
-                class={`slot${id === undefined ? "" : " filled"}${ghost?.target === i ? " target" : ""}`}
-                aria-label={`Ruta ${i + 1}: ${id === undefined ? "tom" : text(id)}`}
+                class={`slot${id === undefined ? "" : " filled"}${ghost?.target === i ? " target" : ""}${marks[i] === undefined ? "" : marks[i] ? " right" : " wrong"}`}
+                aria-label={`Ruta ${i + 1}: ${id === undefined ? "tom" : text(id)}${marks[i] === undefined ? "" : marks[i] ? ", rätt" : ", fel"}`}
                 aria-pressed={picked?.kind === "slot" && picked.index === i}
                 disabled={solved}
                 onClick={() => pressSlot(i)}
@@ -197,7 +202,7 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
         verdict={verdict}
         explanationHtml={q.explanationHtml}
         showExplanation={solved || showSolution}
-        wrongHint="Minst en ruta är fel. Ändra och kontrollera igen."
+        wrongHint="Rutorna som är märkta med ✗ stämmer inte. Ändra och kontrollera igen."
       />
       {verdict === "wrong" && !showSolution ? (
         <button type="button" onClick={() => setShowSolution(true)}>

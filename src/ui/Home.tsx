@@ -37,9 +37,9 @@ export function Home({ course, progress, onReset }: Props) {
       </ol>
       <p class="reset">
         <button type="button" onClick={onReset}>
-          Nollställ mina framsteg
+          Rensa sparade svar
         </button>
-        <span class="hint">Framstegen sparas bara i den här webbläsaren.</span>
+        <span class="hint">Svaren sparas bara i din webbläsare.</span>
       </p>
     </main>
   );

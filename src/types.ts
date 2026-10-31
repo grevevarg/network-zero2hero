@@ -32,11 +32,12 @@ export type ClientMatching = {
   promptHtml: string;
   left: (ClientChoice & { diagramHtml?: string })[];
   right: ClientChoice[];
-  key: string;
+  /** One key per left item id, so each pair can be marked right or wrong. */
+  keys: Record<string, string>;
   explanationHtml?: string;
 };
 
-export type ClientFillField = { id: string; labelHtml: string; format: "text" | "number" | "ipv4" | "binary" | "ipv6"; key: string };
+export type ClientFillField = { id: string; labelHtml: string; format: "text" | "number" | "ipv4" | "binary"; key: string };
 
 export type ClientFill = {
   kind: "fill";
@@ -55,7 +56,8 @@ export type ClientSlots = {
   blocks: ClientChoice[];
   slots: number;
   separator: string;
-  key: string;
+  /** One key per slot, so each slot can be marked right or wrong. */
+  keys: string[];
   explanationHtml: string;
 };
 

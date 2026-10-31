@@ -34,7 +34,7 @@ describe("Home", () => {
     expect(screen.getByText("1 av 1 frågor klara").closest("li")?.className).toContain("done");
     const resume = screen.getAllByRole("link", { name: "Fortsätt där du var" });
     expect(resume.map((a) => a.getAttribute("href"))).toEqual(["#/avsnitt/s1/3"]);
-    fireEvent.click(screen.getByRole("button", { name: "Nollställ mina framsteg" }));
+    fireEvent.click(screen.getByRole("button", { name: "Rensa sparade svar" }));
     expect(onReset).toHaveBeenCalled();
   });
 });
@@ -148,10 +148,10 @@ describe("App", () => {
     location.hash = "#/";
     window.dispatchEvent(new HashChangeEvent("hashchange"));
     await screen.findByText("1 av 1 frågor klara");
-    fireEvent.click(screen.getByRole("button", { name: "Nollställ mina framsteg" }));
+    fireEvent.click(screen.getByRole("button", { name: "Rensa sparade svar" }));
     expect(screen.getByText("1 av 1 frågor klara")).toBeTruthy();
     confirm.mockReturnValue(true);
-    fireEvent.click(screen.getByRole("button", { name: "Nollställ mina framsteg" }));
+    fireEvent.click(screen.getByRole("button", { name: "Rensa sparade svar" }));
     await screen.findByText("0 av 1 frågor klara");
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });

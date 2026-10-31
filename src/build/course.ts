@@ -1,5 +1,5 @@
 import { answerKey } from "../lib/answerHash.ts";
-import { fillAnswer, matchingAnswer, orderingAnswer } from "../lib/answers.ts";
+import { fillAnswer, orderingAnswer, pairAnswer, slotAnswer } from "../lib/answers.ts";
 import { hashString } from "../lib/prng.ts";
 import type { ClientChoice, ClientCourse, ClientQuestion, ClientSection } from "../types.ts";
 import { diagramHtml, type ImageInfo } from "./diagram.ts";
@@ -101,7 +101,7 @@ function buildQuestion(q: Question, diagrams: Record<string, string>): ClientQue
         promptHtml,
         left,
         right: choices(q.id, matchingRightOptions(q)),
-        key: answerKey(q.id, matchingAnswer(left.map((l) => l.id), solution)),
+        keys: Object.fromEntries(left.map((l) => [l.id, answerKey(q.id, pairAnswer(l.id, solution[l.id]))])),
         explanationHtml: q.explanation === undefined ? undefined : renderMarkdown(q.explanation),
       };
     }
@@ -114,8 +114,7 @@ function buildQuestion(q: Question, diagrams: Record<string, string>): ClientQue
         blocks: choices(q.id, q.blocks),
         slots: q.answer.length,
         separator: q.separator,
-        // A filled row is a sequence of tile ids, the same shape as an ordering answer.
-        key: answerKey(q.id, orderingAnswer(q.answer.map((a) => opaqueId(q.id, a)))),
+        keys: q.answer.map((a, i) => answerKey(q.id, slotAnswer(i, opaqueId(q.id, a)))),
         explanationHtml: renderMarkdown(q.explanation),
       };
     case "fill":

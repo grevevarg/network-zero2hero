@@ -109,14 +109,19 @@ describe("Matching", () => {
     // Fill wrong first: both get the distractor.
     for (const s of selects) fireEvent.change(s, { target: { value: r("r3") } });
     fireEvent.click(check);
-    await screen.findByText(/Minst en koppling/);
+    await screen.findByText(/Kopplingarna som är märkta Fel/);
+    expect(screen.getAllByText("Fel")).toHaveLength(2);
 
-    // The text item is l1 (Vänster 1); the diagram item is l2.
+    // The text item is l1 (Vänster 1); the diagram item is l2. A changed row loses its mark, the other keeps it.
     const textIndex = [...document.querySelectorAll(".matching li")].findIndex((li) => li.textContent?.includes("Vänster 1"));
     fireEvent.change(selects[textIndex], { target: { value: r("r1") } });
+    expect(screen.getAllByText("Fel")).toHaveLength(1);
+    expect(document.querySelectorAll(".matching li")[textIndex].textContent).not.toContain("Fel");
     fireEvent.change(selects[1 - textIndex], { target: { value: r("r2") } });
+    expect(screen.queryByText("Fel")).toBeNull();
     fireEvent.click(check);
     await screen.findByText("Rätt.");
+    expect(screen.getAllByText("Rätt")).toHaveLength(2);
     expect(onSolved).toHaveBeenCalledWith("q-match");
   });
 });
@@ -230,18 +235,23 @@ describe("Matching with lines", () => {
     fireEvent.click(item("Vänster 1"));
     expect(check.disabled).toBe(false);
     fireEvent.click(check);
-    await screen.findByText(/Minst en koppling/);
+    await screen.findByText(/Kopplingarna som är märkta Fel/);
+    expect(item("Vänster 1").textContent).toContain("Fel");
+    expect(item("Vänster 2").textContent).toContain("Fel");
+    expect(document.querySelectorAll(".match-line.wrong")).toHaveLength(2);
 
-    // Joining Vänster 1 to Höger 1 takes Höger 1's old line away.
+    // Joining Vänster 1 to Höger 1 takes Höger 1's old line away; both changed pairs lose their marks.
     fireEvent.click(item("Vänster 1"));
     fireEvent.click(item("Höger 1"));
-    expect(screen.queryByText(/Minst en koppling/)).toBeNull();
+    expect(screen.queryByText(/Kopplingarna som är märkta Fel/)).toBeNull();
+    expect(screen.queryByText("Fel")).toBeNull();
     expect(item("Vänster 2").textContent).not.toContain("ihopkopplad");
     fireEvent.click(item("Vänster 2"));
     fireEvent.click(item("Höger 2"));
     fireEvent.click(check);
     await screen.findByText("Rätt.");
     expect(onSolved).toHaveBeenCalledWith("q-match");
+    expect(document.querySelectorAll(".match-line.right")).toHaveLength(2);
     expect((item("Vänster 1") as HTMLButtonElement).disabled).toBe(true);
   });
 
@@ -376,7 +386,8 @@ describe("Slots", () => {
   };
   const slot = (i: number) => screen.getByRole("button", { name: new RegExp(`^Ruta ${i}:`) });
   const tile = (text: string) => screen.getByRole("button", { name: text });
-  const row = () => [1, 2, 3].map((i) => slot(i).getAttribute("aria-label")?.replace(/^Ruta \d: /, ""));
+  const row = () => [1, 2, 3].map((i) => slot(i).getAttribute("aria-label")?.replace(/^Ruta \d: /, "").replace(/, (rätt|fel)$/, ""));
+  const mark = (i: number) => slot(i).getAttribute("aria-label")?.match(/, (rätt|fel)$/)?.[1];
   const root = () => document.querySelector(".slots") as HTMLElement;
   /** Slot i (0-based) is 50x40 at x = 60i, y = 0. Tile i is the same size at x = 60i, y = 280. */
   const mockSlots = () =>
@@ -426,8 +437,10 @@ describe("Slots", () => {
     expect(document.querySelector('[aria-pressed="true"]')).toBeNull();
 
     fireEvent.click(check);
-    await screen.findByText(/Minst en ruta är fel/);
+    await screen.findByText(/Rutorna som är märkta med ✗/);
     expect(onAnswered).toHaveBeenCalledWith("q-slots");
+    expect([1, 2, 3].map(mark)).toEqual(["rätt", "fel", "fel"]);
+    expect(slot(2).classList.contains("wrong")).toBe(true);
     expect(document.querySelector(".explanation")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Visa lösningen" }));
     expect(document.querySelector(".explanation")).toBeTruthy();
@@ -437,7 +450,9 @@ describe("Slots", () => {
     expect(row()[1]).toBe("cc");
     fireEvent.keyDown(slot(2), { key: "Delete" });
     expect(row()[1]).toBe("tom");
-    expect(screen.queryByText(/Minst en ruta/)).toBeNull();
+    expect(screen.queryByText(/Rutorna som är märkta med ✗/)).toBeNull();
+    // Only the changed slot loses its mark.
+    expect([1, 2, 3].map(mark)).toEqual(["rätt", undefined, "fel"]);
     fireEvent.keyDown(slot(3), { key: "Backspace" });
     fireEvent.click(tile("bbbb"));
     fireEvent.click(slot(2));

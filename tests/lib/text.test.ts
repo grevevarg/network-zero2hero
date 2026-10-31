@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { htmlToText } from "../../src/lib/text.ts";
-import { matchingAnswer, orderingAnswer } from "../../src/lib/answers.ts";
+import { orderingAnswer, pairAnswer, slotAnswer } from "../../src/lib/answers.ts";
 
 describe("htmlToText", () => {
   it("strips tags and decodes the entities marked produces", () => {
@@ -11,7 +11,7 @@ describe("htmlToText", () => {
 describe("answers", () => {
   it("serialises ordering and matching answers canonically", () => {
     expect(orderingAnswer(["b", "a"])).toBe("b,a");
-    expect(matchingAnswer(["l1", "l2"], { l2: "r1", l1: "r2" })).toBe("l1=r2,l2=r1");
-    expect(matchingAnswer(["l1"], {})).toBe("l1=");
+    expect(pairAnswer("l1", "r2")).toBe("l1=r2");
+    expect(slotAnswer(3, "x1")).toBe("3=x1");
   });
 });

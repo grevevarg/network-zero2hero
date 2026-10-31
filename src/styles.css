@@ -210,6 +210,10 @@ button.match-item:disabled { opacity: 1; cursor: default; }
 .match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 .match-line { stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; }
 .match-line.loose { stroke-dasharray: 6 5; }
+.match-line.right { stroke: var(--right); }
+.match-line.wrong { stroke: var(--wrong); stroke-dasharray: 4 4; }
+.item-mark { font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+.match-item .item-mark { display: block; margin-top: 0.15rem; }
 /* Slot puzzle: a row of slots above a tray of tiles. */
 .slot-row { list-style: none; padding: 0; margin: 0.75rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem 0; }
 .slot-row li { display: flex; align-items: center; }
@@ -230,6 +234,24 @@ button.slot, button.slot-tile { color: var(--text); background: var(--surface); 
 .slot { border: 2px dashed var(--border); }
 .slot.filled { border: 2px solid var(--accent); }
 .slot.target { border: 2px solid var(--accent); background: var(--example-bg); }
+/* After a check: a slot keeps its mark until it is changed. */
+.slot.right:not(.target) { border: 2px solid var(--right); background: var(--right-bg); }
+.slot.wrong:not(.target) { border: 2px solid var(--wrong); background: var(--wrong-bg); }
+/* Not by colour alone: a small ✓ or ✗ badge in the corner. */
+.slot { position: relative; }
+.slot.right::after, .slot.wrong::after {
+  position: absolute;
+  top: -0.55rem;
+  right: -0.55rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  font: 700 0.7rem/1.1rem system-ui, sans-serif;
+  text-align: center;
+  color: var(--surface);
+}
+.slot.right::after { content: "✓"; background: var(--right); }
+.slot.wrong::after { content: "✗"; background: var(--wrong); }
 button.slot:disabled { opacity: 1; cursor: default; }
 .slot[aria-pressed="true"], .slot-tile[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--accent); }
 .slot-tray { list-style: none; padding: 0; margin: 0.5rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }

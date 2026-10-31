@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildCourse, opaqueId, parseContent } from "../../src/build/course.ts";
 import { matchesKey } from "../../src/lib/answerHash.ts";
-import { fillAnswer, matchingAnswer, orderingAnswer } from "../../src/lib/answers.ts";
+import { fillAnswer, orderingAnswer, pairAnswer, slotAnswer } from "../../src/lib/answers.ts";
 import type { ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientSlots } from "../../src/types.ts";
 import { fill, matching, mcq, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
 
@@ -40,14 +40,17 @@ describe("buildCourse", () => {
     expect(matchesKey(o.id, orderingAnswer(order), o.key)).toBe(true);
     expect(matchesKey(o.id, orderingAnswer(order.slice().reverse()), o.key)).toBe(false);
 
-    const left = x.left.map((l) => l.id);
-    const right = { [opaqueId(x.id, "l1")]: opaqueId(x.id, "r1"), [opaqueId(x.id, "l2")]: opaqueId(x.id, "r2") };
-    expect(matchesKey(x.id, matchingAnswer(left, right), x.key)).toBe(true);
+    // One key per pair, so each pair can be marked on its own.
+    const [l1, l2, r1, r2] = ["l1", "l2", "r1", "r2"].map((id) => opaqueId(x.id, id));
+    expect(Object.keys(x.keys).sort()).toEqual([l1, l2].sort());
+    expect(matchesKey(x.id, pairAnswer(l1, r1), x.keys[l1])).toBe(true);
+    expect(matchesKey(x.id, pairAnswer(l2, r2), x.keys[l2])).toBe(true);
+    expect(matchesKey(x.id, pairAnswer(l1, r2), x.keys[l1])).toBe(false);
     expect(x.right).toHaveLength(3);
     expect(x.left.find((l) => l.diagramHtml)?.html).toBe("");
   });
 
-  it("ships slot puzzles with hidden tile ids and a key for the whole row", () => {
+  it("ships slot puzzles with hidden tile ids and a key per slot", () => {
     const raw = rawContent();
     raw.sections[0] = { section: sectionInput({}, [slots({ diagram: "dia" } as never)]), text: TEXT };
     const q = buildCourse(parseContent(raw)).sections[0].questions[0] as ClientSlots;
@@ -55,8 +58,10 @@ describe("buildCourse", () => {
     expect(q.diagramHtml).toContain("<img");
     expect(q.blocks.map((b) => b.html).sort()).toEqual(["aaaa", "bbbb", "cc"]);
     const [a, b] = ["aa", "bb"].map((id) => opaqueId(q.id, id));
-    expect(matchesKey(q.id, orderingAnswer([a, b, a]), q.key)).toBe(true);
-    expect(matchesKey(q.id, orderingAnswer([a, b, b]), q.key)).toBe(false);
+    expect(q.keys).toHaveLength(3);
+    [a, b, a].forEach((id, i) => expect(matchesKey(q.id, slotAnswer(i, id), q.keys[i])).toBe(true));
+    expect(matchesKey(q.id, slotAnswer(2, b), q.keys[2])).toBe(false);
+    expect(matchesKey(q.id, slotAnswer(1, a), q.keys[2])).toBe(false);
     expect(JSON.stringify(q)).not.toMatch(/"aa"|"bb"/);
   });
 

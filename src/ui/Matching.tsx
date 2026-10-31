@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "preact/hooks";
 import { matchesKey } from "../lib/answerHash.ts";
-import { matchingAnswer } from "../lib/answers.ts";
+import { pairAnswer } from "../lib/answers.ts";
 import { rngFromSeed } from "../lib/prng.ts";
 import { shuffle } from "../lib/shuffle.ts";
 import { htmlToText } from "../lib/text.ts";
@@ -11,7 +11,24 @@ import { Html } from "./Html.tsx";
 
 type Props = { question: ClientMatching; seed: string; onSolved: (id: string) => void; onAnswered: (id: string) => void };
 type Side = "left" | "right";
-type Body = Props & { left: ClientMatching["left"]; right: ClientChoice[]; chosen: Record<string, string>; solved: boolean };
+type Body = Props & {
+  left: ClientMatching["left"];
+  right: ClientChoice[];
+  chosen: Record<string, string>;
+  /** Right or wrong per left item after a check. A pair loses its mark when it changes. */
+  marks: Record<string, boolean>;
+  solved: boolean;
+};
+
+/** Marks for the pairs that are the same in `after` as in `before`; changed pairs lose theirs. */
+export function keepMarks(marks: Record<string, boolean>, before: Record<string, string>, after: Record<string, string>): Record<string, boolean> {
+  return Object.fromEntries(Object.entries(marks).filter(([l]) => before[l] === after[l]));
+}
+
+function Mark({ right }: { right: boolean | undefined }) {
+  if (right === undefined) return null;
+  return <span class={`item-mark ${right ? "fill-right" : "fill-wrong"}`}>{right ? "Rätt" : "Fel"}</span>;
+}
 
 /** Matching with pictures keeps dropdowns. Text-only matching draws lines between the two columns. */
 export function Matching(props: Props) {
@@ -20,25 +37,29 @@ export function Matching(props: Props) {
   const left = useMemo(() => shuffle(q.left, rng), [q, rng]);
   const right = useMemo(() => shuffle(q.right, rng), [q, rng]);
   const [chosen, setChosen] = useState<Record<string, string>>({});
+  const [marks, setMarks] = useState<Record<string, boolean>>({});
   const [verdict, setVerdict] = useState<Verdict>();
   const solved = verdict === "right";
   const complete = left.every((l) => chosen[l.id]);
   const pictures = q.left.some((l) => l.diagramHtml);
 
   function change(next: Record<string, string>) {
+    setMarks(keepMarks(marks, chosen, next));
     setChosen(next);
     setVerdict(undefined);
   }
 
   function check(e: Event) {
     e.preventDefault();
-    const ok = matchesKey(q.id, matchingAnswer(q.left.map((l) => l.id), chosen), q.key);
+    const result = Object.fromEntries(q.left.map((l) => [l.id, matchesKey(q.id, pairAnswer(l.id, chosen[l.id]), q.keys[l.id])]));
+    setMarks(result);
+    const ok = Object.values(result).every(Boolean);
     setVerdict(ok ? "right" : "wrong");
     onAnswered(q.id);
     if (ok) onSolved(q.id);
   }
 
-  const body: Body = { ...props, left, right, chosen, solved };
+  const body: Body = { ...props, left, right, chosen, marks, solved };
   return (
     <form class="question" onSubmit={check}>
       <Html html={q.promptHtml} className="prompt" />
@@ -56,13 +77,13 @@ export function Matching(props: Props) {
         verdict={verdict}
         explanationHtml={q.explanationHtml}
         showExplanation={solved}
-        wrongHint="Minst en koppling är fel. Ändra och kontrollera igen."
+        wrongHint="Kopplingarna som är märkta Fel stämmer inte. Ändra och kontrollera igen."
       />
     </form>
   );
 }
 
-function Dropdowns({ left, right, chosen, solved, pick }: Body & { pick: (left: string, right: string) => void }) {
+function Dropdowns({ left, right, chosen, marks, solved, pick }: Body & { pick: (left: string, right: string) => void }) {
   return (
     <ul class="matching">
       {left.map((l, i) => (
@@ -84,6 +105,7 @@ function Dropdowns({ left, right, chosen, solved, pick }: Body & { pick: (left: 
                 </option>
               ))}
             </select>
+            <Mark right={marks[l.id]} />
           </label>
         </li>
       ))}
@@ -96,7 +118,7 @@ function Dropdowns({ left, right, chosen, solved, pick }: Body & { pick: (left: 
  * item and then one on the other side (this is also the keyboard way). Pressing a pair that is
  * already joined, or dragging a line out into nothing, removes the line.
  */
-function Lines({ left, right, chosen, solved, change }: Body & { change: (next: Record<string, string>) => void }) {
+function Lines({ left, right, chosen, marks, solved, change }: Body & { change: (next: Record<string, string>) => void }) {
   const box = useRef<HTMLDivElement>(null);
   const [points, setPoints] = useState<Record<string, Point>>({});
   const [selected, setSelected] = useState<{ side: Side; id: string }>();
@@ -188,6 +210,7 @@ function Lines({ left, right, chosen, solved, change }: Body & { change: (next: 
             >
               <Html html={c.html} as="span" />
               {mate ? <span class="sr-only">, ihopkopplad med {textOf.get(mate)}</span> : null}
+              {side === "left" ? <Mark right={marks[c.id]} /> : null}
               <span class="match-dot" aria-hidden="true" onPointerDown={(e) => grab(e, side, c.id)} />
             </button>
           </li>
@@ -206,7 +229,9 @@ function Lines({ left, right, chosen, solved, change }: Body & { change: (next: 
         {column("left", left as ClientChoice[])}
         {column("right", right)}
         <svg class="match-svg" aria-hidden="true">
-          {Object.entries(chosen).map(([l, r]) => line(points[`left:${l}`], points[`right:${r}`], l, "match-line"))}
+          {Object.entries(chosen).map(([l, r]) =>
+            line(points[`left:${l}`], points[`right:${r}`], l, `match-line${marks[l] === undefined ? "" : marks[l] ? " right" : " wrong"}`),
+          )}
           {loose ? line(loose.from, loose.to, "loose", "match-line loose") : null}
         </svg>
       </div>
