@@ -24,7 +24,7 @@ En så lång adress går att korta enligt två regler.
 1. **Nollor först i en grupp får strykas.** 0db8 blir db8 och 0000 blir 0.
 2. **En följd av grupper som bara är nollor kan bytas mot ::** Det får bara göras en gång per adress, annars går det inte att veta hur många nollor som försvann. Byt den längsta följden.
 
-Adressen ovan blir då `2001:db8::eeee:0:0:ffff`. Den första följden med två nollgrupper byttes mot ::, och den andra fick stå kvar som 0:0.
+Ta exempeladressen från förra sidan igen: `2001:0db8:0000:0000:eeee:0000:0000:ffff`. Med de två reglerna blir den `2001:db8::eeee:0:0:ffff`. Den första följden med två nollgrupper byttes mot ::, och den andra fick stå kvar som 0:0.
 
 Vill du veta hur många nollgrupper :: gömmer? En adress har alltid åtta grupper. Räkna grupperna du ser och dra bort det från åtta. `2001:db8::eeee:0:0:ffff` har sex synliga grupper, så :: gömmer två.
 
