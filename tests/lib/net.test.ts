@@ -11,6 +11,7 @@ import {
   formatIPv4,
   fromBinary,
   fromHex,
+  hiddenGroups,
   hostCount,
   hostRange,
   inSubnet,
@@ -190,6 +191,19 @@ describe("IPv6", () => {
     expect(compressIPv6("0:0:0:0:0:0:0:0")).toBe("::");
     expect(expandIPv6("::1")).toBe("0000:0000:0000:0000:0000:0000:0000:0001");
     expect(expandIPv6("FE80::1")).toBe("fe80:0000:0000:0000:0000:0000:0000:0001");
+  });
+
+  it("counts the groups :: hides, which is the longest run of two or more zero groups", () => {
+    expect(["fe80::1", "2001:db8:0:1::5", "::", "2001:db8:1:1:1:1:0:1"].map(hiddenGroups)).toEqual([6, 3, 8, 0]);
+    fc.assert(
+      fc.property(full, (addr) => {
+        const runs = addr.split(":").map((g) => g === "0000");
+        let longest = 0;
+        for (let i = 0, run = 0; i < 8; i++) longest = Math.max(longest, (run = runs[i] ? run + 1 : 0));
+        expect(hiddenGroups(compressIPv6(addr))).toBe(longest >= 2 ? longest : 0);
+      }),
+    );
+    expect(() => hiddenGroups("1::2::3")).toThrow();
   });
 
   it("rejects malformed addresses", () => {

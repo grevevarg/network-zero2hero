@@ -1,5 +1,5 @@
 import type { QuestionInput } from "../../../src/build/schema.ts";
-import { compressIPv6, eui64, expandIPv6 } from "../../../src/lib/net.ts";
+import { compressIPv6, eui64, expandIPv6, hiddenGroups } from "../../../src/lib/net.ts";
 
 const long = "2001:0db8:0000:0000:0000:ff00:0042:8329";
 const mac = "00:1A:2B:3C:4D:5E";
@@ -91,5 +91,32 @@ export const questions: QuestionInput[] = [
     correct: "ndp",
     explanation:
       "I IPv6 sköter Neighbor Discovery det som ARP gjorde, med meddelanden i ICMPv6. ARP används inte alls i IPv6. Broadcast finns inte i IPv6, multicast används i stället. En AAAA-post ger en IPv6-adress till ett namn, inte en MAC-adress.",
+  },
+  {
+    kind: "fill",
+    id: "ipv6-gomda-grupper",
+    uses: ["ipv6-forkortning", "ipv6"],
+    prompt: "Hur många grupper med nollor gömmer :: i de här adresserna?",
+    fields: [
+      { id: "fe80", label: "fe80::1", answer: String(hiddenGroups("fe80::1")), format: "number" },
+      { id: "doc", label: "2001:db8:0:1::5", answer: String(hiddenGroups("2001:db8:0:1::5")), format: "number" },
+    ],
+    explanation:
+      "En adress har alltid åtta grupper, så :: gömmer åtta minus de grupper du ser. Adressen fe80::1 har två synliga grupper, och då gömmer :: sex. I 2001:db8:0:1::5 syns fem grupper, för nollan räknas också, så :: gömmer tre.",
+  },
+  {
+    kind: "mcq",
+    id: "ipv6-default-route",
+    uses: ["default-route", "default-gateway", "routingtabell", "router", "multicast", "link-local"],
+    prompt: "En router ska skicka allt som inte passar någon annan rad vidare mot internet. Vad lägger du till på routern?",
+    options: [
+      { id: "route", text: "En default route till ::/0 i routingtabellen" },
+      { id: "gateway", text: "En default gateway med adressen :: på interfacet" },
+      { id: "multicast", text: "En route till ff00::/8 i routingtabellen" },
+      { id: "fe80", text: "En route till fe80::/64 i routingtabellen" },
+    ],
+    correct: "route",
+    explanation:
+      "Det är en default route du behöver, en rad i routingtabellen som passar alla adresser. I IPv6 skrivs den ::/0. Default gateway är en inställning i datorn, inte en rad i routerns tabell, och :: ensamt betyder ingen adress alls. ff00::/8 är multicast, som routern lyssnar på. fe80 är link-local, som aldrig kommer förbi en router.",
   },
 ];

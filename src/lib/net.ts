@@ -175,6 +175,14 @@ export function compressIPv6(s: string): string {
   return `${groups.slice(0, best.start).join(":")}::${groups.slice(best.start + best.length).join(":")}`;
 }
 
+/** How many all-zero groups the :: in a shortened address stands for: 8 minus the groups you can see. */
+export function hiddenGroups(s: string): number {
+  expandIPv6(s);
+  const halves = s.trim().split("::");
+  if (halves.length === 1) return 0;
+  return 8 - halves.flatMap((h) => (h === "" ? [] : h.split(":"))).length;
+}
+
 /**
  * The 64-bit interface id made from a MAC address with EUI-64: split the MAC in half, put FFFE in the
  * middle and flip the seventh bit of the first byte. Returned as four lowercase groups.

@@ -9,12 +9,13 @@ const section: SectionInput = {
     slug: "15-ipv6",
     introduces: [
       "ipv6", "ipv6-forkortning", "ipv6-prefix", "anycast", "global-unicast", "link-local", "unique-local",
-      "slaac", "ndp", "eui-64", "aaaa",
+      "slaac", "ndp", "eui-64", "aaaa", "dual-stack",
     ],
     requires: [
       "ipv4", "publik-adress", "privat-adress", "nat", "internet", "hex", "bit", "byte", "prefix", "natdel-vardel",
       "unicast", "multicast", "broadcast", "loopback", "interface", "arp", "router", "apipa", "mac-adress", "dns",
-      "resource-record",
+      "resource-record", "routingtabell", "statisk-route", "dynamisk-routing", "rip", "default-route", "default-gateway",
+      "subnatmask",
     ],
     diagrams: {
       // Scenes live in diagrams/15-ipv6/ (layouts in scripts/diagram-specs.ts).

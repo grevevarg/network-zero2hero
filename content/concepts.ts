@@ -229,4 +229,5 @@ export const concepts: Concept[] = [
   { id: "ndp", section: "ipv6", term: "Neighbor Discovery", explanation: "IPv6:s ersättare för ARP, med meddelanden i ICMPv6." },
   { id: "eui-64", section: "ipv6", term: "EUI-64", explanation: "Bygger interface-ID av MAC-adressen: FF:FE i mitten och den sjunde biten vänd." },
   { id: "aaaa", section: "ipv6", term: "AAAA", explanation: "DNS-posten som ger ett namns IPv6-adress." },
+  { id: "dual-stack", section: "ipv6", term: "Dual stack", explanation: "IPv4 och IPv6 körs samtidigt. Varje enhet har adresser i båda, och allt ställs in två gånger." },
 ];
