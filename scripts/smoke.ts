@@ -183,6 +183,15 @@ async function dragSomething(page: Page, where: string, touch: boolean) {
     if (lines !== 1) fail(where, `${how} drag drew ${lines} line(s), expected 1`);
     const linked = await page.locator('.match-item[data-side="right"]').first().getAttribute("class");
     if (!linked?.includes("linked")) fail(where, `${how} drag did not join the first items`);
+  } else if ((await page.locator(".slot-tray").count()) > 0) {
+    await page.locator(".slots").scrollIntoViewIfNeeded();
+    const from = await centreOf(page, ".slot-tile", 0);
+    const to = await centreOf(page, ".slot", 1);
+    const tileText = await page.locator(".slot-tile").first().innerText();
+    await pointerDrag(page, from, to, touch);
+    const label = await page.locator(".slot").nth(1).getAttribute("aria-label");
+    if (label !== `Ruta 2: ${tileText}`) fail(where, `${how} drag did not put "${tileText}" in slot 2 (got ${label})`);
+    if ((await page.locator(".slot-ghost").count()) > 0) fail(where, `${how} drag left a tile floating`);
   } else {
     return;
   }
@@ -227,6 +236,17 @@ async function answerSomething(page: Page, where: string) {
         await page.keyboard.press("Enter");
         if (!(await isClearOfNav(page))) fail(where, `focused ${side} item is hidden behind the card navigation`);
       }
+    }
+    await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
+    await page.keyboard.press("Enter");
+  } else if ((await page.locator(".slot-tray").count()) > 0) {
+    // Pick the first slot, then press the first tile once per slot: the picked slot moves on by itself.
+    await page.locator(".slot").first().focus();
+    await page.keyboard.press("Enter");
+    for (let i = 0; i < (await page.locator(".slot").count()); i++) {
+      await page.locator(".slot-tile").first().focus();
+      await page.keyboard.press("Enter");
+      if (!(await isClearOfNav(page))) fail(where, "focused tile is hidden behind the card navigation");
     }
     await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
     await page.keyboard.press("Enter");

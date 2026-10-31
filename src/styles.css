@@ -210,6 +210,42 @@ button.match-item:disabled { opacity: 1; cursor: default; }
 .match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 .match-line { stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; }
 .match-line.loose { stroke-dasharray: 6 5; }
+/* Slot puzzle: a row of slots above a tray of tiles. */
+.slot-row { list-style: none; padding: 0; margin: 0.75rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem 0; }
+.slot-row li { display: flex; align-items: center; }
+.slot-sep { width: 0.9rem; text-align: center; font-weight: 600; color: var(--muted); }
+.slot, .slot-tile {
+  margin: 0;
+  min-width: 3.6rem;
+  min-height: 2.75rem;
+  padding: 0.3rem 0.45rem;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--surface);
+  border-radius: 8px;
+  touch-action: none;
+}
+button.slot, button.slot-tile { color: var(--text); background: var(--surface); }
+.slot { border: 2px dashed var(--border); }
+.slot.filled { border: 2px solid var(--accent); }
+button.slot:disabled { opacity: 1; cursor: default; }
+.slot[aria-pressed="true"], .slot-tile[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--accent); }
+.slot-tray { list-style: none; padding: 0; margin: 0.5rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.slot-tile { border: 1px solid var(--border); cursor: grab; }
+.slot-ghost {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+  transform: translate(-50%, -120%);
+  padding: 0.3rem 0.6rem;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

@@ -1,8 +1,9 @@
 import type { ParsedContent } from "./course.ts";
 import { normalizeAnswer } from "../lib/answers.ts";
-import type { Fill, Matching, Mcq, Ordering, Question } from "./schema.ts";
+import type { Fill, Matching, Mcq, Ordering, Question, Slots } from "./schema.ts";
 import {
   isFillSolved,
+  isSlotsSolved,
   isMatchingSolved,
   isMcqSolved,
   isOrderingSolved,
@@ -134,6 +135,10 @@ export function countSolutions(q: Question): number {
       for (const a of assignments(q.pairs.map((p) => p.left.id), rightIds)) if (isMatchingSolved(q, a)) count++;
       return count;
     }
+    case "slots":
+      // Each slot is judged on its own, so the count is the product over the slots of how many
+      // tiles the validator accepts there with every other slot right.
+      return q.answer.reduce((n, _, i) => n * q.blocks.filter((b) => isSlotsSolved(q, q.answer.with(i, b.id))).length, 1);
     case "fill":
       // Normalising maps every accepted input to one canonical answer per field, so the authored
       // answers are the one solution as long as the validator accepts them (checkFill makes sure
@@ -172,6 +177,12 @@ function checkFill(q: Fill): string[] {
   return errors;
 }
 
+function checkSlots(q: Slots): string[] {
+  const errors = explanationLength(q.id, q.explanation);
+  for (const d of duplicates(q.blocks.map((b) => b.text))) errors.push(`"${q.id}": duplicate tile text "${d}"`);
+  return errors;
+}
+
 function checkMatching(q: Matching): string[] {
   const errors = duplicates(matchingRightOptions(q).map((r) => r.text)).map((d) => `"${q.id}": duplicate option text "${d}"`);
   for (const p of q.pairs) {
@@ -192,6 +203,7 @@ export function checkQuestions(content: ParsedContent): string[] {
         q.kind === "mcq" ? q.options.map((o) => o.id)
         : q.kind === "ordering" ? q.items.map((i) => i.id)
         : q.kind === "fill" ? q.fields.map((f) => f.id)
+        : q.kind === "slots" ? q.blocks.map((b) => b.id)
         : [...q.pairs.map((p) => p.left.id), ...matchingRightOptions(q).map((r) => r.id)];
       for (const d of duplicates(choiceIds)) errors.push(`"${q.id}": duplicate choice id "${d}"`);
       if (q.kind === "mcq") {
@@ -201,6 +213,7 @@ export function checkQuestions(content: ParsedContent): string[] {
       if (q.kind === "ordering") errors.push(...checkOrdering(q));
       if (q.kind === "matching") errors.push(...checkMatching(q));
       if (q.kind === "fill") errors.push(...checkFill(q));
+      if (q.kind === "slots") errors.push(...checkSlots(q));
       const explanation = "explanation" in q ? q.explanation : undefined;
       if (explanation !== undefined && refersToPosition(explanation)) errors.push(`"${q.id}": explanation refers to an option by letter or position`);
       const solutions = countSolutions(q);

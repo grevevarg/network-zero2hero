@@ -75,7 +75,19 @@ export const fillSchema = z.strictObject({
     .max(6),
   explanation: text,
 });
-export const questionSchema = z.discriminatedUnion("kind", [mcqSchema, orderingSchema, matchingSchema, fillSchema]);
+export const slotsSchema = z.strictObject({
+  ...questionBase,
+  kind: z.literal("slots"),
+  diagram: id.optional(),
+  /** Tiles to pick from. One tile can go in several slots; tiles that fit nowhere are traps. */
+  blocks: z.array(choiceSchema).min(2).max(12),
+  /** The right tile id for each slot, in order. */
+  answer: z.array(id).min(2).max(12),
+  /** Shown between the slots, e.g. ":" between the groups of an IPv6 address. */
+  separator: z.string().max(3).default(""),
+  explanation: text,
+});
+export const questionSchema = z.discriminatedUnion("kind", [mcqSchema, orderingSchema, matchingSchema, fillSchema, slotsSchema]);
 
 export const sectionMetaSchema = z.strictObject({
   id,
@@ -101,6 +113,7 @@ export type Mcq = z.output<typeof mcqSchema>;
 export type Ordering = z.output<typeof orderingSchema>;
 export type Matching = z.output<typeof matchingSchema>;
 export type Fill = z.output<typeof fillSchema>;
+export type Slots = z.output<typeof slotsSchema>;
 export type SectionMeta = z.output<typeof sectionMetaSchema>;
 export type SectionMetaInput = z.input<typeof sectionMetaSchema>;
 export type Section = z.output<typeof sectionSchema>;

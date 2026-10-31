@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { questionSchema, type Fill, type Matching, type Mcq, type Ordering } from "../../src/build/schema.ts";
+import { questionSchema, type Fill, type Matching, type Mcq, type Ordering, type Slots } from "../../src/build/schema.ts";
 import {
   isFillSolved,
   isMatchingSolved,
   isMcqSolved,
   isOrderingSolved,
+  isSlotsSolved,
   matchingRightOptions,
 } from "../../src/puzzles/validators.ts";
-import { fill, matching, mcq, ordering } from "../fixtures/content.ts";
+import { fill, matching, mcq, ordering, slots } from "../fixtures/content.ts";
 
 describe("validators", () => {
   it("mcq accepts only the correct id", () => {
@@ -29,6 +30,18 @@ describe("validators", () => {
     expect(isMatchingSolved(q, { l1: "r1", l2: "r3" })).toBe(false);
     expect(isMatchingSolved(q, { l1: "r1" })).toBe(false);
     expect(matchingRightOptions(q).map((r) => r.id)).toEqual(["r1", "r2", "r3"]);
+  });
+});
+
+describe("slots validator", () => {
+  it("needs the right tile in every slot, and a tile may be used twice", () => {
+    const q = questionSchema.parse(slots()) as Slots;
+    expect(q.separator).toBe(":");
+    expect(isSlotsSolved(q, ["aa", "bb", "aa"])).toBe(true);
+    expect(isSlotsSolved(q, ["aa", "bb", "cc"])).toBe(false);
+    expect(isSlotsSolved(q, ["aa", "bb", undefined])).toBe(false);
+    expect(isSlotsSolved(q, ["aa", "bb"])).toBe(false);
+    expect((questionSchema.parse(slots({ separator: undefined } as never)) as Slots).separator).toBe("");
   });
 });
 

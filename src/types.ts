@@ -47,7 +47,19 @@ export type ClientFill = {
   explanationHtml: string;
 };
 
-export type ClientQuestion = ClientMcq | ClientOrdering | ClientMatching | ClientFill;
+export type ClientSlots = {
+  kind: "slots";
+  id: string;
+  promptHtml: string;
+  diagramHtml?: string;
+  blocks: ClientChoice[];
+  slots: number;
+  separator: string;
+  key: string;
+  explanationHtml: string;
+};
+
+export type ClientQuestion = ClientMcq | ClientOrdering | ClientMatching | ClientFill | ClientSlots;
 
 export type ClientSection = {
   id: string;

@@ -105,6 +105,19 @@ function buildQuestion(q: Question, diagrams: Record<string, string>): ClientQue
         explanationHtml: q.explanation === undefined ? undefined : renderMarkdown(q.explanation),
       };
     }
+    case "slots":
+      return {
+        kind: "slots",
+        id: q.id,
+        promptHtml,
+        diagramHtml: diagram(q.diagram),
+        blocks: choices(q.id, q.blocks),
+        slots: q.answer.length,
+        separator: q.separator,
+        // A filled row is a sequence of tile ids, the same shape as an ordering answer.
+        key: answerKey(q.id, orderingAnswer(q.answer.map((a) => opaqueId(q.id, a)))),
+        explanationHtml: renderMarkdown(q.explanation),
+      };
     case "fill":
       return {
         kind: "fill",

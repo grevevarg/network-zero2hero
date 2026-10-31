@@ -1,13 +1,14 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/preact";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { buildCourse, parseContent } from "../../src/build/course.ts";
-import type { ClientCourse, ClientFill, ClientMatching, ClientMcq, ClientOrdering } from "../../src/types.ts";
+import type { ClientCourse, ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientSlots } from "../../src/types.ts";
 import { Fill } from "../../src/ui/Fill.tsx";
 import { Matching } from "../../src/ui/Matching.tsx";
 import { Mcq } from "../../src/ui/Mcq.tsx";
 import { move, Ordering } from "../../src/ui/Ordering.tsx";
 import { Question } from "../../src/ui/Question.tsx";
-import { fill, matching, rawContent, sectionInput, TEXT } from "../fixtures/content.ts";
+import { setSlot, Slots } from "../../src/ui/Slots.tsx";
+import { fill, matching, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
 import { fixtureCourse, textOf } from "./helpers.ts";
 
 let course: ClientCourse;
@@ -366,3 +367,144 @@ describe("Fill", () => {
   });
 });
 
+
+describe("Slots", () => {
+  const slotQuestion = (): ClientSlots => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({}, [slots()]), text: TEXT };
+    return buildCourse(parseContent(raw)).sections[0].questions[0] as ClientSlots;
+  };
+  const slot = (i: number) => screen.getByRole("button", { name: new RegExp(`^Ruta ${i}:`) });
+  const tile = (text: string) => screen.getByRole("button", { name: text });
+  const row = () => [1, 2, 3].map((i) => slot(i).getAttribute("aria-label")?.replace(/^Ruta \d: /, ""));
+  const root = () => document.querySelector(".slots") as HTMLElement;
+  /** Slot i (0-based) is 50px wide at x = 60i, all at y 0-40; tiles sit lower down. */
+  const mockSlots = () =>
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const i = [...document.querySelectorAll(".slot")].indexOf(this);
+      const [x, y, w, h] = i >= 0 ? [i * 60, 0, 50, 40] : [0, 0, 0, 0];
+      return { x, y, left: x, top: y, width: w, height: h, right: x + w, bottom: y + h, toJSON: () => ({}) } as DOMRect;
+    });
+  const at = (i: number) => ({ clientX: i * 60 + 25, clientY: 20 });
+  const away = { clientX: 25, clientY: 400 };
+
+  it("setSlot replaces one slot and leaves the input alone", () => {
+    const before = ["a", undefined];
+    expect(setSlot(before, 1, "b")).toEqual(["a", "b"]);
+    expect(setSlot(before, 0, undefined)).toEqual([undefined, undefined]);
+    expect(before).toEqual(["a", undefined]);
+  });
+
+  it("fills slots by pressing a tile and then slots, or a slot and then tiles", async () => {
+    const onSolved = vi.fn();
+    const onAnswered = vi.fn();
+    render(<Slots question={slotQuestion()} seed="s" onSolved={onSolved} onAnswered={onAnswered} />);
+    const check = screen.getByRole("button", { name: "Kontrollera" }) as HTMLButtonElement;
+    expect(row()).toEqual(["tom", "tom", "tom"]);
+    expect(document.querySelectorAll(".slot-sep")).toHaveLength(2);
+
+    // A tile stays picked, so it can go in several slots.
+    fireEvent.click(tile("aaaa"));
+    expect(tile("aaaa").getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(slot(1));
+    fireEvent.click(slot(3));
+    expect(row()).toEqual(["aaaa", "tom", "aaaa"]);
+    fireEvent.click(tile("aaaa"));
+    expect(tile("aaaa").getAttribute("aria-pressed")).toBe("false");
+    expect(check.disabled).toBe(true);
+
+    // A picked slot moves on by itself after each tile.
+    fireEvent.click(slot(1));
+    fireEvent.click(slot(1));
+    expect(slot(1).getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(slot(2));
+    fireEvent.click(tile("cc"));
+    expect(slot(3).getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(tile("cc"));
+    expect(row()).toEqual(["aaaa", "cc", "cc"]);
+    expect(document.querySelector('[aria-pressed="true"]')).toBeNull();
+
+    fireEvent.click(check);
+    await screen.findByText(/Minst en ruta är fel/);
+    expect(onAnswered).toHaveBeenCalledWith("q-slots");
+    expect(document.querySelector(".explanation")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Visa lösningen" }));
+    expect(document.querySelector(".explanation")).toBeTruthy();
+
+    // Delete empties a slot; other keys do nothing.
+    fireEvent.keyDown(slot(2), { key: "a" });
+    expect(row()[1]).toBe("cc");
+    fireEvent.keyDown(slot(2), { key: "Delete" });
+    expect(row()[1]).toBe("tom");
+    expect(screen.queryByText(/Minst en ruta/)).toBeNull();
+    fireEvent.keyDown(slot(3), { key: "Backspace" });
+    fireEvent.click(tile("bbbb"));
+    fireEvent.click(slot(2));
+    fireEvent.click(tile("aaaa"));
+    fireEvent.click(slot(3));
+    fireEvent.click(check);
+    await screen.findByText("Rätt.");
+    expect(onSolved).toHaveBeenCalledWith("q-slots");
+    expect(document.querySelector(".slot-tray")).toBeNull();
+    fireEvent.click(slot(1));
+    fireEvent.keyDown(slot(1), { key: "Delete" });
+    expect(row()).toEqual(["aaaa", "bbbb", "aaaa"]);
+  });
+
+  it("drags tiles into slots, moves filled slots and empties them when dropped outside", async () => {
+    const spy = mockSlots();
+    render(<Slots question={slotQuestion()} seed="s" onSolved={() => {}} onAnswered={() => {}} />);
+    const dragTo = (from: Element, to: { clientX: number; clientY: number }, start = { clientX: 25, clientY: 300 }) => {
+      fireEvent.pointerDown(from, { pointerId: 1, button: 0, ...start });
+      fireEvent.pointerMove(root(), { pointerId: 1, ...to });
+      fireEvent.pointerUp(root(), { pointerId: 1, ...to });
+    };
+
+    // Taps, other buttons, other pointers, empty slots and cancelled drags change nothing.
+    fireEvent.pointerDown(tile("aaaa"), { pointerId: 1, button: 0, clientX: 25, clientY: 300 });
+    fireEvent.pointerUp(root(), { pointerId: 1, clientX: 25, clientY: 300 });
+    fireEvent.pointerDown(tile("aaaa"), { pointerId: 1, button: 1, clientX: 25, clientY: 300 });
+    fireEvent.pointerMove(root(), { pointerId: 1, ...at(0) });
+    dragTo(slot(1), at(1), at(0));
+    fireEvent.pointerDown(tile("aaaa"), { pointerId: 1, button: 0, clientX: 25, clientY: 300 });
+    fireEvent.pointerMove(root(), { pointerId: 2, ...at(0) });
+    fireEvent.pointerUp(root(), { pointerId: 2, ...at(0) });
+    fireEvent.pointerMove(root(), { pointerId: 1, ...at(0) });
+    expect(document.querySelector(".slot-ghost")?.textContent).toBe("aaaa");
+    fireEvent.pointerCancel(root(), { pointerId: 1 });
+    expect(document.querySelector(".slot-ghost")).toBeNull();
+    expect(row()).toEqual(["tom", "tom", "tom"]);
+
+    dragTo(tile("aaaa"), at(0));
+    dragTo(tile("aaaa"), at(1));
+    dragTo(tile("bbbb"), away);
+    expect(row()).toEqual(["aaaa", "aaaa", "tom"]);
+    // Moving a filled slot empties where it came from.
+    dragTo(slot(2), at(2), at(1));
+    expect(row()).toEqual(["aaaa", "tom", "aaaa"]);
+    dragTo(slot(3), away, at(2));
+    expect(row()).toEqual(["aaaa", "tom", "tom"]);
+    // Dropping a slot back on itself keeps it.
+    dragTo(slot(1), { clientX: 40, clientY: 30 }, at(0));
+    expect(row()).toEqual(["aaaa", "tom", "tom"]);
+    dragTo(tile("bbbb"), at(1));
+    dragTo(slot(1), at(2), at(0));
+    dragTo(tile("aaaa"), at(0));
+    expect(row()).toEqual(["aaaa", "bbbb", "aaaa"]);
+    fireEvent.click(screen.getByRole("button", { name: "Kontrollera" }));
+    await screen.findByText("Rätt.");
+    dragTo(slot(1), away, at(0));
+    expect(row()).toEqual(["aaaa", "bbbb", "aaaa"]);
+    spy.mockRestore();
+  });
+
+  it("is dispatched by Question and shows its diagram", () => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({}, [slots({ diagram: "dia" } as never)]), text: TEXT };
+    const question = buildCourse(parseContent(raw)).sections[0].questions[0];
+    render(<Question question={question} seed="s" solved={false} onSolved={() => {}} onAnswered={() => {}} />);
+    expect(document.querySelector(".slots")).toBeTruthy();
+    expect(document.querySelector(".figure img")).toBeTruthy();
+    expect(document.querySelectorAll(".slot-sep")).toHaveLength(2);
+  });
+});

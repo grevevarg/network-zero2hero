@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { buildCourse, opaqueId, parseContent } from "../../src/build/course.ts";
 import { matchesKey } from "../../src/lib/answerHash.ts";
 import { fillAnswer, matchingAnswer, orderingAnswer } from "../../src/lib/answers.ts";
-import type { ClientFill, ClientMatching, ClientMcq, ClientOrdering } from "../../src/types.ts";
-import { fill, matching, mcq, rawContent, sectionInput, TEXT } from "../fixtures/content.ts";
+import type { ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientSlots } from "../../src/types.ts";
+import { fill, matching, mcq, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
 
 describe("parseContent", () => {
   it("validates and splits blocks", () => {
@@ -45,6 +45,19 @@ describe("buildCourse", () => {
     expect(matchesKey(x.id, matchingAnswer(left, right), x.key)).toBe(true);
     expect(x.right).toHaveLength(3);
     expect(x.left.find((l) => l.diagramHtml)?.html).toBe("");
+  });
+
+  it("ships slot puzzles with hidden tile ids and a key for the whole row", () => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({}, [slots({ diagram: "dia" } as never)]), text: TEXT };
+    const q = buildCourse(parseContent(raw)).sections[0].questions[0] as ClientSlots;
+    expect(q).toMatchObject({ kind: "slots", slots: 3, separator: ":" });
+    expect(q.diagramHtml).toContain("<img");
+    expect(q.blocks.map((b) => b.html).sort()).toEqual(["aaaa", "bbbb", "cc"]);
+    const [a, b] = ["aa", "bb"].map((id) => opaqueId(q.id, id));
+    expect(matchesKey(q.id, orderingAnswer([a, b, a]), q.key)).toBe(true);
+    expect(matchesKey(q.id, orderingAnswer([a, b, b]), q.key)).toBe(false);
+    expect(JSON.stringify(q)).not.toMatch(/"aa"|"bb"/);
   });
 
   it("does not ship authored ids or authoring order", () => {

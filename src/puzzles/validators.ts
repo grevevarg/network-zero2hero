@@ -1,4 +1,4 @@
-import type { Fill, Matching, Mcq, Ordering } from "../build/schema.ts";
+import type { Fill, Matching, Mcq, Ordering, Slots } from "../build/schema.ts";
 import { normalizeAnswer } from "../lib/answers.ts";
 
 /** Pure validators over authored (source) questions. Used by tests and the build step. */
@@ -17,6 +17,10 @@ export function isMatchingSolved(q: Matching, chosen: Readonly<Record<string, st
 /** Every right-hand option a matching question offers, pairs first, then distractors. */
 export function matchingRightOptions(q: Matching): { id: string; text: string }[] {
   return [...q.pairs.map((p) => p.right), ...q.distractors];
+}
+
+export function isSlotsSolved(q: Slots, filled: readonly (string | undefined)[]): boolean {
+  return filled.length === q.answer.length && q.answer.every((id, i) => filled[i] === id);
 }
 
 export function isFillSolved(q: Fill, values: Readonly<Record<string, string>>): boolean {

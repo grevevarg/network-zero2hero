@@ -60,6 +60,23 @@ export const fill = (over: Partial<QuestionInput> = {}): QuestionInput =>
     ...over,
   }) as QuestionInput;
 
+export const slots = (over: Partial<QuestionInput> = {}): QuestionInput =>
+  ({
+    kind: "slots",
+    id: "q-slots",
+    uses: ["a"],
+    prompt: "Bygg",
+    blocks: [
+      { id: "aa", text: "aaaa" },
+      { id: "bb", text: "bbbb" },
+      { id: "cc", text: "cc" },
+    ],
+    answer: ["aa", "bb", "aa"],
+    separator: ":",
+    explanation: "Först aaaa. Sedan bbbb. Till sist aaaa igen.",
+    ...over,
+  }) as QuestionInput;
+
 export const sectionInput = (over: Partial<SectionInput["meta"]> = {}, questions?: QuestionInput[]): SectionInput => ({
   meta: {
     id: "s1",

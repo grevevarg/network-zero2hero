@@ -4,6 +4,13 @@ import { compressIPv6, eui64, expandIPv6, hiddenGroups } from "../../../src/lib/
 const long = "2001:0db8:0000:0000:0000:ff00:0042:8329";
 const mac = "00:1A:2B:3C:4D:5E";
 
+/** Slot answer for a full address, plus a tile for every group and for each trap. */
+function groupTiles(address: string, traps: string[]) {
+  const groups = expandIPv6(address).split(":");
+  const texts = [...new Set([...groups, ...traps])];
+  return { blocks: texts.map((t) => ({ id: `g-${t}`, text: t })), answer: groups.map((g) => `g-${g}`), separator: ":" };
+}
+
 export const questions: QuestionInput[] = [
   {
     kind: "fill",
@@ -15,13 +22,13 @@ export const questions: QuestionInput[] = [
       "Först stryks nollorna i början av varje grupp: 0db8 blir db8, 0042 blir 42 och 0000 blir 0. Sedan finns det en följd av tre grupper med bara nollor, och den byts mot ::. Resultatet blir 2001:db8::ff00:42:8329.",
   },
   {
-    kind: "fill",
+    kind: "slots",
     id: "ipv6-skriv-ut",
     uses: ["ipv6-forkortning", "ipv6"],
-    prompt: "Skriv ut hela adressen `2001:db8::1`, med alla åtta grupper och fyra siffror i varje.",
-    fields: [{ id: "lang", label: "Hela adressen", answer: expandIPv6("2001:db8::1"), format: "text" }],
+    prompt: "Bygg hela adressen `2001:db8::1` med alla åtta grupper. Varje grupp ska ha fyra siffror.",
+    ...groupTiles("2001:db8::1", ["db8", "1"]),
     explanation:
-      "Adressen har tre grupper, 2001, db8 och 1, så :: står för fem grupper med nollor. Varje grupp fylls ut med nollor framifrån till fyra siffror. Då blir det 2001:0db8:0000:0000:0000:0000:0000:0001.",
+      "Adressen har tre grupper, 2001, db8 och 1, så :: står för fem grupper med nollor. Varje grupp fylls ut med nollor framifrån till fyra siffror. Då blir det 2001:0db8:0000:0000:0000:0000:0000:0001. Brickorna db8 och 1 är rätt grupper med nollorna strukna, men här ska varje grupp ha fyra siffror.",
   },
   {
     kind: "mcq",
@@ -54,13 +61,14 @@ export const questions: QuestionInput[] = [
       "fe80 är link-local och ff är multicast. fd är unique local, motsvarigheten till privata adresser. En adress som börjar med 2 eller 3 är global unicast. ::1 är loopback, precis som 127.0.0.1 i IPv4.",
   },
   {
-    kind: "fill",
+    kind: "slots",
     id: "ipv6-eui64",
     uses: ["eui-64", "link-local", "mac-adress"],
-    prompt: `Ett interface har MAC-adressen ${mac}. Vilken link-local-adress får det med EUI-64? Börja med fe80::`,
-    fields: [{ id: "lla", label: "Link-local-adress", answer: compressIPv6(`fe80::${eui64(mac)}`), format: "ipv6" }],
+    prompt: `Ett interface har MAC-adressen ${mac}. Bygg link-local-adressen som det får med EUI-64. Den börjar med fe80, och varje grupp ska ha fyra siffror.`,
+    // 001a is what you get if you forget to flip the bit.
+    ...groupTiles(`fe80::${eui64(mac)}`, ["001a"]),
     explanation:
-      "Dela MAC-adressen i 00:1A:2B och 3C:4D:5E och lägg in FF:FE i mitten. Vänd sedan den sjunde biten i första byten, så att 00 blir 02. Interface-ID:t blir 021a:2bff:fe3c:4d5e, och med fe80:: framför blir adressen fe80::21a:2bff:fe3c:4d5e.",
+      "Dela MAC-adressen i 00:1A:2B och 3C:4D:5E och lägg in FF:FE i mitten. Vänd sedan den sjunde biten i första byten, så att 00 blir 02. Interface-ID:t blir 021a:2bff:fe3c:4d5e, och med fe80:: framför blir adressen fe80::21a:2bff:fe3c:4d5e. Utskriven med alla åtta grupper är det fe80:0000:0000:0000:021a:2bff:fe3c:4d5e. Brickan 001a är vad du får om du glömmer att vända biten.",
   },
   {
     kind: "mcq",
