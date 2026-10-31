@@ -229,6 +229,7 @@ button.match-item:disabled { opacity: 1; cursor: default; }
 button.slot, button.slot-tile { color: var(--text); background: var(--surface); }
 .slot { border: 2px dashed var(--border); }
 .slot.filled { border: 2px solid var(--accent); }
+.slot.target { border: 2px solid var(--accent); background: var(--example-bg); }
 button.slot:disabled { opacity: 1; cursor: default; }
 .slot[aria-pressed="true"], .slot-tile[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--accent); }
 .slot-tray { list-style: none; padding: 0; margin: 0.5rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
@@ -237,8 +238,9 @@ button.slot:disabled { opacity: 1; cursor: default; }
   position: fixed;
   z-index: 10;
   pointer-events: none;
-  transform: translate(-50%, -120%);
-  padding: 0.3rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   background: var(--surface);
   border: 2px solid var(--accent);

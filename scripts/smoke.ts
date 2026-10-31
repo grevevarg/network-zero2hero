@@ -185,8 +185,15 @@ async function dragSomething(page: Page, where: string, touch: boolean) {
     if (!linked?.includes("linked")) fail(where, `${how} drag did not join the first items`);
   } else if ((await page.locator(".slot-tray").count()) > 0) {
     await page.locator(".slots").scrollIntoViewIfNeeded();
-    const from = await centreOf(page, ".slot-tile", 0);
-    const to = await centreOf(page, ".slot", 1);
+    // Let go with the pointer below the slot but the tile drawn over it: it must land where it is drawn.
+    // A mouse grabs the tile near its bottom edge; a finger has the tile floating just above it.
+    await centreOf(page, ".slot-tile", 0);
+    const tile = (await page.locator(".slot-tile").first().boundingBox()) as { x: number; y: number; width: number; height: number };
+    const slot = (await page.locator(".slot").nth(1).boundingBox()) as typeof tile;
+    const from = { x: tile.x + tile.width / 2, y: touch ? tile.y + tile.height / 2 : tile.y + tile.height - 2 };
+    const to = touch
+      ? { x: slot.x + slot.width / 2, y: slot.y + slot.height + 16 + 4 }
+      : { x: slot.x + slot.width / 2, y: slot.y + slot.height + 0.3 * tile.height - 2 };
     const tileText = await page.locator(".slot-tile").first().innerText();
     await pointerDrag(page, from, to, touch);
     const label = await page.locator(".slot").nth(1).getAttribute("aria-label");

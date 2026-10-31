@@ -5,7 +5,7 @@ import { rngFromSeed } from "../lib/prng.ts";
 import { shuffle } from "../lib/shuffle.ts";
 import { htmlToText } from "../lib/text.ts";
 import type { ClientSlots } from "../types.ts";
-import { hitTest, isDrag } from "./drag.ts";
+import { floatingRect, isDrag, mostOverlap, type Point, type Rect } from "./drag.ts";
 import { Feedback, type Verdict } from "./Feedback.tsx";
 import { Html } from "./Html.tsx";
 
@@ -36,8 +36,10 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
   const complete = filled.every((id) => id !== undefined);
 
   const root = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ pointerId: number; from: Pick; id: string; x: number; y: number; moved: boolean }>(undefined);
-  const [ghost, setGhost] = useState<{ id: string; x: number; y: number }>();
+  type Drag = { pointerId: number; from: Pick; id: string; start: Point; grabbedAt: Point; w: number; h: number; touch: boolean; moved: boolean };
+  const drag = useRef<Drag>(undefined);
+  // The floating tile and the slot it would land in: the one it covers most, not the one under the pointer.
+  const [ghost, setGhost] = useState<{ id: string; rect: Rect; target: number }>();
 
   function put(index: number, id: string | undefined) {
     setFilled((f) => setSlot(f, index, id));
@@ -69,18 +71,35 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
   function grab(e: PointerEvent, from: Pick, id: string | undefined) {
     if (solved || e.button !== 0 || id === undefined) return;
     e.preventDefault();
-    drag.current = { pointerId: e.pointerId, from, id, x: e.clientX, y: e.clientY, moved: false };
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    drag.current = {
+      pointerId: e.pointerId,
+      from,
+      id,
+      start: { x: e.clientX, y: e.clientY },
+      grabbedAt: { x: e.clientX - r.left, y: e.clientY - r.top },
+      w: r.right - r.left,
+      h: r.bottom - r.top,
+      touch: e.pointerType === "touch",
+      moved: false,
+    };
+  }
+
+  function landing(d: Drag, e: PointerEvent) {
+    const rect = floatingRect({ x: e.clientX, y: e.clientY }, d.grabbedAt, d.w, d.h, d.touch);
+    const slots = [...(root.current as HTMLDivElement).querySelectorAll<HTMLElement>(".slot")];
+    return { id: d.id, rect, target: mostOverlap(rect, slots.map((el) => el.getBoundingClientRect())) };
   }
 
   function follow(e: PointerEvent) {
     const d = drag.current;
     if (d?.pointerId !== e.pointerId) return;
-    if (!d.moved && isDrag(e.clientX - d.x, e.clientY - d.y)) {
+    if (!d.moved && isDrag(e.clientX - d.start.x, e.clientY - d.start.y)) {
       // Capture only once it is a drag. A tap stays uncaptured, so the button's click handles it.
       d.moved = true;
       root.current?.setPointerCapture?.(e.pointerId);
     }
-    if (d.moved) setGhost({ id: d.id, x: e.clientX, y: e.clientY });
+    if (d.moved) setGhost(landing(d, e));
   }
 
   function drop(e: PointerEvent) {
@@ -89,8 +108,7 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
     drag.current = undefined;
     setGhost(undefined);
     if (e.type === "pointercancel" || !d.moved) return;
-    const slots = [...(root.current as HTMLDivElement).querySelectorAll<HTMLElement>(".slot")];
-    const hit = hitTest({ x: e.clientX, y: e.clientY }, slots.map((el) => el.getBoundingClientRect()));
+    const hit = landing(d, e).target;
     if (d.from.kind === "slot" && d.from.index !== hit) put(d.from.index, undefined);
     if (hit >= 0) put(hit, d.id);
     setPicked(undefined);
@@ -115,7 +133,7 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
             <li key={i}>
               <button
                 type="button"
-                class={`slot${id === undefined ? "" : " filled"}`}
+                class={`slot${id === undefined ? "" : " filled"}${ghost?.target === i ? " target" : ""}`}
                 aria-label={`Ruta ${i + 1}: ${id === undefined ? "tom" : text(id)}`}
                 aria-pressed={picked?.kind === "slot" && picked.index === i}
                 disabled={solved}
@@ -156,7 +174,16 @@ export function Slots({ question: q, seed, onSolved, onAnswered }: Props) {
           </>
         )}
         {ghost ? (
-          <span class="slot-ghost" aria-hidden="true" style={{ left: `${ghost.x}px`, top: `${ghost.y}px` }}>
+          <span
+            class="slot-ghost"
+            aria-hidden="true"
+            style={{
+              left: `${ghost.rect.left}px`,
+              top: `${ghost.rect.top}px`,
+              width: `${ghost.rect.right - ghost.rect.left}px`,
+              height: `${ghost.rect.bottom - ghost.rect.top}px`,
+            }}
+          >
             <Html html={html.get(ghost.id) as string} as="span" />
           </span>
         ) : null}

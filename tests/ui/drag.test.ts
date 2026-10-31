@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { connect, disconnect, dropIndex, edgePoint, hitTest, isDrag, moveTo, type Rect } from "../../src/ui/drag.ts";
+import { connect, disconnect, dropIndex, edgePoint, FINGER_GAP, floatingRect, hitTest, isDrag, mostOverlap, moveTo, type Rect } from "../../src/ui/drag.ts";
 
 const list = fc.array(fc.integer(), { minLength: 1, maxLength: 10 });
 const withIndices = list.chain((xs) => fc.tuple(fc.constant(xs), fc.nat(xs.length - 1), fc.nat(xs.length - 1)));
@@ -138,5 +138,50 @@ describe("connect and disconnect", () => {
     expect(disconnect(links, "left", "a")).toEqual({ b: "y" });
     expect(disconnect(links, "right", "y")).toEqual({ a: "x" });
     expect(disconnect(links, "left", "z")).toEqual(links);
+  });
+});
+
+describe("mostOverlap", () => {
+  const box = fc.record({ left: fc.integer({ min: -100, max: 400 }), top: fc.integer({ min: -100, max: 400 }), w: fc.integer({ min: 1, max: 120 }), h: fc.integer({ min: 1, max: 120 }) })
+    .map(({ left, top, w, h }): Rect => ({ left, top, right: left + w, bottom: top + h }));
+
+  it("picks a rect that is covered at least as much as every other, and -1 only when none is touched", () => {
+    const cover = (a: Rect, b: Rect) =>
+      Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+    fc.assert(
+      fc.property(box, fc.array(box, { maxLength: 8 }), (r, rects) => {
+        const best = mostOverlap(r, rects);
+        if (best === -1) {
+          expect(rects.every((o) => cover(r, o) === 0)).toBe(true);
+        } else {
+          expect(cover(r, rects[best])).toBeGreaterThan(0);
+          for (const o of rects) expect(cover(r, rects[best])).toBeGreaterThanOrEqual(cover(r, o));
+        }
+      }),
+    );
+  });
+
+  it("finds a rect sitting exactly on top of one of them", () => {
+    fc.assert(
+      fc.property(stacked, fc.nat(), (rects, f) => {
+        const i = f % rects.length;
+        expect(mostOverlap(rects[i], rects)).toBe(i);
+      }),
+    );
+  });
+});
+
+describe("floatingRect", () => {
+  it("keeps the grab point under the mouse, and floats centred above a finger", () => {
+    fc.assert(
+      fc.property(fc.integer({ min: -500, max: 500 }), fc.integer({ min: -500, max: 500 }), fc.nat(60), fc.nat(40), (x, y, gx, gy) => {
+        const mouse = floatingRect({ x, y }, { x: gx, y: gy }, 60, 40, false);
+        expect([x - mouse.left, y - mouse.top]).toEqual([gx, gy]);
+        expect([mouse.right - mouse.left, mouse.bottom - mouse.top]).toEqual([60, 40]);
+        const touch = floatingRect({ x, y }, { x: gx, y: gy }, 60, 40, true);
+        expect((touch.left + touch.right) / 2).toBe(x);
+        expect(y - touch.bottom).toBe(FINGER_GAP);
+      }),
+    );
   });
 });

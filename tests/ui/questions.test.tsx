@@ -378,11 +378,12 @@ describe("Slots", () => {
   const tile = (text: string) => screen.getByRole("button", { name: text });
   const row = () => [1, 2, 3].map((i) => slot(i).getAttribute("aria-label")?.replace(/^Ruta \d: /, ""));
   const root = () => document.querySelector(".slots") as HTMLElement;
-  /** Slot i (0-based) is 50px wide at x = 60i, all at y 0-40; tiles sit lower down. */
+  /** Slot i (0-based) is 50x40 at x = 60i, y = 0. Tile i is the same size at x = 60i, y = 280. */
   const mockSlots = () =>
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
-      const i = [...document.querySelectorAll(".slot")].indexOf(this);
-      const [x, y, w, h] = i >= 0 ? [i * 60, 0, 50, 40] : [0, 0, 0, 0];
+      const s = [...document.querySelectorAll(".slot")].indexOf(this);
+      const t = [...document.querySelectorAll(".slot-tile")].indexOf(this);
+      const [x, y, w, h] = s >= 0 ? [s * 60, 0, 50, 40] : t >= 0 ? [t * 60, 280, 50, 40] : [0, 0, 0, 0];
       return { x, y, left: x, top: y, width: w, height: h, right: x + w, bottom: y + h, toJSON: () => ({}) } as DOMRect;
     });
   const at = (i: number) => ({ clientX: i * 60 + 25, clientY: 20 });
@@ -454,8 +455,11 @@ describe("Slots", () => {
   it("drags tiles into slots, moves filled slots and empties them when dropped outside", async () => {
     const spy = mockSlots();
     render(<Slots question={slotQuestion()} seed="s" onSolved={() => {}} onAnswered={() => {}} />);
-    const dragTo = (from: Element, to: { clientX: number; clientY: number }, start = { clientX: 25, clientY: 300 }) => {
-      fireEvent.pointerDown(from, { pointerId: 1, button: 0, ...start });
+    /** Grab an element by its middle with the mouse and let go with the pointer at `to`. */
+    const dragTo = (from: Element, to: { clientX: number; clientY: number }) => {
+      const r = from.getBoundingClientRect();
+      const start = { clientX: (r.left + r.right) / 2, clientY: (r.top + r.bottom) / 2 };
+      fireEvent.pointerDown(from, { pointerId: 1, button: 0, pointerType: "mouse", ...start });
       fireEvent.pointerMove(root(), { pointerId: 1, ...to });
       fireEvent.pointerUp(root(), { pointerId: 1, ...to });
     };
@@ -465,7 +469,7 @@ describe("Slots", () => {
     fireEvent.pointerUp(root(), { pointerId: 1, clientX: 25, clientY: 300 });
     fireEvent.pointerDown(tile("aaaa"), { pointerId: 1, button: 1, clientX: 25, clientY: 300 });
     fireEvent.pointerMove(root(), { pointerId: 1, ...at(0) });
-    dragTo(slot(1), at(1), at(0));
+    dragTo(slot(1), at(1));
     fireEvent.pointerDown(tile("aaaa"), { pointerId: 1, button: 0, clientX: 25, clientY: 300 });
     fireEvent.pointerMove(root(), { pointerId: 2, ...at(0) });
     fireEvent.pointerUp(root(), { pointerId: 2, ...at(0) });
@@ -480,21 +484,49 @@ describe("Slots", () => {
     dragTo(tile("bbbb"), away);
     expect(row()).toEqual(["aaaa", "aaaa", "tom"]);
     // Moving a filled slot empties where it came from.
-    dragTo(slot(2), at(2), at(1));
+    dragTo(slot(2), at(2));
     expect(row()).toEqual(["aaaa", "tom", "aaaa"]);
-    dragTo(slot(3), away, at(2));
+    dragTo(slot(3), away);
     expect(row()).toEqual(["aaaa", "tom", "tom"]);
-    // Dropping a slot back on itself keeps it.
-    dragTo(slot(1), { clientX: 40, clientY: 30 }, at(0));
+    // Dropping a slot mostly back on itself keeps it.
+    dragTo(slot(1), { clientX: 40, clientY: 30 });
     expect(row()).toEqual(["aaaa", "tom", "tom"]);
     dragTo(tile("bbbb"), at(1));
-    dragTo(slot(1), at(2), at(0));
+    dragTo(slot(1), at(2));
     dragTo(tile("aaaa"), at(0));
     expect(row()).toEqual(["aaaa", "bbbb", "aaaa"]);
     fireEvent.click(screen.getByRole("button", { name: "Kontrollera" }));
     await screen.findByText("Rätt.");
-    dragTo(slot(1), away, at(0));
+    dragTo(slot(1), away);
     expect(row()).toEqual(["aaaa", "bbbb", "aaaa"]);
+    spy.mockRestore();
+  });
+
+  it("drops where the tile is drawn, not where the pointer is, and floats it above a finger", () => {
+    const spy = mockSlots();
+    render(<Slots question={slotQuestion()} seed="s" onSolved={() => {}} onAnswered={() => {}} />);
+    const ghost = () => document.querySelector(".slot-ghost") as HTMLElement;
+    const target = () => [...document.querySelectorAll(".slot")].findIndex((el) => el.classList.contains("target"));
+
+    // Mouse, grabbed near the tile's bottom edge: the pointer ends up below slot 2, the tile on it.
+    const first = document.querySelector(".slot-tile") as HTMLElement;
+    fireEvent.pointerDown(first, { pointerId: 1, button: 0, pointerType: "mouse", clientX: 25, clientY: 315 });
+    fireEvent.pointerMove(root(), { pointerId: 1, clientX: 85, clientY: 35 });
+    expect(ghost().style.top).toBe("0px");
+    expect(ghost().style.left).toBe("60px");
+    expect(target()).toBe(1);
+    fireEvent.pointerUp(root(), { pointerId: 1, clientX: 85, clientY: 35 });
+    expect(target()).toBe(-1);
+    expect(row()[1]).toBe(first.textContent);
+
+    // Touch: the tile floats above the finger, and that is where it lands.
+    fireEvent.pointerDown(first, { pointerId: 2, button: 0, pointerType: "touch", clientX: 25, clientY: 300 });
+    fireEvent.pointerMove(root(), { pointerId: 2, clientX: 145, clientY: 56 });
+    expect(ghost().style.top).toBe("0px");
+    expect(ghost().style.width).toBe("50px");
+    expect(target()).toBe(2);
+    fireEvent.pointerUp(root(), { pointerId: 2, clientX: 145, clientY: 56 });
+    expect(row()[2]).toBe(first.textContent);
     spy.mockRestore();
   });
 

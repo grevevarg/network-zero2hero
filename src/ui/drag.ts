@@ -52,3 +52,27 @@ export function connect(links: Links, left: string, right: string): Record<strin
 export function disconnect(links: Links, side: "left" | "right", id: string): Record<string, string> {
   return Object.fromEntries(Object.entries(links).filter(([l, r]) => (side === "left" ? l : r) !== id));
 }
+
+/** Index of the rect that `r` covers the most, or -1 when it covers none of them. */
+export function mostOverlap(r: Rect, rects: readonly Rect[]): number {
+  const area = (o: Rect) => Math.max(0, Math.min(r.right, o.right) - Math.max(r.left, o.left)) * Math.max(0, Math.min(r.bottom, o.bottom) - Math.max(r.top, o.top));
+  let best = -1;
+  let bestArea = 0;
+  rects.forEach((o, i) => {
+    if (area(o) > bestArea) [best, bestArea] = [i, area(o)];
+  });
+  return best;
+}
+
+/** Gap (px) between a fingertip and the tile it is dragging. */
+export const FINGER_GAP = 16;
+
+/**
+ * Where to draw a dragged tile of size w×h. With a mouse it stays where it was grabbed, so it moves
+ * with the pointer like a real object. Under a finger it would be hidden, so it floats just above.
+ */
+export function floatingRect(pointer: Point, grabbedAt: Point, w: number, h: number, touch: boolean): Rect {
+  const left = touch ? pointer.x - w / 2 : pointer.x - grabbedAt.x;
+  const top = touch ? pointer.y - FINGER_GAP - h : pointer.y - grabbedAt.y;
+  return { left, top, right: left + w, bottom: top + h };
+}
