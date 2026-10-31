@@ -1,13 +1,16 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/preact";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/preact";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import fc from "fast-check";
 import { STORAGE_KEY } from "../../src/lib/storage.ts";
+import { THEME_KEY } from "../../src/lib/theme.ts";
 import { rngFromSeed } from "../../src/lib/prng.ts";
 import { shuffle } from "../../src/lib/shuffle.ts";
 import type { ClientCourse, ClientMcq } from "../../src/types.ts";
 import { App } from "../../src/ui/App.tsx";
 import { Deck } from "../../src/ui/Deck.tsx";
 import { Feedback } from "../../src/ui/Feedback.tsx";
-import { Home } from "../../src/ui/Home.tsx";
+import { entryHref, Home, menuMove } from "../../src/ui/Home.tsx";
+import { ThemePicker } from "../../src/ui/ThemePicker.tsx";
 import { fixtureCourse, textOf } from "./helpers.ts";
 
 let course: ClientCourse;
@@ -26,16 +29,125 @@ const back = () => screen.getByRole("button", { name: "‹ Föregående" }) as H
 const press = (key: string, target: Element = document.body) => fireEvent.keyDown(target, { key });
 
 describe("Home", () => {
-  it("shows a box per section with progress, resume link and reset", () => {
-    const onReset = vi.fn();
-    render(<Home course={course} progress={{ solved: ["q2"], position: { s1: 3, s2: 1 } }} onReset={onReset} />);
+  const progress = { solved: ["q2"], position: { s1: 3, s2: 1 } };
+  const options = () => within(screen.getByRole("listbox", { name: "Avsnitt" })).getAllByRole("option");
+  const selected = () => options().findIndex((o) => o.getAttribute("aria-selected") === "true");
+  const list = () => screen.getByRole("listbox", { name: "Avsnitt" });
+
+  it("lists every section as a menu row with progress that reads without colour", () => {
+    render(<Home course={course} progress={progress} onReset={() => {}} />);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Test");
-    expect(screen.getByText("0 av 3 frågor klara")).toBeTruthy();
-    expect(screen.getByText("1 av 1 frågor klara").closest("li")?.className).toContain("done");
-    const resume = screen.getAllByRole("link", { name: "Fortsätt där du var" });
-    expect(resume.map((a) => a.getAttribute("href"))).toEqual(["#/avsnitt/s1/3"]);
+    expect(options().map((o) => o.getAttribute("aria-label"))).toEqual([
+      "1. Första, 0 av 3 frågor klara",
+      "2. Andra, 1 av 1 frågor klara",
+    ]);
+    expect(options().map((o) => o.querySelector(".menu-progress")?.textContent)).toEqual(["0/3", "1/1 ✓"]);
+    expect(options()[0].querySelector(".menu-number")?.textContent).toBe("01");
+    // The first unfinished section starts selected, marked with "> " and not only by colour.
+    expect(selected()).toBe(0);
+    expect(options()[0].querySelector(".menu-caret")?.textContent).toBe(">");
+    expect(options()[1].querySelector(".menu-caret")?.textContent).toBe("");
+    expect(list().getAttribute("aria-activedescendant")).toBe(options()[0].id);
+    expect(document.activeElement).toBe(list());
+    expect(screen.getByText("Använd ↑ ↓ för att välja, Enter för att öppna.")).toBeTruthy();
+  });
+
+  it("moves with arrows, j/k, Home and End, and opens with Enter where the reader left off", () => {
+    render(<Home course={course} progress={progress} onReset={() => {}} />);
+    const press = (key: string, extra = {}) => fireEvent.keyDown(list(), { key, ...extra });
+    press("ArrowDown");
+    expect(selected()).toBe(1);
+    press("ArrowDown");
+    expect(selected()).toBe(1);
+    press("k");
+    expect(selected()).toBe(0);
+    press("ArrowUp");
+    expect(selected()).toBe(0);
+    press("End");
+    expect(selected()).toBe(1);
+    press("Home");
+    expect(selected()).toBe(0);
+    press("j");
+    press("x");
+    press("ArrowUp", { ctrlKey: true });
+    expect(selected()).toBe(1);
+    // s2 is at its first page, so it opens from the start; s1 is partway through, so it resumes.
+    press("Enter");
+    expect(location.hash).toBe("#/avsnitt/s2");
+    press("ArrowUp");
+    press("Enter");
+    expect(location.hash).toBe("#/avsnitt/s1/3");
+  });
+
+  it("takes keys that land on the page itself, but not those meant for other controls", () => {
+    render(<Home course={course} progress={progress} onReset={() => {}} />);
+    (document.activeElement as HTMLElement).blur();
+    fireEvent.keyDown(document.body, { key: "ArrowDown" });
+    expect(selected()).toBe(1);
+    expect(document.activeElement).toBe(list());
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "ArrowUp" });
+    expect(selected()).toBe(1);
+  });
+
+  it("selects on hover and opens on click", () => {
+    render(<Home course={course} progress={{ solved: [], position: {} }} onReset={() => {}} />);
+    fireEvent.mouseEnter(options()[1]);
+    expect(selected()).toBe(1);
+    fireEvent.click(options()[0]);
+    expect(location.hash).toBe("#/avsnitt/s1");
+  });
+
+  it("starts on the first section when everything is done, and offers reset", () => {
+    const onReset = vi.fn();
+    render(<Home course={course} progress={{ solved: ["q-mcq", "q-order", "q-match", "q2"], position: {} }} onReset={onReset} />);
+    expect(selected()).toBe(0);
     fireEvent.click(screen.getByRole("button", { name: "Rensa sparade svar" }));
     expect(onReset).toHaveBeenCalled();
+  });
+
+  it("menuMove stays inside the list and ignores other keys", () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 30 }), fc.nat(), fc.constantFrom("ArrowUp", "ArrowDown", "j", "k", "Home", "End"), (count, i, key) => {
+        const next = menuMove(key, i % count, count) as number;
+        expect(next).toBeGreaterThanOrEqual(0);
+        expect(next).toBeLessThan(count);
+      }),
+    );
+    expect(menuMove("Tab", 0, 3)).toBeUndefined();
+  });
+
+  it("entryHref resumes only past the first page", () => {
+    const s = course.sections[0];
+    expect(entryHref(s, { solved: [], position: {} })).toBe("#/avsnitt/s1");
+    expect(entryHref(s, { solved: [], position: { s1: 1 } })).toBe("#/avsnitt/s1");
+    expect(entryHref(s, { solved: [], position: { s1: 4 } })).toBe("#/avsnitt/s1/4");
+  });
+});
+
+describe("ThemePicker", () => {
+  afterEach(() => {
+    delete document.documentElement.dataset.theme;
+    vi.restoreAllMocks();
+  });
+
+  it("starts on the stored pick, applies and remembers a new one, and can go back to the system", () => {
+    vi.spyOn(window, "matchMedia").mockReturnValue({ matches: true } as MediaQueryList);
+    localStorage.setItem(THEME_KEY, "noctis");
+    render(<ThemePicker storage={localStorage} />);
+    const select = screen.getByRole("combobox", { name: "Tema" }) as HTMLSelectElement;
+    expect(select.value).toBe("noctis");
+    expect([...select.querySelectorAll("optgroup")].map((g) => g.label)).toEqual(["Mörkt", "Ljust"]);
+    fireEvent.change(select, { target: { value: "kanagawa-lotus" } });
+    expect(document.documentElement.dataset.theme).toBe("kanagawa-lotus");
+    expect(localStorage.getItem(THEME_KEY)).toBe("kanagawa-lotus");
+    fireEvent.change(select, { target: { value: "system" } });
+    expect(document.documentElement.dataset.theme).toBe("solarized-dark");
+    expect(localStorage.getItem(THEME_KEY)).toBeNull();
+  });
+
+  it("follows the system when nothing is stored", () => {
+    render(<ThemePicker storage={undefined} />);
+    expect((screen.getByRole("combobox", { name: "Tema" }) as HTMLSelectElement).value).toBe("system");
   });
 });
 
@@ -147,12 +259,12 @@ describe("App", () => {
 
     location.hash = "#/";
     window.dispatchEvent(new HashChangeEvent("hashchange"));
-    await screen.findByText("1 av 1 frågor klara");
+    await screen.findByRole("option", { name: "2. Andra, 1 av 1 frågor klara" });
     fireEvent.click(screen.getByRole("button", { name: "Rensa sparade svar" }));
-    expect(screen.getByText("1 av 1 frågor klara")).toBeTruthy();
+    expect(screen.getByRole("option", { name: "2. Andra, 1 av 1 frågor klara" })).toBeTruthy();
     confirm.mockReturnValue(true);
     fireEvent.click(screen.getByRole("button", { name: "Rensa sparade svar" }));
-    await screen.findByText("0 av 1 frågor klara");
+    await screen.findByRole("option", { name: "2. Andra, 0 av 1 frågor klara" });
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 
@@ -178,7 +290,7 @@ describe("App", () => {
     expect(order()).toBe(first);
 
     go("#/");
-    await screen.findByText("0 av 1 frågor klara");
+    await screen.findByRole("option", { name: "2. Andra, 0 av 1 frågor klara" });
     go("#/avsnitt/s2/3");
     await screen.findByText("Fråga 1 av 1");
     expect(order()).toBe(orderFor(`${base}:3`));

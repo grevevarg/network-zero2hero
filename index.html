@@ -6,6 +6,19 @@
     <meta name="color-scheme" content="light dark" />
     <title>Från noll till nätverk</title>
     <link rel="icon" href="data:," />
+    <script>
+      // Pick the colour theme before first paint, so the page never flashes the wrong colours.
+      // Same list, key and default as src/lib/theme.ts (a test keeps them in step).
+      (function () {
+        var themes = ["solarized-dark", "miasma", "noctis", "moonfly", "solarized-light", "kanagawa-lotus", "tokyo-night-day", "noctis-lux"];
+        var theme = null;
+        try {
+          theme = localStorage.getItem("fntn-theme");
+        } catch (e) {}
+        if (themes.indexOf(theme) < 0) theme = matchMedia("(prefers-color-scheme: dark)").matches ? "solarized-dark" : "solarized-light";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

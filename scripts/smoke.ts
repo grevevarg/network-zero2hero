@@ -6,6 +6,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Page } from "playwright-core";
 import { preview } from "vite";
+import { THEMES } from "../src/lib/theme.ts";
 
 const root = process.cwd();
 const browserPath = process.env.CHROMIUM_PATH ?? "/usr/bin/chromium";
@@ -64,15 +65,15 @@ try {
     });
 
     await page.goto(base);
-    await page.waitForSelector(".section-grid");
+    await page.waitForSelector(".menu-list");
     await checkLayout(page, `${mode.name} home`);
     await page.screenshot({ path: path.join(shots, `${mode.name}-home.png`) });
 
-    const sections = await page.locator(".section-box-title").count();
+    const sections = await page.locator(".menu-row").count();
     for (let sec = 0; sec < sections; sec++) {
       await page.goto(base);
-      await page.waitForSelector(".section-grid");
-      await page.locator(".section-box-title").nth(sec).click();
+      await page.waitForSelector(".menu-list");
+      await page.locator(".menu-row").nth(sec).click();
       await page.waitForSelector("#card-title");
       const deck = `${mode.name} §${sec + 1}`;
       // Walk the deck: right arrow until a question blocks, answering questions wrongly to unlock them.
@@ -105,7 +106,12 @@ try {
   // Keyboard only, from the first question card: gating, answering, moving on.
   const page = await newPage({ viewport: { width: 390, height: 844 } });
   await page.goto(base);
-  await page.click(".section-box-title");
+  // The menu has the keys from the start: Down then Up lands on section 1 again, Enter opens it.
+  await page.waitForSelector(".menu-list");
+  await page.keyboard.press("ArrowDown");
+  if ((await page.locator('.menu-row[aria-selected="true"] .menu-number').innerText()) !== "02") fail("keyboard", "ArrowDown did not move the menu");
+  await page.keyboard.press("ArrowUp");
+  await page.keyboard.press("Enter");
   await page.waitForSelector("#card-title");
   while ((await page.locator(".question-body").count()) === 0) await page.keyboard.press("ArrowRight");
   const first = await title(page);
@@ -117,6 +123,26 @@ try {
   await page.keyboard.press("ArrowLeft");
   if ((await title(page)) !== first) fail("keyboard", "ArrowLeft did not go back");
   await page.close();
+
+  // Every theme: it is applied before the app runs, the layout holds, and nothing errors.
+  for (const theme of THEMES) {
+    const where = `theme ${theme.id}`;
+    const themed = await newPage({ viewport: { width: 390, height: 844 } });
+    themed.on("pageerror", (e) => fail(where, `page error: ${e.message}`));
+    await themed.addInitScript((id) => localStorage.setItem("fntn-theme", id), theme.id);
+    await themed.goto(base);
+    await themed.waitForSelector(".menu-list");
+    if ((await themed.evaluate(() => document.documentElement.dataset.theme)) !== theme.id) fail(where, "theme not applied");
+    const scheme = await themed.evaluate(() => getComputedStyle(document.documentElement).colorScheme);
+    if (scheme !== (theme.dark ? "dark" : "light")) fail(where, `color-scheme is ${scheme}`);
+    await checkLayout(themed, where);
+    await themed.screenshot({ path: path.join(shots, `theme-${theme.id}-home.png`) });
+    await themed.goto(`${base}#/avsnitt/lager/2`);
+    await themed.waitForSelector("#card-title");
+    await checkLayout(themed, `${where} text page`);
+    await themed.screenshot({ path: path.join(shots, `theme-${theme.id}-page.png`), fullPage: true });
+    await themed.close();
+  }
 } finally {
   await browser.close();
   await new Promise<void>((resolve) => server.httpServer.close(() => resolve()));
@@ -278,4 +304,4 @@ if (failures.length > 0) {
   console.error(`\nsmoke failed with ${failures.length} problem(s); screenshots in review/screens/`);
   process.exit(1);
 }
-console.log(`smoke ok (${modes.length} modes, keyboard pass); screenshots in review/screens/`);
+console.log(`smoke ok (${modes.length} modes, keyboard pass, ${THEMES.length} themes); screenshots in review/screens/`);

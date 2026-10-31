@@ -9,6 +9,7 @@ import {
 } from "../lib/storage.ts";
 import type { ClientCourse } from "../types.ts";
 import { Deck } from "./Deck.tsx";
+import { followSystem } from "../lib/theme.ts";
 import { Home } from "./Home.tsx";
 import { parseHash } from "./router.ts";
 
@@ -32,6 +33,10 @@ export function App({ course, storage, seed, confirmReset }: Props) {
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
+
+  // index.html picks the theme before first paint; from here on, keep following the system's
+  // light/dark setting for readers who haven't picked a theme.
+  useEffect(() => followSystem(window, storage), [storage]);
 
   useEffect(() => {
     document.title = route.page === "section"
@@ -68,5 +73,5 @@ export function App({ course, storage, seed, confirmReset }: Props) {
       );
     }
   }
-  return <Home course={course} progress={progress} onReset={onReset} />;
+  return <Home course={course} progress={progress} storage={storage} onReset={onReset} />;
 }
