@@ -46,10 +46,14 @@ Du behöver inte kunna alla 1024 well-known-portar. Men de här är bra att kunn
 | POP3 | Hämta e-post | TCP | 110 |
 | IMAP | Hämta e-post | TCP | 143 |
 | SSH | Krypterad fjärrinloggning | TCP | 22 |
+| SFTP | Krypterad filöverföring | TCP | 22 |
 | Telnet | Okrypterad fjärrinloggning | TCP | 23 |
-| SNMP | Övervaka nätverk | UDP | 161 |
+| RDP | Fjärrskrivbord | TCP och UDP | 3389 |
+| SNMP | Övervaka nätverk | UDP | 161 och 162 |
 
 Port 80 är kanske världens mest kända port. FTP använder två portar, 21 för att styra och 20 för själva filerna.
+
+SFTP har samma port som SSH, eftersom filerna skickas genom en SSH-anslutning. Det är den säkra ersättaren för FTP, på samma sätt som SSH har ersatt telnet.
 
 <!-- uses: tcp, ack, segment, sessionslagret -->
 ## TCP
