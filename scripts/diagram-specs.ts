@@ -126,6 +126,10 @@ export const SPECS: Record<string, Layout> = {
     ["#d0ebff", "#d0ebff", "#d3f9d8", "#d3f9d8", "#fff3bf", "transparent"],
   ),
 
+  // 13. STP. SW1 is the root bridge; the text example and the question use different speeds.
+  "13-vlan/text-stp": pathChoice("100 Mbit/s", "1 Gbit/s", "1 Gbit/s", "box", ["SW2", "SW3", "SW1"]),
+  "13-vlan/q-stp": pathChoice("10 Mbit/s", "100 Mbit/s", "100 Mbit/s", "box", ["SW2", "SW3", "SW1"]),
+
   // 14. Trådlöst nätverk. Access points in a corridor, with their channels.
   "14-wlan/text-kanaler": parts(
     ["1", "6", "11", "1"].map((ch, i) => ({ text: `Kanal ${ch}`, caption: `AP ${i + 1}`, shaded: i % 2 === 1 })),

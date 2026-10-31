@@ -1,4 +1,15 @@
 import type { QuestionInput } from "../../../src/build/schema.ts";
+import { rootBridge, stpCost } from "../../../src/lib/net.ts";
+
+// Four switches for the root bridge question: the lowest priority wins even with the highest-but-one
+// MAC address, and the lowest MAC address loses because its priority is the highest.
+const switches = [
+  { id: "a", name: "Switch A", priority: 32768, mac: "00:1A:2B:3C:4D:99" },
+  { id: "b", name: "Switch B", priority: 32768, mac: "00:1A:2B:3C:4D:10" },
+  { id: "c", name: "Switch C", priority: 4096, mac: "00:1A:2B:3C:4D:50" },
+  { id: "d", name: "Switch D", priority: 61440, mac: "00:1A:2B:3C:4D:01" },
+];
+const table = switches.map((s) => `| ${s.name} | ${s.priority} | ${s.mac} |`).join("\n");
 
 export const questions: QuestionInput[] = [
   {
@@ -101,5 +112,42 @@ export const questions: QuestionInput[] = [
     correct: "tre",
     explanation:
       "Varje VLAN är en egen broadcastdomän, så tre VLAN ger tre domäner. Utan VLAN hade hela switchen varit en enda broadcastdomän. Fyra skulle kräva ett VLAN till. 24 är antalet portar, men portar i samma VLAN delar broadcastdomän.",
+  },
+  {
+    kind: "mcq",
+    id: "vlan-root-bridge",
+    uses: ["root-bridge", "bridge-id", "mac-adress"],
+    prompt: `Fyra switchar sitter ihop med STP. Vilken blir root bridge?\n\n| Switch | Prioritet | MAC-adress |\n| --- | --- | --- |\n${table}`,
+    options: switches.map((s) => ({ id: s.id, text: s.name })),
+    correct: rootBridge(switches).id,
+    explanation:
+      "Lägst Bridge ID vinner, och prioriteten jämförs före MAC-adressen. Switch C har lägst prioritet, 4096, och blir root bridge fast dess MAC-adress inte är lägst. Switch D har lägst MAC-adress, men dess prioritet 61440 är högst av alla. Switch B har lägst MAC-adress av dem med 32768, men 32768 är mer än 4096. Switch A har både standardprioritet och högst MAC-adress.",
+  },
+  {
+    kind: "fill",
+    id: "vlan-stp-kostnad",
+    uses: ["stp-kostnad", "root-port", "root-bridge", "bithastighet"],
+    prompt: "SW1 är root bridge. Räkna ut kostnaden för SW2:s två vägar dit.",
+    diagram: "q-stp",
+    fields: [
+      { id: "direkt", label: "Direkt till SW1", answer: String(stpCost(10e6)), format: "number" },
+      { id: "via-sw3", label: "Via SW3", answer: String(2 * stpCost(100e6)), format: "number" },
+    ],
+    explanation:
+      "Den direkta länken är 10 Mbit/s och kostar 100. Vägen via SW3 går över två länkar på 100 Mbit/s, som kostar 19 var, alltså 38. Lägst summa vinner, så SW2:s root port blir porten mot SW3, fast vägen är längre.",
+  },
+  {
+    kind: "ordering",
+    id: "vlan-portlagen",
+    uses: ["stp-portlagen", "spanning-tree"],
+    prompt: "Du kopplar in en kabel i en port som STP styr. Ordna lägena porten går igenom, från första till sista.",
+    items: [
+      { id: "blocking", text: "Blocking" },
+      { id: "listening", text: "Listening" },
+      { id: "learning", text: "Learning" },
+      { id: "forwarding", text: "Forwarding" },
+    ],
+    explanation:
+      "Porten börjar i blocking och skickar inga frames. I listening lyssnar den på de andra switcharna och i learning fyller den MAC-tabellen. Först i forwarding skickar den data som vanligt.",
   },
 ];

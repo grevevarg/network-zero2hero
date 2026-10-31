@@ -197,3 +197,34 @@ export function ospfCost(bitsPerSecond: number, reference = 100_000_000): number
   if (!(bitsPerSecond > 0)) throw new Error(`${bitsPerSecond} is not a link speed`);
   return Math.max(1, Math.floor(reference / bitsPerSecond));
 }
+
+/** STP port cost per link speed, from the classic table. Other speeds have no cost in it. */
+const STP_COSTS: ReadonlyMap<number, number> = new Map([
+  [10_000_000, 100],
+  [100_000_000, 19],
+  [1_000_000_000, 4],
+  [2_000_000_000, 3],
+  [10_000_000_000, 2],
+]);
+
+export function stpCost(bitsPerSecond: number): number {
+  const cost = STP_COSTS.get(bitsPerSecond);
+  if (cost === undefined) throw new Error(`${bitsPerSecond} bit/s has no STP cost in the table`);
+  return cost;
+}
+
+export type BridgeId = { priority: number; mac: string };
+
+/** Bridge IDs compare on priority first and MAC address second. Negative when a is lower (better). */
+export function compareBridgeId(a: BridgeId, b: BridgeId): number {
+  if (a.priority !== b.priority) return a.priority - b.priority;
+  const hex = (mac: string) => mac.replace(/[:-]/g, "").toLowerCase();
+  const [x, y] = [hex(a.mac), hex(b.mac)];
+  return x < y ? -1 : x > y ? 1 : 0;
+}
+
+/** The switch that becomes root bridge: the one with the lowest Bridge ID. */
+export function rootBridge<T extends BridgeId>(switches: readonly T[]): T {
+  if (switches.length === 0) throw new Error("no switches to choose a root bridge from");
+  return switches.reduce((best, s) => (compareBridgeId(s, best) < 0 ? s : best));
+}

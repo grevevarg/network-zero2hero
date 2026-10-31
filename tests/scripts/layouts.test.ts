@@ -248,6 +248,12 @@ describe("pathChoice", () => {
     expect([...degrees(d).values()]).toEqual([2, 2, 2]);
     expect(d.labels?.map((l) => l.text)).toEqual(["R1", "R2", "R3", "direkt", "vänster", "höger"]);
   });
+
+  it("can draw other shapes with other names", () => {
+    const d = pathChoice("a", "b", "c", "box", ["SW2", "SW3", "SW1"]);
+    expect(d.nodes.every((n) => n.shape === "box")).toBe(true);
+    expect(d.labels?.slice(0, 3).map((l) => l.text)).toEqual(["SW2", "SW3", "SW1"]);
+  });
 });
 
 describe("sequence", () => {

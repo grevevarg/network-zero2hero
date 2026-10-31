@@ -4,6 +4,7 @@ import {
   addressClass,
   broadcastAddress,
   classPrefix,
+  compareBridgeId,
   compressIPv6,
   eui64,
   expandIPv6,
@@ -23,7 +24,9 @@ import {
   ospfCost,
   parseIPv4,
   prefixToMask,
+  rootBridge,
   splitNetwork,
+  stpCost,
   toBinary,
   toHex,
   wildcardMask,
@@ -230,3 +233,36 @@ describe("wildcardMask", () => {
   });
 });
 
+
+describe("STP", () => {
+  const mac = fc.array(fc.integer({ min: 0, max: 255 }), { minLength: 6, maxLength: 6 }).map((b) => b.map((n) => toHex(n)).join(":"));
+  const bridge = fc.record({ priority: fc.integer({ min: 0, max: 15 }).map((n) => n * 4096), mac });
+
+  it("looks up the cost table and rejects speeds that are not in it", () => {
+    expect([10e6, 100e6, 1e9, 2e9, 10e9].map(stpCost)).toEqual([100, 19, 4, 3, 2]);
+    expect(() => stpCost(40e9)).toThrow(/no STP cost/);
+  });
+
+  it("compares priority first and MAC second, as a total order", () => {
+    expect(compareBridgeId({ priority: 4096, mac: "FF:FF:FF:FF:FF:FF" }, { priority: 32768, mac: "00:00:00:00:00:01" })).toBeLessThan(0);
+    expect(compareBridgeId({ priority: 32768, mac: "00:1a:00:00:00:02" }, { priority: 32768, mac: "00-1A-00-00-00-01" })).toBeGreaterThan(0);
+    fc.assert(
+      fc.property(bridge, bridge, (a, b) => {
+        expect(Math.sign(compareBridgeId(a, b))).toBe(-Math.sign(compareBridgeId(b, a)));
+        expect(compareBridgeId(a, a)).toBe(0);
+        if (a.priority !== b.priority) expect(Math.sign(compareBridgeId(a, b))).toBe(Math.sign(a.priority - b.priority));
+      }),
+    );
+  });
+
+  it("picks the switch no other switch beats as root bridge", () => {
+    fc.assert(
+      fc.property(fc.array(bridge, { minLength: 1, maxLength: 8 }), (switches) => {
+        const root = rootBridge(switches);
+        expect(switches).toContain(root);
+        for (const s of switches) expect(compareBridgeId(root, s)).toBeLessThanOrEqual(0);
+      }),
+    );
+    expect(() => rootBridge([])).toThrow(/no switches/);
+  });
+});

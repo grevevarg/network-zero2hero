@@ -284,20 +284,27 @@ export function chain(items: readonly { shape: NodeShape; label?: string }[], st
 }
 
 /**
- * Three routers in a triangle: R1 and R3 joined directly at the bottom, and a second way round
- * through R2 at the top. Each link is labelled (for example with its speed).
+ * Three nodes in a triangle: the bottom left and bottom right joined directly, and a second way
+ * round through the top one. Each link is labelled (for example with its speed). Routers named
+ * R1-R3 by default; `names` are bottom left, top, bottom right.
  */
-export function pathChoice(direct: string, viaLeft: string, viaRight: string): Layout {
+export function pathChoice(
+  direct: string,
+  viaLeft: string,
+  viaRight: string,
+  shape: NodeShape = "router",
+  names: readonly [string, string, string] = ["R1", "R2", "R3"],
+): Layout {
   const nodes: LayoutNode[] = [
-    { id: "r1", x: 0, y: 110, shape: "router" },
-    { id: "r2", x: 110, y: 20, shape: "router" },
-    { id: "r3", x: 220, y: 110, shape: "router" },
+    { id: "r1", x: 0, y: 110, shape },
+    { id: "r2", x: 110, y: 20, shape },
+    { id: "r3", x: 220, y: 110, shape },
   ];
   const edges: Edge[] = [["r1", "r3"], ["r1", "r2"], ["r2", "r3"]];
   const labels: Label[] = [
-    { x: 0, y: 132, text: "R1" },
-    { x: 110, y: -8, text: "R2" },
-    { x: 220, y: 132, text: "R3" },
+    { x: 0, y: 132, text: names[0] },
+    { x: 110, y: -8, text: names[1] },
+    { x: 220, y: 132, text: names[2] },
     { x: 110, y: 117, text: direct },
     { x: 30, y: 45, text: viaLeft },
     { x: 190, y: 45, text: viaRight },

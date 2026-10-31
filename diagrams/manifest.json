@@ -185,11 +185,23 @@
     "width": 686,
     "height": 168
   },
+  "13-vlan/q-stp": {
+    "sourceHash": "621fe0eaf3df84a37e22dbade9b2c9ac286328dfd4b9c127c067fc6125c1e79e",
+    "image": "img/cab1a4568c1076a2f7afb4fc41486c71.svg",
+    "width": 670,
+    "height": 417
+  },
   "13-vlan/text-portar": {
     "sourceHash": "7ac7d52f52c3a8e413a74e019aeba2489c900a068de04fa6cced5ac78f710a8e",
     "image": "img/47ab5cb27a0ab552ee37ed736a71ce0a.svg",
     "width": 514,
     "height": 301
+  },
+  "13-vlan/text-stp": {
+    "sourceHash": "b310f2c7818a608f90e8010c275fb90adc89cf8f2c3a69678e7e9adb0fb7d779",
+    "image": "img/3688f15d8142b1e824dc79eddf67ee5b.svg",
+    "width": 670,
+    "height": 417
   },
   "14-wlan/q-kanaler": {
     "sourceHash": "7919a7498b17b029e7ed4ffe9e2236672ad1bef5cbb285155bfcfd15e84259d2",
