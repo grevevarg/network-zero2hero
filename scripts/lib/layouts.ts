@@ -1,3 +1,5 @@
+import { rackCell } from "../../src/puzzles/rack.ts";
+
 export type NodeShape = "device" | "box" | "server" | "router" | "junction";
 export type LayoutNode = { id: string; x: number; y: number; shape: NodeShape };
 export type Edge = [string, string];
@@ -202,10 +204,8 @@ export function compareModels(
 /** A piece of equipment in a rack grid: its top-left cell (1-based row and column) and size in cells. */
 export type RackItem = { row: number; col: number; rows: number; cols: number; label: string };
 
-/** The cell number in a 10 x 10 rack grid: row 1 is 01-10, row 2 is 11-20 and so on. */
-export function rackCell(row: number, col: number): number {
-  return (row - 1) * 10 + col;
-}
+/** The cell number in a 10 x 10 rack grid; shared with the rack puzzle so both number cells the same way. */
+export { rackCell };
 
 /**
  * A rack seen from the front, split into 10 x 10 numbered cells, with equipment drawn on top.

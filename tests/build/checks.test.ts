@@ -12,7 +12,7 @@ import {
 } from "../../src/build/checks.ts";
 import { parseContent, type RawContent } from "../../src/build/course.ts";
 import { questionSchema, type QuestionInput } from "../../src/build/schema.ts";
-import { fill, matching, mcq, ordering, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
+import { fill, matching, mcq, ordering, rack, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
 
 const parsed = (raw: RawContent) => parseContent(raw);
 
@@ -124,6 +124,11 @@ describe("question checks", () => {
     expect(checkQuestions(parsed(withQuestions([slots()])))).toEqual([]);
   });
 
+  it("reports a rack question with a short explanation, and accepts a good one", () => {
+    expect(checkQuestions(parsed(withQuestions([rack({ explanation: "Kort." } as never)]))).join("\n")).toMatch(/"q-rack": explanation has 1 sentences/);
+    expect(checkQuestions(parsed(withQuestions([rack()])))).toEqual([]);
+  });
+
   it("reports duplicate ordering texts and incomplete matching items", () => {
     const errors = checkQuestions(
       parsed(
@@ -147,7 +152,7 @@ describe("question checks", () => {
 
 describe("countSolutions", () => {
   it("is exactly 1 for well-formed questions of every kind", () => {
-    for (const q of [mcq(), ordering(), matching(), slots()]) expect(countSolutions(questionSchema.parse(q))).toBe(1);
+    for (const q of [mcq(), ordering(), matching(), slots(), rack()]) expect(countSolutions(questionSchema.parse(q))).toBe(1);
   });
 
   it("is 0 when the correct answer is missing", () => {

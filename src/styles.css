@@ -283,6 +283,36 @@ button.slot, button.slot-tile { color: var(--text); background: var(--surface); 
 .slot.wrong::after { content: "✗"; background: var(--wrong); }
 button.slot:disabled { opacity: 1; cursor: default; }
 .slot[aria-pressed="true"], .slot-tile[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--accent); }
+/* Rack grid: the rack from the front, 10 x 10 cells, only 01 labelled. */
+.rack {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 24rem);
+  margin: 0.75rem 0;
+  border: 3px solid var(--text);
+  border-radius: 2px;
+}
+.rack-row { display: flex; }
+.rack-cell { flex: 1; min-width: 0; }
+.rack button {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--text);
+  font: 600 0.7rem/1 var(--mono);
+}
+.rack button:disabled { opacity: 1; cursor: default; }
+.rack button.chosen { background: var(--accent); color: var(--surface); }
+.rack button.right { background: var(--right); color: var(--surface); font-size: 1rem; }
+.rack button.wrong { background: var(--wrong); color: var(--surface); font-size: 1rem; }
+.rack button:focus-visible { position: relative; z-index: 1; }
 .slot-tray { list-style: none; padding: 0; margin: 0.5rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .slot-tile { border: 1px solid var(--border); cursor: grab; }
 .slot-ghost {

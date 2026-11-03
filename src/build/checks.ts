@@ -1,14 +1,16 @@
 import type { ParsedContent } from "./course.ts";
 import { normalizeAnswer } from "../lib/answers.ts";
-import type { Fill, Matching, Mcq, Ordering, Question, Slots } from "./schema.ts";
+import type { Fill, Matching, Mcq, Ordering, Question, Rack, Slots } from "./schema.ts";
 import {
   isFillSolved,
   isSlotsSolved,
   isMatchingSolved,
   isMcqSolved,
   isOrderingSolved,
+  isRackSolved,
   matchingRightOptions,
 } from "../puzzles/validators.ts";
+import { RACK_CELLS } from "../puzzles/rack.ts";
 
 /** Concept registry and section graph rules. Returns human-readable errors, empty when fine. */
 export function checkConceptGraph(content: ParsedContent): string[] {
@@ -139,6 +141,9 @@ export function countSolutions(q: Question): number {
       // Each slot is judged on its own, so the count is the product over the slots of how many
       // tiles the validator accepts there with every other slot right.
       return q.answer.reduce((n, _, i) => n * q.blocks.filter((b) => isSlotsSolved(q, q.answer.with(i, b.id))).length, 1);
+    case "rack":
+      for (let cell = 1; cell <= RACK_CELLS; cell++) if (isRackSolved(q, cell)) count++;
+      return count;
     case "fill":
       // Normalising maps every accepted input to one canonical answer per field, so the authored
       // answers are the one solution as long as the validator accepts them (checkFill makes sure
@@ -204,6 +209,7 @@ export function checkQuestions(content: ParsedContent): string[] {
         : q.kind === "ordering" ? q.items.map((i) => i.id)
         : q.kind === "fill" ? q.fields.map((f) => f.id)
         : q.kind === "slots" ? q.blocks.map((b) => b.id)
+        : q.kind === "rack" ? []
         : [...q.pairs.map((p) => p.left.id), ...matchingRightOptions(q).map((r) => r.id)];
       for (const d of duplicates(choiceIds)) errors.push(`"${q.id}": duplicate choice id "${d}"`);
       if (q.kind === "mcq") {
@@ -214,6 +220,7 @@ export function checkQuestions(content: ParsedContent): string[] {
       if (q.kind === "matching") errors.push(...checkMatching(q));
       if (q.kind === "fill") errors.push(...checkFill(q));
       if (q.kind === "slots") errors.push(...checkSlots(q));
+      if (q.kind === "rack") errors.push(...explanationLength(q.id, q.explanation));
       const explanation = "explanation" in q ? q.explanation : undefined;
       if (explanation !== undefined && refersToPosition(explanation)) errors.push(`"${q.id}": explanation refers to an option by letter or position`);
       const solutions = countSolutions(q);

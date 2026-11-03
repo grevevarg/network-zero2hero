@@ -283,6 +283,17 @@ async function answerSomething(page: Page, where: string) {
     }
     await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
     await page.keyboard.press("Enter");
+  } else if ((await page.locator(".rack").count()) > 0) {
+    // Arrow keys move inside the grid and must not turn the page.
+    const before = await count(page);
+    await page.locator(".rack button[tabindex='0']").focus();
+    for (const key of ["ArrowDown", "ArrowRight", "ArrowLeft", "ArrowRight"]) await page.keyboard.press(key);
+    if ((await count(page)) !== before) fail(where, "an arrow key in the rack grid turned the page");
+    if ((await page.evaluate(() => document.activeElement?.getAttribute("data-cell"))) !== "12") fail(where, "arrow keys did not move to cell 12");
+    await page.keyboard.press("Enter");
+    if (!(await isClearOfNav(page))) fail(where, "focused rack cell is hidden behind the card navigation");
+    await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
+    await page.keyboard.press("Enter");
   } else if ((await page.locator(".ordering").count()) > 0) {
     await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
     await page.keyboard.press("Enter");

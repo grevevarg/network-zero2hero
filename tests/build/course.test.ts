@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { buildCourse, opaqueId, parseContent } from "../../src/build/course.ts";
 import { answerKey, matchesKey } from "../../src/lib/answerHash.ts";
-import { fillAnswer, pairAnswer, rankAnswer, slotAnswer } from "../../src/lib/answers.ts";
-import type { ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientSlots } from "../../src/types.ts";
-import { fill, matching, mcq, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
+import { cellAnswer, fillAnswer, pairAnswer, rankAnswer, slotAnswer } from "../../src/lib/answers.ts";
+import type { ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientRack, ClientSlots } from "../../src/types.ts";
+import { fill, matching, mcq, rack, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
 
 describe("parseContent", () => {
   it("validates and splits blocks", () => {
@@ -50,6 +50,15 @@ describe("buildCourse", () => {
     expect(matchesKey(x.id, pairAnswer(l1, r2), x.keys[l1])).toBe(false);
     expect(x.right).toHaveLength(3);
     expect(x.left.find((l) => l.diagramHtml)?.html).toBe("");
+  });
+
+  it("ships rack questions with a key for the answer cell and nothing else that names it", () => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({}, [rack()]), text: TEXT };
+    const q = buildCourse(parseContent(raw)).sections[0].questions[0] as ClientRack;
+    expect(Object.keys(q).sort()).toEqual(["explanationHtml", "id", "key", "kind", "promptHtml"]);
+    expect(matchesKey(q.id, cellAnswer(23), q.key)).toBe(true);
+    expect(matchesKey(q.id, cellAnswer(32), q.key)).toBe(false);
   });
 
   it("ships slot puzzles with hidden tile ids and a key per slot", () => {

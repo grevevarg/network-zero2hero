@@ -14,6 +14,11 @@ export function slotAnswer(index: number, tileId: string): string {
   return `${index}=${tileId}`;
 }
 
+/** One cell in the rack grid. */
+export function cellAnswer(cell: number): string {
+  return `cell=${cell}`;
+}
+
 export type FillFormat = "text" | "number" | "ipv4" | "binary";
 
 /**

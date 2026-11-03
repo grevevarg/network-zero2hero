@@ -62,7 +62,15 @@ export type ClientSlots = {
   explanationHtml: string;
 };
 
-export type ClientQuestion = ClientMcq | ClientOrdering | ClientMatching | ClientFill | ClientSlots;
+export type ClientRack = {
+  kind: "rack";
+  id: string;
+  promptHtml: string;
+  key: string;
+  explanationHtml: string;
+};
+
+export type ClientQuestion = ClientMcq | ClientOrdering | ClientMatching | ClientFill | ClientSlots | ClientRack;
 
 export type ClientSection = {
   id: string;

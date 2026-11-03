@@ -1,5 +1,5 @@
 import { answerKey } from "../lib/answerHash.ts";
-import { fillAnswer, pairAnswer, rankAnswer, slotAnswer } from "../lib/answers.ts";
+import { cellAnswer, fillAnswer, pairAnswer, rankAnswer, slotAnswer } from "../lib/answers.ts";
 import { hashString } from "../lib/prng.ts";
 import type { ClientChoice, ClientCourse, ClientQuestion, ClientSection } from "../types.ts";
 import { diagramHtml, type ImageInfo } from "./diagram.ts";
@@ -116,6 +116,14 @@ function buildQuestion(q: Question, diagrams: Record<string, string>): ClientQue
         slots: q.answer.length,
         separator: q.separator,
         keys: q.answer.map((a, i) => answerKey(q.id, slotAnswer(i, opaqueId(q.id, a)))),
+        explanationHtml: renderMarkdown(q.explanation),
+      };
+    case "rack":
+      return {
+        kind: "rack",
+        id: q.id,
+        promptHtml,
+        key: answerKey(q.id, cellAnswer(q.answer)),
         explanationHtml: renderMarkdown(q.explanation),
       };
     case "fill":

@@ -1,14 +1,15 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/preact";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { buildCourse, parseContent } from "../../src/build/course.ts";
-import type { ClientCourse, ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientSlots } from "../../src/types.ts";
+import type { ClientCourse, ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientRack, ClientSlots } from "../../src/types.ts";
 import { Fill } from "../../src/ui/Fill.tsx";
 import { Matching } from "../../src/ui/Matching.tsx";
 import { Mcq } from "../../src/ui/Mcq.tsx";
 import { move, Ordering } from "../../src/ui/Ordering.tsx";
 import { Question } from "../../src/ui/Question.tsx";
+import { Rack } from "../../src/ui/Rack.tsx";
 import { setSlot, Slots } from "../../src/ui/Slots.tsx";
-import { fill, matching, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
+import { fill, matching, rack, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
 import { fixtureCourse, textOf } from "./helpers.ts";
 
 let course: ClientCourse;
@@ -382,6 +383,77 @@ describe("Fill", () => {
   });
 });
 
+
+describe("Rack", () => {
+  const rackQuestion = (): ClientRack => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({}, [rack()]), text: TEXT };
+    return buildCourse(parseContent(raw)).sections[0].questions[0] as ClientRack;
+  };
+  const cell = (row: number, col: number) => screen.getByRole("button", { name: new RegExp(`^Rad ${row} uppifrån, ruta ${col} från vänster`) });
+
+  it("shows only 01, says which cell a wrong pick was, offers the solution and accepts the right cell", async () => {
+    const onSolved = vi.fn();
+    const onAnswered = vi.fn();
+    render(<Rack question={rackQuestion()} seed="s" onSolved={onSolved} onAnswered={onAnswered} />);
+    expect(document.querySelectorAll(".rack button")).toHaveLength(100);
+    expect(document.querySelector(".rack")?.textContent).toBe("01");
+    expect(cell(1, 1).getAttribute("aria-label")).toMatch(/märkt 01$/);
+    const submit = screen.getByRole("button", { name: "Kontrollera" }) as HTMLButtonElement;
+    expect(submit.disabled).toBe(true);
+
+    // Row and column mixed up: row 2, column 3 is cell 13, not 23.
+    fireEvent.click(cell(2, 3));
+    expect(cell(2, 3).getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(submit);
+    await screen.findByText(/Du valde ruta 13\./);
+    expect(cell(2, 3).textContent).toBe("✗");
+    expect(onAnswered).toHaveBeenCalledWith("q-rack");
+    expect(onSolved).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Tredje raden börjar/)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Visa lösningen" }));
+    expect(screen.getByText(/Tredje raden börjar/)).toBeTruthy();
+
+    // A new pick clears the verdict and the mark.
+    fireEvent.click(cell(3, 3));
+    expect(screen.queryByRole("status")).toBeNull();
+    expect(cell(2, 3).textContent).toBe("");
+    fireEvent.click(screen.getByRole("button", { name: "Kontrollera" }));
+    await screen.findByText("Rätt.");
+    expect(cell(3, 3).textContent).toBe("✓");
+    expect(onSolved).toHaveBeenCalledWith("q-rack");
+    // Once solved, nothing else can be picked.
+    expect((cell(1, 1) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(cell(3, 3));
+    expect(screen.getByText("Rätt.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Kontrollera" })).toBeNull();
+  });
+
+  it("moves one tab stop around the grid with the arrow keys", () => {
+    render(<Rack question={rackQuestion()} seed="s" onSolved={() => {}} onAnswered={() => {}} />);
+    const tabbable = () => [...document.querySelectorAll<HTMLElement>(".rack button")].filter((b) => b.tabIndex === 0);
+    expect(tabbable()).toEqual([cell(1, 1)]);
+    cell(1, 1).focus();
+    fireEvent.keyDown(cell(1, 1), { key: "ArrowDown" });
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "ArrowRight" });
+    expect(document.activeElement).toBe(cell(2, 2));
+    expect(tabbable()).toEqual([cell(2, 2)]);
+    fireEvent.keyDown(cell(2, 2), { key: "End" });
+    expect(document.activeElement).toBe(cell(2, 10));
+    fireEvent.keyDown(cell(2, 10), { key: "x" });
+    expect(document.activeElement).toBe(cell(2, 10));
+    // Choosing a cell makes it the tab stop.
+    fireEvent.click(cell(5, 5));
+    expect(tabbable()).toEqual([cell(5, 5)]);
+  });
+
+  it("ignores a submit with nothing chosen, and Question dispatches to it", () => {
+    const { container } = render(<Question question={rackQuestion()} seed="s" solved={false} onSolved={() => {}} onAnswered={() => {}} />);
+    fireEvent.submit(container.querySelector("form") as HTMLFormElement);
+    expect(screen.queryByRole("status")).toBeNull();
+    expect(container.querySelector(".rack")).toBeTruthy();
+  });
+});
 
 describe("Slots", () => {
   const slotQuestion = (): ClientSlots => {

@@ -73,4 +73,12 @@ describe("navDirection", () => {
     expect(key("ArrowRight", document.body, { altKey: true })).toBe(0);
     expect(key("ArrowLeft", document.body, { shiftKey: true })).toBe(0);
   });
+
+  it("leaves arrows to anything inside an element marked data-arrows", () => {
+    const grid = document.createElement("div");
+    grid.dataset.arrows = "";
+    const cell = grid.appendChild(document.createElement("button"));
+    expect(key("ArrowRight", cell)).toBe(0);
+    expect(key("ArrowRight", document.createElement("button"))).toBe(1);
+  });
 });

@@ -1,14 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { questionSchema, type Fill, type Matching, type Mcq, type Ordering, type Slots } from "../../src/build/schema.ts";
+import { questionSchema, type Fill, type Matching, type Mcq, type Ordering, type Rack, type Slots } from "../../src/build/schema.ts";
 import {
   isFillSolved,
   isMatchingSolved,
   isMcqSolved,
   isOrderingSolved,
+  isRackSolved,
   isSlotsSolved,
   matchingRightOptions,
 } from "../../src/puzzles/validators.ts";
-import { fill, matching, mcq, ordering, slots } from "../fixtures/content.ts";
+import { fill, matching, mcq, ordering, rack, slots } from "../fixtures/content.ts";
 
 describe("validators", () => {
   it("mcq accepts only the correct id", () => {
@@ -30,6 +31,15 @@ describe("validators", () => {
     expect(isMatchingSolved(q, { l1: "r1", l2: "r3" })).toBe(false);
     expect(isMatchingSolved(q, { l1: "r1" })).toBe(false);
     expect(matchingRightOptions(q).map((r) => r.id)).toEqual(["r1", "r2", "r3"]);
+  });
+});
+
+describe("rack validator", () => {
+  it("accepts only the answer cell, and the schema keeps answers inside the 10 x 10 grid", () => {
+    const q = questionSchema.parse(rack()) as Rack;
+    expect(isRackSolved(q, 23)).toBe(true);
+    expect(isRackSolved(q, 32)).toBe(false);
+    for (const answer of [0, 101, 2.5]) expect(questionSchema.safeParse(rack({ answer } as never)).success).toBe(false);
   });
 });
 

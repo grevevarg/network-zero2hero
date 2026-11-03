@@ -3,6 +3,7 @@ import { Fill } from "./Fill.tsx";
 import { Matching } from "./Matching.tsx";
 import { Mcq } from "./Mcq.tsx";
 import { Ordering } from "./Ordering.tsx";
+import { Rack } from "./Rack.tsx";
 import { Slots } from "./Slots.tsx";
 
 type Props = {
@@ -26,6 +27,8 @@ export function Question({ question, seed, solved, onSolved, onAnswered }: Props
         <Matching question={question} {...handlers} />
       ) : question.kind === "slots" ? (
         <Slots question={question} {...handlers} />
+      ) : question.kind === "rack" ? (
+        <Rack question={question} {...handlers} />
       ) : (
         <Fill question={question} {...handlers} />
       )}

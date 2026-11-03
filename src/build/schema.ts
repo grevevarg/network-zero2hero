@@ -87,7 +87,14 @@ export const slotsSchema = z.strictObject({
   separator: z.string().max(3).default(""),
   explanation: text,
 });
-export const questionSchema = z.discriminatedUnion("kind", [mcqSchema, orderingSchema, matchingSchema, fillSchema, slotsSchema]);
+export const rackSchema = z.strictObject({
+  ...questionBase,
+  kind: z.literal("rack"),
+  /** The cell to click in the 10 x 10 rack grid, numbered 1-100 row by row from the top left. */
+  answer: z.number().int().min(1).max(100),
+  explanation: text,
+});
+export const questionSchema = z.discriminatedUnion("kind", [mcqSchema, orderingSchema, matchingSchema, fillSchema, slotsSchema, rackSchema]);
 
 export const sectionMetaSchema = z.strictObject({
   id,
@@ -114,6 +121,7 @@ export type Ordering = z.output<typeof orderingSchema>;
 export type Matching = z.output<typeof matchingSchema>;
 export type Fill = z.output<typeof fillSchema>;
 export type Slots = z.output<typeof slotsSchema>;
+export type Rack = z.output<typeof rackSchema>;
 export type SectionMeta = z.output<typeof sectionMetaSchema>;
 export type SectionMetaInput = z.input<typeof sectionMetaSchema>;
 export type Section = z.output<typeof sectionSchema>;

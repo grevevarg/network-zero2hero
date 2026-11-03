@@ -48,6 +48,24 @@ export const questions: QuestionInput[] = [
       "Panelen sitter på sjunde raden, som börjar på 61. Dess övre vänstra hörn är i sjätte rutan på raden, alltså 66. 61 är början på raden, men där sitter inte panelens vänstra hörn. 76 och 56 ligger en rad för lågt och en rad för högt.",
   },
   {
+    kind: "rack",
+    id: "markning-klicka-panel",
+    uses: ["faltuppdelning", "panel"],
+    prompt: "En panel i racket har numret 73. Klicka på rutan där panelens övre vänstra hörn sitter.",
+    answer: 73,
+    explanation:
+      "Raderna börjar på 01, 11, 21 och så vidare, så 71 är första rutan på åttonde raden. 73 är tredje rutan på den raden. Panelens övre vänstra hörn sitter alltså på åttonde raden, i tredje rutan från vänster. Blandar du ihop rad och ruta hamnar du på tredje raden, i åttonde rutan, och den rutan är 28.",
+  },
+  {
+    kind: "rack",
+    id: "markning-klicka-ruta",
+    uses: ["faltuppdelning"],
+    prompt: "Klicka på ruta 40.",
+    answer: 40,
+    explanation:
+      "Varje rad har tio rutor. Första raden är 01 till 10, andra är 11 till 20, tredje är 21 till 30 och fjärde är 31 till 40. Ruta 40 är alltså sista rutan på fjärde raden, längst till höger. Det är lätt att hamna i början av femte raden, men den raden börjar på 41.",
+  },
+  {
     kind: "mcq",
     id: "markning-stall",
     uses: ["stall"],

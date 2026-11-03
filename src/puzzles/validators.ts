@@ -1,4 +1,4 @@
-import type { Fill, Matching, Mcq, Ordering, Slots } from "../build/schema.ts";
+import type { Fill, Matching, Mcq, Ordering, Rack, Slots } from "../build/schema.ts";
 import { normalizeAnswer } from "../lib/answers.ts";
 
 /** Pure validators over authored (source) questions. Used by tests and the build step. */
@@ -21,6 +21,10 @@ export function matchingRightOptions(q: Matching): { id: string; text: string }[
 
 export function isSlotsSolved(q: Slots, filled: readonly (string | undefined)[]): boolean {
   return filled.length === q.answer.length && q.answer.every((id, i) => filled[i] === id);
+}
+
+export function isRackSolved(q: Rack, cell: number): boolean {
+  return cell === q.answer;
 }
 
 export function isFillSolved(q: Fill, values: Readonly<Record<string, string>>): boolean {
