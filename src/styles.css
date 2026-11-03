@@ -168,6 +168,8 @@ button:disabled { opacity: 0.45; cursor: default; }
   box-shadow: 0 4px 14px var(--shadow);
 }
 .ordering li.dragging .drag-handle { cursor: grabbing; }
+/* After a wrong check: the rows that need to move, until the next move. */
+.ordering li.to-move { border-color: var(--wrong); box-shadow: inset 0 0 0 1px var(--wrong); background: var(--wrong-bg); }
 
 /* Text-only matching: two columns, lines drawn between them. */
 .match-hint { margin: 0.25rem 0 0.5rem; font-size: 0.95rem; color: var(--muted); }

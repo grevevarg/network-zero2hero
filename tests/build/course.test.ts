@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildCourse, opaqueId, parseContent } from "../../src/build/course.ts";
-import { matchesKey } from "../../src/lib/answerHash.ts";
-import { fillAnswer, orderingAnswer, pairAnswer, slotAnswer } from "../../src/lib/answers.ts";
+import { answerKey, matchesKey } from "../../src/lib/answerHash.ts";
+import { fillAnswer, pairAnswer, rankAnswer, slotAnswer } from "../../src/lib/answers.ts";
 import type { ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientSlots } from "../../src/types.ts";
 import { fill, matching, mcq, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
 
@@ -36,9 +36,11 @@ describe("buildCourse", () => {
     expect(matchesKey(m.id, opaqueId(m.id, "two"), m.key)).toBe(true);
     expect(matchesKey(m.id, opaqueId(m.id, "one"), m.key)).toBe(false);
 
+    // One key per item at its place, sorted so the key order gives nothing away.
     const order = ["first", "second", "third"].map((i) => opaqueId(o.id, i));
-    expect(matchesKey(o.id, orderingAnswer(order), o.key)).toBe(true);
-    expect(matchesKey(o.id, orderingAnswer(order.slice().reverse()), o.key)).toBe(false);
+    expect(o.keys).toEqual(o.keys.slice().sort());
+    expect(o.keys.slice().sort()).toEqual(order.map((id, r) => answerKey(o.id, rankAnswer(id, r))).sort());
+    expect(o.keys).not.toContain(answerKey(o.id, rankAnswer(order[0], 1)));
 
     // One key per pair, so each pair can be marked on its own.
     const [l1, l2, r1, r2] = ["l1", "l2", "r1", "r2"].map((id) => opaqueId(x.id, id));

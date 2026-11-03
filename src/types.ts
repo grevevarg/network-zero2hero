@@ -22,7 +22,8 @@ export type ClientOrdering = {
   id: string;
   promptHtml: string;
   items: ClientChoice[];
-  key: string;
+  /** One key per item and its place, sorted, so the rows that need to move can be marked. */
+  keys: string[];
   explanationHtml?: string;
 };
 

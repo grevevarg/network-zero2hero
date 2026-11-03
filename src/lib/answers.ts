@@ -1,6 +1,7 @@
 /** Canonical string forms of answers. The client hashes these and compares with the shipped key. */
-export function orderingAnswer(ids: readonly string[]): string {
-  return ids.join(",");
+/** One ordering item at its place. Each item has its own key, so the rows to move can be marked. */
+export function rankAnswer(itemId: string, rank: number): string {
+  return `${itemId}@${rank}`;
 }
 
 /** One matching pair. Each left item has its own key, so the student sees which pairs are wrong. */

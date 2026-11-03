@@ -1,5 +1,5 @@
 import { answerKey } from "../lib/answerHash.ts";
-import { fillAnswer, orderingAnswer, pairAnswer, slotAnswer } from "../lib/answers.ts";
+import { fillAnswer, pairAnswer, rankAnswer, slotAnswer } from "../lib/answers.ts";
 import { hashString } from "../lib/prng.ts";
 import type { ClientChoice, ClientCourse, ClientQuestion, ClientSection } from "../types.ts";
 import { diagramHtml, type ImageInfo } from "./diagram.ts";
@@ -81,7 +81,8 @@ function buildQuestion(q: Question, diagrams: Record<string, string>): ClientQue
         id: q.id,
         promptHtml,
         items: choices(q.id, q.items),
-        key: answerKey(q.id, orderingAnswer(q.items.map((i) => opaqueId(q.id, i.id)))),
+        // Sorted, so the order of the keys says nothing about the order of the items.
+        keys: q.items.map((item, rank) => answerKey(q.id, rankAnswer(opaqueId(q.id, item.id), rank))).sort(),
         explanationHtml: q.explanation === undefined ? undefined : renderMarkdown(q.explanation),
       };
     case "matching": {

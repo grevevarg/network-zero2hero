@@ -81,9 +81,14 @@ describe("Ordering", () => {
     const names = ["first", "second", "third"].map((id) => textOf(course, "q-order", id));
     await arrange([names[1], names[0], names[2]]);
     fireEvent.click(screen.getByRole("button", { name: "Kontrollera" }));
-    await screen.findByText(/Flytta om/);
+    await screen.findByText(/Flytta raderna/);
+    // One swap is one mistake: only the row that has to move is marked.
+    const marked = () => [...document.querySelectorAll(".ordering li.to-move .ordering-text")].map((e) => e.textContent);
+    expect(marked()).toEqual([names[0]]);
+    expect(screen.getAllByText("Fel plats")).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: `Flytta ner: ${names[1]}` }));
-    expect(screen.queryByText(/Flytta om/)).toBeNull();
+    expect(screen.queryByText(/Flytta raderna/)).toBeNull();
+    expect(marked()).toEqual([]);
     await arrange(names);
     fireEvent.click(screen.getByRole("button", { name: "Kontrollera" }));
     await screen.findByText("Rätt.");

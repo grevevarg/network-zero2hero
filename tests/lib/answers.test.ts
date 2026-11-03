@@ -1,11 +1,11 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { fillAnswer, normalizeAnswer, orderingAnswer, pairAnswer, slotAnswer } from "../../src/lib/answers.ts";
+import { fillAnswer, normalizeAnswer, pairAnswer, rankAnswer, slotAnswer } from "../../src/lib/answers.ts";
 import { formatIPv4, toBinary } from "../../src/lib/net.ts";
 
 describe("answer strings", () => {
   it("ordering and matching answers are stable strings", () => {
-    expect(orderingAnswer(["a", "b"])).toBe("a,b");
+    expect(rankAnswer("a", 2)).toBe("a@2");
     expect(pairAnswer("l1", "r1")).toBe("l1=r1");
     expect(slotAnswer(0, "t")).toBe("0=t");
     expect(fillAnswer("f", " 07 ", "number")).toBe("f=7");

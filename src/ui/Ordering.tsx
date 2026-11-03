@@ -1,9 +1,8 @@
 import { useMemo, useRef, useState } from "preact/hooks";
-import { matchesKey } from "../lib/answerHash.ts";
-import { orderingAnswer } from "../lib/answers.ts";
 import { rngFromSeed } from "../lib/prng.ts";
 import { shuffleAwayFrom } from "../lib/shuffle.ts";
 import { htmlToText } from "../lib/text.ts";
+import { itemRanks, rowsToMove } from "../puzzles/ordering.ts";
 import type { ClientChoice, ClientOrdering } from "../types.ts";
 import { dropIndex, moveTo } from "./drag.ts";
 import { Feedback, type Verdict } from "./Feedback.tsx";
@@ -24,15 +23,22 @@ export function Ordering({ question: q, seed, onSolved, onAnswered }: Props) {
   const start = useMemo(() => shuffleAwayFrom(q.items, rngFromSeed(`${seed}:${q.id}`)), [q, seed]);
   const [items, setItems] = useState<ClientChoice[]>(start);
   const [verdict, setVerdict] = useState<Verdict>();
+  // Ids of the rows to move after a wrong check. Any move clears them: it can change which rows those are.
+  const [toMove, setToMove] = useState<ReadonlySet<string>>(new Set());
   const solved = verdict === "right";
   const list = useRef<HTMLOListElement>(null);
   // The item being dragged, where the pointer grabbed it, and the order to go back to on cancel.
   const drag = useRef<{ pointerId: number; id: string; startY: number; startTop: number; before: ClientChoice[] }>(undefined);
   const [dragging, setDragging] = useState<{ id: string; dy: number }>();
 
-  function shift(i: number, dir: -1 | 1) {
-    setItems((list) => move(list, i, dir));
+  function reorder(next: ClientChoice[]) {
+    setItems(next);
     setVerdict(undefined);
+    setToMove(new Set());
+  }
+
+  function shift(i: number, dir: -1 | 1) {
+    reorder(move(items, i, dir));
   }
 
   const rows = () => [...(list.current as HTMLOListElement).children] as HTMLElement[];
@@ -52,10 +58,7 @@ export function Ordering({ question: q, seed, onSolved, onAnswered }: Props) {
     const els = rows();
     const from = items.findIndex((it) => it.id === d.id);
     const to = dropIndex(e.clientY, els.map((el) => el.getBoundingClientRect()), from);
-    if (to !== from) {
-      setItems(moveTo(items, from, to));
-      setVerdict(undefined);
-    }
+    if (to !== from) reorder(moveTo(items, from, to));
     // Keep the row under the finger: offsetTop ignores the transform, so this is the row's own slot.
     setDragging({ id: d.id, dy: e.clientY - d.startY - (els[from].offsetTop - d.startTop) });
   }
@@ -70,7 +73,10 @@ export function Ordering({ question: q, seed, onSolved, onAnswered }: Props) {
 
   function check(e: Event) {
     e.preventDefault();
-    const right = matchesKey(q.id, orderingAnswer(items.map((i) => i.id)), q.key);
+    const ids = items.map((i) => i.id);
+    const misplaced = rowsToMove(itemRanks(q.id, ids, q.keys));
+    const right = misplaced.length === 0;
+    setToMove(new Set(misplaced.map((i) => ids[i])));
     setVerdict(right ? "right" : "wrong");
     onAnswered(q.id);
     if (right) onSolved(q.id);
@@ -83,11 +89,12 @@ export function Ordering({ question: q, seed, onSolved, onAnswered }: Props) {
         {items.map((item, i) => (
           <li
             key={item.id}
-            class={dragging?.id === item.id ? "dragging" : undefined}
+            class={[dragging?.id === item.id ? "dragging" : "", toMove.has(item.id) ? "to-move" : ""].join(" ").trim() || undefined}
             style={dragging?.id === item.id ? { transform: `translateY(${dragging.dy}px)` } : undefined}
           >
             {solved ? null : <span class="drag-handle" aria-hidden="true" onPointerDown={(e) => grab(e, item.id, i)} />}
             <Html html={item.html} as="span" className="ordering-text" />
+            {toMove.has(item.id) ? <span class="item-mark fill-wrong">Fel plats</span> : null}
             <span class="ordering-buttons">
               <button
                 type="button"
@@ -114,7 +121,7 @@ export function Ordering({ question: q, seed, onSolved, onAnswered }: Props) {
         verdict={verdict}
         explanationHtml={q.explanationHtml}
         showExplanation={solved}
-        wrongHint="Flytta om och kontrollera igen."
+        wrongHint="Flytta raderna som är märkta Fel plats och kontrollera igen."
       />
     </form>
   );
