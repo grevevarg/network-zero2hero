@@ -46,10 +46,12 @@ export function bounds(elements: readonly ExElement[]): Box {
   return { minX: Math.min(...xs), minY: Math.min(...ys), maxX: Math.max(...xs), maxY: Math.max(...ys) };
 }
 
+/** The one library item with this name. Two items with the same name are an error: which one wins would depend on library order. */
 export function findItem(library: Library, name: string): LibraryItem {
-  const item = library.libraryItems.find((i) => i.name === name);
-  if (!item) throw new Error(`library has no item named "${name}"`);
-  return item;
+  const items = library.libraryItems.filter((i) => i.name === name);
+  if (items.length === 0) throw new Error(`library has no item named "${name}"`);
+  if (items.length > 1) throw new Error(`library has ${items.length} items named "${name}"; rename all but one in Excalidraw`);
+  return items[0];
 }
 
 /** Copy a library item centred on (cx, cy) with ids, groups and seeds derived from `prefix`. */

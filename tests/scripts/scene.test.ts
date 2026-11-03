@@ -72,6 +72,11 @@ describe("placeItem", () => {
   it("findItem names the missing item", () => {
     expect(() => findItem(library, "Router")).toThrow(/no item named "Router"/);
   });
+
+  it("findItem refuses a name shared by two items, instead of picking whichever comes first", () => {
+    const twice: Library = { libraryItems: [...library.libraryItems, { ...findItem(library, "PC"), id: "pc-2" }] };
+    expect(() => findItem(twice, "PC")).toThrow(/2 items named "PC"/);
+  });
 });
 
 describe("exitPoint", () => {
