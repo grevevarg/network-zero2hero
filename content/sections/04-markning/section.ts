@@ -17,7 +17,7 @@ const section: SectionInput = {
       // Scenes live in diagrams/04-markning/ (layouts in scripts/diagram-specs.ts).
       "text-rack": {
         scene: "04-markning/text-rack",
-        alt: "Ett rack framifrån som ett rutnät med tio gånger tio rutor. Första rutan i varje rad är numrerad: 01, 11, 31 och så vidare. På tredje raden sitter en panel över hela bredden, märkt Panel 21. På sjätte raden sitter två tunna paneler på varandra, märkta 51A och 51B.",
+        alt: "Ett rack framifrån som ett rutnät med tio gånger tio rutor. Första rutan i varje rad är numrerad: 01, 11, 21 och så vidare. På tredje raden sitter en panel över hela bredden, märkt Panel 21. På sjätte raden sitter två tunna paneler på varandra, märkta 51A och 51B.",
       },
       "q-rack-rad": {
         scene: "04-markning/q-rack-rad",
