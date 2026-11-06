@@ -16,6 +16,15 @@ export const questions: QuestionInput[] = [
       "Repeatern förstärker bara signalen, och mediakonvertern gör om den mellan två sorters kablar. Hubben skickar allt till alla, eftersom den inte förstår vem datan är till. Bara switchen läser MAC-adresser och bygger en MAC-tabell.",
   },
   {
+    kind: "fill",
+    id: "switchar-repeatrar",
+    uses: ["repeater", "kategori", "dampning"],
+    prompt: "Två switchar står 260 meter från varandra. Du drar Cat6 hela vägen och får inte använda fiber. Hur många repeatrar behöver du minst?",
+    fields: [{ id: "antal", label: "Antal repeatrar", answer: "2", format: "number" }],
+    explanation:
+      "Cat6 klarar 100 meter mellan två enheter, och repeatern räknas som en enhet. En repeater ger två kablar och högst 200 meter, och det räcker inte till 260. Två repeatrar ger tre kablar och 300 meter. Det är lätt att svara tre här, men det är antalet kablar. Du behöver alltid en repeater färre än kablar. I verkligheten hade du nog dragit fiber i stället.",
+  },
+  {
     kind: "mcq",
     id: "switchar-okand-mottagare",
     uses: ["switch", "mac-tabell", "flooding", "mac-adress", "frame"],

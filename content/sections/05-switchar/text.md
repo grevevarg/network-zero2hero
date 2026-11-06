@@ -5,10 +5,14 @@ I en stjärna har alla enheter en kabel till något i mitten. Men vad är det f�
 
 Vägen går från lager 1 upp till lager 2. Ju högre upp en låda jobbar, desto mer förstår den av det som passerar.
 
-<!-- uses: repeater, mediakonverter, fysiska-lagret, dampning, fiber -->
+<!-- uses: repeater, mediakonverter, fysiska-lagret, dampning, fiber, kategori, poe -->
 ## Repeater och mediakonverter
 
-En **repeater** är den enklaste lådan. Den tar emot en signal, förstärker den och skickar ut den igen. Det hjälper mot dämpning när en kabel blir för lång. En repeater behöver ström, så den måste sitta där det finns el.
+En **repeater** är den enklaste lådan. Den tar emot en signal, förstärker den och skickar ut den igen. Det hjälper mot dämpning när en kabel blir för lång.
+
+De flesta kopparkablar klarar 100 meter. Den gränsen gäller mellan två enheter, och repeatern räknas som en enhet. Med en repeater på mitten får du alltså två kablar på 100 meter var.
+
+En repeater behöver ström. Antingen sitter den där det finns el, eller så får den ström genom kabeln med PoE.
 
 En **mediakonverter** fungerar nästan likadant. Den kopplar ihop två olika sorters kablar, till exempel koppar och fiber, och gör om signalen mellan dem.
 
