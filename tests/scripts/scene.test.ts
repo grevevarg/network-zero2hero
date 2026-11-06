@@ -102,6 +102,15 @@ describe("exitPoint", () => {
   });
 });
 
+describe("frame", () => {
+  it("is invisible, spans the box, and is only drawn when asked for", () => {
+    const framed = buildScene({ ...star(3), frame: true }, library, roles, 2);
+    const frame = framed.elements[0];
+    expect(frame).toMatchObject({ id: "frame", x: 0, y: 0, width: star(3).width * 2, height: star(3).height * 2, strokeColor: "transparent", backgroundColor: "transparent" });
+    expect(buildScene(star(3), library, roles).elements.some((e) => e.id === "frame")).toBe(false);
+  });
+});
+
 describe("buildScene", () => {
   it("draws one line per edge before the icons, and one icon group per device or box", () => {
     for (const layout of [star(5), ring(4), bus(3), tree(2, 2), fullMesh(4), pair()]) {

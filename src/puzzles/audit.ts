@@ -15,15 +15,18 @@ export type Topology = {
 /** What the student sees and edits: interface id -> text like "10.0.0.1/27". */
 export type Addresses = Readonly<Record<string, string>>;
 
-export type ProblemKind =
-  | "invalid" // Not an address with a prefix.
-  | "no-host-room" // /31 or /32: no room for a network and a broadcast address.
-  | "network-address" // The net's own network address, on a host or port.
-  | "broadcast-address" // The net's broadcast address, on a host or port.
-  | "duplicate" // The same address twice in a broadcast domain.
-  | "different-nets" // One broadcast domain holds several nets with the same mask.
-  | "different-masks" // One broadcast domain holds several masks.
-  | "overlap"; // Two broadcast domains share addresses.
+export const PROBLEM_KINDS = [
+  "invalid", // Not an address with a prefix.
+  "no-host-room", // /31 or /32: no room for a network and a broadcast address.
+  "network-address", // The net's own network address, on a host or port.
+  "broadcast-address", // The net's broadcast address, on a host or port.
+  "duplicate", // The same address twice in a broadcast domain.
+  "different-nets", // One broadcast domain holds several nets with the same mask.
+  "different-masks", // One broadcast domain holds several masks.
+  "overlap", // Two broadcast domains share addresses.
+] as const;
+
+export type ProblemKind = (typeof PROBLEM_KINDS)[number];
 
 export type Problem = { kind: ProblemKind; interfaces: string[] };
 
@@ -120,4 +123,18 @@ export function audit(t: Topology, addresses: Addresses): Problem[] {
     }
   });
   return problems;
+}
+
+/** The network a repair question describes. */
+export function repairTopology(q: { switches: readonly string[]; links: Topology["links"]; interfaces: readonly { id: string }[] }): Topology {
+  return { switches: q.switches, links: q.links, interfaces: q.interfaces.map((i) => i.id) };
+}
+
+/**
+ * What feedback may say. Problems touching an address the student changed get explained. The rest
+ * are planted faults still to be found, so they only count: naming them would give the task away.
+ */
+export function splitProblems(problems: readonly Problem[], changed: ReadonlySet<string>): { shown: Problem[]; hidden: number } {
+  const shown = problems.filter((p) => p.interfaces.some((id) => changed.has(id)));
+  return { shown, hidden: problems.length - shown.length };
 }

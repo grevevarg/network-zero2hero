@@ -19,4 +19,13 @@ describe("stats", () => {
     expect(out).toMatch(/50!/);
     expect(out).not.toMatch(/30!/);
   });
+
+  it("leaves bonus sections out of the total, and says so", () => {
+    const out = formatStats([
+      { id: "a", words: 100, lix: 30, questions: 2, minutes: 3 },
+      { id: "b", words: 100, lix: 30, questions: 2, minutes: 40, bonus: true },
+    ]);
+    expect(out).toContain("(not in total)");
+    expect(out).toMatch(/total\s+3\n/);
+  });
 });

@@ -1,15 +1,16 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/preact";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { buildCourse, parseContent } from "../../src/build/course.ts";
-import type { ClientCourse, ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientRack, ClientSlots } from "../../src/types.ts";
+import type { ClientCourse, ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientRack, ClientRepair, ClientSlots } from "../../src/types.ts";
 import { Fill } from "../../src/ui/Fill.tsx";
 import { Matching } from "../../src/ui/Matching.tsx";
 import { Mcq } from "../../src/ui/Mcq.tsx";
 import { move, Ordering } from "../../src/ui/Ordering.tsx";
 import { Question } from "../../src/ui/Question.tsx";
 import { Rack } from "../../src/ui/Rack.tsx";
+import { Repair } from "../../src/ui/Repair.tsx";
 import { setSlot, Slots } from "../../src/ui/Slots.tsx";
-import { fill, matching, rack, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
+import { fill, matching, rack, rawContent, repair, sectionInput, slots, TEXT } from "../fixtures/content.ts";
 import { fixtureCourse, textOf } from "./helpers.ts";
 
 let course: ClientCourse;
@@ -383,6 +384,99 @@ describe("Fill", () => {
   });
 });
 
+
+describe("Repair", () => {
+  const repairQuestion = (): ClientRepair => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({ bonus: true }, [repair()]), text: TEXT };
+    return buildCourse(parseContent(raw)).sections[0].questions[0] as ClientRepair;
+  };
+  const field = (label: string) => screen.getByRole("textbox", { name: `Adress för ${label}` }) as HTMLInputElement;
+  const type = (label: string, value: string) => fireEvent.input(field(label), { target: { value } });
+  const check = () => screen.getByRole("button", { name: "Kontrollera" }) as HTMLButtonElement;
+  const setup = () => {
+    const handlers = { onSolved: vi.fn(), onAnswered: vi.fn() };
+    render(<Repair question={repairQuestion()} seed="s" {...handlers} />);
+    return handlers;
+  };
+
+  it("puts every address on the picture and waits for a change", () => {
+    setup();
+    expect(field("A2").value).toBe("10.0.0.6/30");
+    expect(field("A2").parentElement?.getAttribute("style")).toContain("left: 50%");
+    expect(check().disabled).toBe(true);
+  });
+
+  it("keeps a long address readable by widening its field", async () => {
+    setup();
+    const width = () => field("B1").parentElement?.style.width;
+    expect(width()).toBe("calc(13ch + 0.5rem)");
+    type("B1", "172.16.100.200/24");
+    await waitFor(() => expect(width()).toBe("calc(17ch + 0.5rem)"));
+  });
+
+  it("only counts the faults the student has not touched", async () => {
+    const { onAnswered, onSolved } = setup();
+    type("B2", "10.0.1.3/24");
+    fireEvent.click(check());
+    await screen.findByText(/1 fel kvar bland adresserna du inte har ändrat/);
+    expect(onAnswered).toHaveBeenCalledWith("q-repair");
+    expect(onSolved).not.toHaveBeenCalled();
+    expect(document.querySelector(".repair-problems")).toBeNull();
+    expect(field("A2").getAttribute("aria-invalid")).toBeNull();
+  });
+
+  it("explains a problem in what was changed, with text and a mark, and clears it on typing", async () => {
+    setup();
+    type("A2", "10.0.0.7/30");
+    fireEvent.click(check());
+    await screen.findByText(/A1 och A2 sitter i samma broadcastdomän men ligger i olika nät/);
+    expect(field("A2").getAttribute("aria-invalid")).toBe("true");
+    expect(document.querySelectorAll(".repair-mark")).toHaveLength(2);
+    type("A2", "10.0.0.8/30");
+    await waitFor(() => expect(document.querySelector(".feedback")).toBeNull());
+  });
+
+  it("says when faults remain both in the changes and elsewhere", async () => {
+    setup();
+    type("B2", "hej");
+    fireEvent.click(check());
+    await screen.findByText(/fel kvar i det du har ändrat, och 1 till/);
+    await screen.findByText(/B2: det här är ingen adress med mask/);
+  });
+
+  it("accepts any network that holds, not just the reference, and locks it", async () => {
+    const { onSolved } = setup();
+    type("A2", "10.0.0.2/30");
+    type("A1", "10.0.0.1/29");
+    fireEvent.click(check());
+    await screen.findByText(/samma broadcastdomän men har olika mask/);
+    type("A2", "10.0.0.2/29");
+    fireEvent.click(check());
+    await screen.findByText(/^Rätt\./);
+    expect(onSolved).toHaveBeenCalledWith("q-repair");
+    expect(field("A1").disabled).toBe(true);
+    expect(screen.queryByRole("button", { name: "Kontrollera" })).toBeNull();
+    await screen.findByText(/Andra adresser går också bra/);
+  });
+
+  it("starts over and shows a solution on request", async () => {
+    setup();
+    type("B1", "10.0.0.2/30");
+    fireEvent.click(check());
+    await screen.findByText(/Det är fel kvar/);
+    fireEvent.click(screen.getByRole("button", { name: "Visa en lösning" }));
+    await screen.findByText(/Skriv 10.0.0.2\/30 i stället/);
+    fireEvent.click(screen.getByRole("button", { name: "Börja om" }));
+    await waitFor(() => expect(field("B1").value).toBe("10.0.1.1/24"));
+    expect(document.querySelector(".feedback")).toBeNull();
+  });
+
+  it("renders through Question", () => {
+    const { container } = render(<Question question={repairQuestion()} seed="s" solved={false} onSolved={() => {}} onAnswered={() => {}} />);
+    expect(container.querySelector(".repair-map")).toBeTruthy();
+  });
+});
 
 describe("Rack", () => {
   const rackQuestion = (): ClientRack => {

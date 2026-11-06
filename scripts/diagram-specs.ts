@@ -1,6 +1,7 @@
 // Generated diagrams: scene name -> layout. `npm run diagrams:generate` writes missing scenes.
 // A scene that was hand-edited in Excalidraw is never overwritten unless you pass --force.
-import { bus, chain, clientServer, compareModels, encapsulation, fullMesh, pair, parts, pathChoice, rackGrid, ring, sequence, stack, star, tree, twoLans, type Layout } from "./lib/layouts.ts";
+import { cables, devices, HEIGHT, WIDTH } from "../content/sections/17-slutuppdrag/network.ts";
+import { bus, chain, clientServer, compareModels, encapsulation, fullMesh, networkMap, pair, parts, pathChoice, rackGrid, ring, sequence, stack, star, tree, twoLans, type Layout } from "./lib/layouts.ts";
 import type { Roles } from "./lib/scene.ts";
 
 /** Which library item plays which role. */
@@ -163,4 +164,7 @@ export const SPECS: Record<string, Layout> = {
     ],
     80,
   ),
+
+  // 17. Slutuppdrag. Address fields sit on top of this picture, so it comes from the same data.
+  "17-slutuppdrag/natet": networkMap(devices, cables, WIDTH, HEIGHT),
 };

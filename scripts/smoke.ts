@@ -232,6 +232,26 @@ async function dragSomething(page: Page, where: string, touch: boolean) {
   await page.screenshot({ path: path.join(shots, `drag-${name}-${await count(page).then((c) => c.replace(/\D+/g, "-"))}.png`), fullPage: true });
 }
 
+/** Fix every planted fault, leaving one wrong so the normal check still shows feedback. */
+async function repairPass(page: Page, where: string) {
+  const field = (label: string) => page.getByRole("textbox", { name: `Adress för ${label}`, exact: true });
+  const type = async (label: string, text: string) => {
+    await field(label).focus();
+    await page.keyboard.press("Control+a");
+    await page.keyboard.type(text);
+    if (!(await isClearOfNav(page))) fail(where, `address field ${label} is hidden behind the card navigation`);
+  };
+  const clipped = await page.locator(".repair-field input").evaluateAll((fields) => fields.filter((f) => f.scrollWidth > f.clientWidth).length);
+  if (clipped > 0) fail(where, `${clipped} address field(s) cut off their text`);
+  const before = await count(page);
+  await field("PC1").focus();
+  await page.keyboard.press("ArrowLeft");
+  if ((await count(page)) !== before) fail(where, "an arrow key in an address field turned the page");
+  await type("PC2", "10.0.0.62/26");
+  await type("R2 mot R1", "10.0.0.194/30");
+  await type("R3 mot PC4", "10.0.0.129/28");
+}
+
 /** Answer the current question using only the keyboard. Right or wrong does not matter here. */
 async function answerSomething(page: Page, where: string) {
   const selects = page.locator(".matching select");
@@ -292,6 +312,10 @@ async function answerSomething(page: Page, where: string) {
     if ((await page.evaluate(() => document.activeElement?.getAttribute("data-cell"))) !== "12") fail(where, "arrow keys did not move to cell 12");
     await page.keyboard.press("Enter");
     if (!(await isClearOfNav(page))) fail(where, "focused rack cell is hidden behind the card navigation");
+    await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
+    await page.keyboard.press("Enter");
+  } else if ((await page.locator(".repair-map").count()) > 0) {
+    await repairPass(page, where);
     await page.getByRole("button", { name: "Kontrollera", exact: true }).focus();
     await page.keyboard.press("Enter");
   } else if ((await page.locator(".ordering").count()) > 0) {

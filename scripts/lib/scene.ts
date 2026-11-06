@@ -240,6 +240,11 @@ export function labelElement(l: Label, index: number, scale: number): ExElement 
   return textElement(`label-${index}`, l.text, l.x * scale, l.y * scale);
 }
 
+/** Invisible, but an export still crops to it. */
+export function frameElement(width: number, height: number): ExElement {
+  return { ...rectElement("frame", 0, 0, width, height, "transparent"), strokeColor: "transparent" };
+}
+
 export function buildScene(layout: Layout, library: Library, roles: Roles, scale = 2.6): Scene {
   const icons: ExElement[] = [];
   const boxes = new Map<string, Box>();
@@ -274,6 +279,7 @@ export function buildScene(layout: Layout, library: Library, roles: Roles, scale
     version: 2,
     source: "network-zero2hero",
     elements: [
+      ...(layout.frame ? [frameElement(layout.width * scale, layout.height * scale)] : []),
       ...lines,
       ...(layout.blocks ?? []).flatMap((b, i) => blockElements(b, i, scale)),
       ...icons,

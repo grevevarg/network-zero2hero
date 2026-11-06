@@ -11,6 +11,7 @@ import {
   rackGrid,
   sequence,
   fullMesh,
+  networkMap,
   pair,
   parts,
   pathChoice,
@@ -237,6 +238,24 @@ describe("router layouts", () => {
     expect(d.edges).toEqual([["n1", "n2"], ["n2", "n3"]]);
     expect(d.labels).toEqual([{ x: 0, y: 0, text: "A" }, { x: 100, y: 0, text: "C" }]);
     expect(d.width).toBe(100);
+  });
+});
+
+describe("networkMap", () => {
+  it("keeps devices where they were placed, names them towards the nearest side, and frames the box", () => {
+    const map = networkMap(
+      [
+        { id: "r", name: "R1", kind: "router", x: 40, y: 50 },
+        { id: "s", name: "SW1", kind: "switch", x: 170, y: 50 },
+        { id: "p", name: "PC1", kind: "host", x: 170, y: 100 },
+      ],
+      [["r", "s"], ["s", "p"]],
+      200,
+      120,
+    );
+    expect(map).toMatchObject({ width: 200, height: 120, frame: true, edges: [["r", "s"], ["s", "p"]] });
+    expect(map.nodes.map((n) => n.shape)).toEqual(["router", "box", "device"]);
+    expect(map.labels?.map((l) => [l.text, l.x])).toEqual([["R1", 14], ["SW1", 185], ["PC1", 185]]);
   });
 });
 

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PROBLEM_KINDS } from "../puzzles/audit.ts";
 
 const id = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "ids are kebab-case ascii");
 const text = z.string().trim().min(1);
@@ -94,7 +95,35 @@ export const rackSchema = z.strictObject({
   answer: z.number().int().min(1).max(100),
   explanation: text,
 });
-export const questionSchema = z.discriminatedUnion("kind", [mcqSchema, orderingSchema, matchingSchema, fillSchema, slotsSchema, rackSchema]);
+export const repairSchema = z.strictObject({
+  ...questionBase,
+  kind: z.literal("repair"),
+  diagram: id,
+  /** The picture's layout box. Interface positions are in the same units. */
+  width: z.number().positive(),
+  height: z.number().positive(),
+  switches: z.array(id),
+  interfaces: z
+    .array(
+      z.strictObject({
+        id,
+        /** Names the interface in feedback and for screen readers, like "R1 mot R2". */
+        label: text,
+        x: z.number().min(0),
+        y: z.number().min(0),
+        /** What the student starts from. */
+        address: text,
+        /** The reference solution, where it differs. Never shipped; the explanation must show it. */
+        repaired: text.optional(),
+      }),
+    )
+    .min(2),
+  links: z.array(z.tuple([id, id])).min(1),
+  /** The faults this network holds on purpose. The audit must find exactly these. */
+  planted: z.array(z.enum(PROBLEM_KINDS)).min(1),
+  explanation: text,
+});
+export const questionSchema = z.discriminatedUnion("kind", [mcqSchema, orderingSchema, matchingSchema, fillSchema, slotsSchema, rackSchema, repairSchema]);
 
 export const sectionMetaSchema = z.strictObject({
   id,
@@ -102,6 +131,8 @@ export const sectionMetaSchema = z.strictObject({
   title: text,
   /** Folder name under content/sections. */
   slug: id,
+  /** Outside the course total and the time budget. Only such a section may hold repair questions. */
+  bonus: z.boolean().default(false),
   introduces: z.array(id),
   requires: z.array(id),
   diagrams: z.record(id, diagramSchema).default({}),
@@ -122,6 +153,7 @@ export type Matching = z.output<typeof matchingSchema>;
 export type Fill = z.output<typeof fillSchema>;
 export type Slots = z.output<typeof slotsSchema>;
 export type Rack = z.output<typeof rackSchema>;
+export type Repair = z.output<typeof repairSchema>;
 export type SectionMeta = z.output<typeof sectionMetaSchema>;
 export type SectionMetaInput = z.input<typeof sectionMetaSchema>;
 export type Section = z.output<typeof sectionSchema>;

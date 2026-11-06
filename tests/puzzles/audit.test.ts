@@ -1,10 +1,12 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { formatIPv4, parseIPv4, splitNetwork, subnetsOverlap } from "../../src/lib/net.ts";
-import { audit, broadcastDomains, parseCidr, type Addresses, type Problem, type Topology } from "../../src/puzzles/audit.ts";
-import { broken, reference, topology } from "../fixtures/network.ts";
+import { audit, broadcastDomains, parseCidr, repairTopology, splitProblems, type Addresses, type Problem, type Topology } from "../../src/puzzles/audit.ts";
+import { domainCount, interfaces, links, switches, topology } from "../../content/sections/17-slutuppdrag/network.ts";
 
 const FC = { seed: 20261106 };
+const broken: Addresses = Object.fromEntries(interfaces.map((i) => [i.id, i.address]));
+const reference: Addresses = Object.fromEntries(interfaces.map((i) => [i.id, i.repaired ?? i.address]));
 const kinds = (problems: readonly Problem[]) => problems.map((p) => p.kind).sort();
 const link: Topology = { switches: [], interfaces: ["a", "b"], links: [["a", "b"]] };
 /** Two separate links, for faults that need two broadcast domains. */
@@ -62,7 +64,8 @@ describe("broadcastDomains", () => {
   it("counts each LAN and each link between routers, however many switches a LAN has", () => {
     const domains = broadcastDomains(topology).map((d) => d.slice().sort());
     expect(domains).toHaveLength(5);
-    expect(domains).toContainEqual(["pc1", "pc2", "r1-lan"]);
+    expect(domainCount).toBe(5);
+    expect(domains).toContainEqual(["pc1-if", "pc2-if", "r1-lan"]);
     expect(domains).toContainEqual(["r1-r2", "r2-r1"]);
   });
 
@@ -105,6 +108,22 @@ describe("broadcastDomains", () => {
       }),
       FC,
     );
+  });
+});
+
+describe("repair helpers", () => {
+  it("reads the topology out of a question", () => {
+    expect(repairTopology({ switches, links, interfaces })).toEqual(topology);
+  });
+
+  it("explains problems on what was changed and only counts the rest", () => {
+    const problems: Problem[] = [
+      { kind: "duplicate", interfaces: ["a", "b"] },
+      { kind: "overlap", interfaces: ["c", "d"] },
+      { kind: "invalid", interfaces: ["e"] },
+    ];
+    expect(splitProblems(problems, new Set(["b"]))).toEqual({ shown: [problems[0]], hidden: 2 });
+    expect(splitProblems(problems, new Set())).toEqual({ shown: [], hidden: 3 });
   });
 });
 
@@ -161,7 +180,7 @@ describe("audit", () => {
   });
 
   it("accepts a repair that differs from the reference", () => {
-    expect(audit(topology, { ...reference, "r1-r2": "10.0.0.197/30", "r2-r1": "10.0.0.198/30", "r3-lan": "172.16.0.1/24", pc4: "172.16.0.2/24" })).toEqual([]);
+    expect(audit(topology, { ...reference, "r1-r2": "10.0.0.197/30", "r2-r1": "10.0.0.198/30", "r3-lan": "172.16.0.1/24", "pc4-if": "172.16.0.2/24" })).toEqual([]);
   });
 
   it("passes any plan with one net per domain, and catches a host moved to its broadcast address", () => {

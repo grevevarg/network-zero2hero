@@ -115,6 +115,8 @@ Det är vanligt att spara de första adresserna i varje nät till gemensamma sak
 
 Masken måste också vara rätt på alla enheter i nätet. Har en enhet fel mask tror den att nätet är större eller mindre än det är, och då kan den inte nå de andra som den ska.
 
+Två nät får inte dela adresser, inte ens om maskerna är olika. 10.0.0.96/27 ligger inuti 10.0.0.64/26, så de krockar.
+
 <!-- uses: natverksadress, broadcastadress, antal-hosts, subnatting, blockstorlek, vlsm, ip-plan; kind: recap -->
 ## Kort sammanfattning
 
@@ -124,4 +126,4 @@ Masken måste också vara rätt på alla enheter i nätet. Har en enhet fel mask
 - Blockstorlek är 256 minus maskens värde i den oktett där masken slutar.
 - Nätverksadressen är den största multipeln av blockstorleken som inte är större än adressen. Broadcast är nästa nät minus ett.
 - Med VLSM får varje nät sin egen mask. Sortera från störst till minst.
-- Skriv allt i en IP-plan.
+- Två nät får inte dela adresser. Skriv allt i en IP-plan.

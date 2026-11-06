@@ -24,6 +24,11 @@ export type Layout = {
   blocks?: Block[];
   labels?: Label[];
   arrows?: Arrow[];
+  /**
+   * Draw an invisible rectangle around the whole box. An export crops to what is drawn, so this
+   * keeps the picture exactly width x height, and things placed on top of it line up.
+   */
+  frame?: boolean;
 };
 type Node = LayoutNode;
 
@@ -330,4 +335,18 @@ export function sequence(messages: readonly { toRight: boolean; label: string }[
     return m.toRight ? { from: [0, y], to: [width, y], label: m.label } : { from: [width, y], to: [0, y], label: m.label };
   });
   return { width, height: bottom, nodes, edges, arrows };
+}
+
+export type MapDevice = { id: string; name: string; kind: "router" | "switch" | "host"; x: number; y: number };
+
+const MAP_SHAPE: Record<MapDevice["kind"], NodeShape> = { router: "router", switch: "box", host: "device" };
+
+/**
+ * A network drawn at fixed positions, with each device's name out towards the nearest side. Framed,
+ * because the page puts address fields on top of it.
+ */
+export function networkMap(devices: readonly MapDevice[], cables: readonly Edge[], width: number, height: number): Layout {
+  const nodes = devices.map((d): LayoutNode => ({ id: d.id, x: d.x, y: d.y, shape: MAP_SHAPE[d.kind] }));
+  const labels = devices.map((d): Label => ({ x: d.x < width / 2 ? 14 : width - 15, y: d.y - 5, text: d.name }));
+  return { width, height, nodes, edges: cables.map((c): Edge => [c[0], c[1]]), labels, frame: true };
 }

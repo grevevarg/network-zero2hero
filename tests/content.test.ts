@@ -21,8 +21,8 @@ describe("content", async () => {
     expect(checkQuestions(content)).toEqual([]);
   });
 
-  it("mixes multiple choice and puzzles in every section", () => {
-    for (const s of content.sections) {
+  it("mixes multiple choice and puzzles in every section except the scenario tasks", () => {
+    for (const s of content.sections.filter((x) => !x.meta.bonus)) {
       const kinds = new Set(s.questions.map((q) => q.kind));
       expect(kinds.has("mcq"), s.meta.id).toBe(true);
       expect(kinds.size, s.meta.id).toBeGreaterThan(1);

@@ -11,8 +11,10 @@ import {
   sectionGraph,
 } from "../../src/build/checks.ts";
 import { parseContent, type RawContent } from "../../src/build/course.ts";
-import { questionSchema, type QuestionInput } from "../../src/build/schema.ts";
-import { fill, matching, mcq, ordering, rack, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
+import { questionSchema, type Question, type QuestionInput } from "../../src/build/schema.ts";
+import { fill, matching, mcq, ordering, rack, rawContent, repair, sectionInput, slots, TEXT } from "../fixtures/content.ts";
+
+type Countable = Exclude<Question, { kind: "repair" }>;
 
 const parsed = (raw: RawContent) => parseContent(raw);
 
@@ -150,14 +152,47 @@ describe("question checks", () => {
   });
 });
 
+describe("repair questions", () => {
+  const check = (over = {}, meta = { bonus: true }) => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput(meta, [repair(over)]), text: TEXT };
+    return checkQuestions(parsed(raw)).join("\n");
+  };
+  const base = questionSchema.parse(repair()) as Extract<Question, { kind: "repair" }>;
+
+  it("accepts a good one in a bonus section, and only there", () => {
+    expect(check()).toBe("");
+    expect(check({}, { bonus: false })).toMatch(/belong in a bonus section/);
+  });
+
+  it("wants the audit to find exactly what was planted", () => {
+    expect(check({ planted: ["overlap"] })).toMatch(/planted overlap but the audit finds different-nets/);
+  });
+
+  it("wants the reference to pass and to be shown in the explanation", () => {
+    const [a1, a2, ...rest] = base.interfaces;
+    expect(check({ interfaces: [a1, { ...a2, repaired: "10.0.0.5/30" }, ...rest] })).toMatch(/reference solution still has different-nets/);
+    expect(check({ explanation: "Fel nät. Byt adress. Klart nu." })).toMatch(/does not show 10.0.0.2\/30/);
+  });
+
+  it("checks the wiring and the positions", () => {
+    expect(check({ links: [["a1", "a2"], ["b1", "sw"], ["b2", "ghost"]] })).toMatch(/link ends at unknown "ghost"/);
+    expect(check({ links: [["a1", "a2"], ["a1", "sw"], ["b1", "sw"], ["b2", "sw"]] })).toMatch(/"a1" is on 2 links/);
+    const [a1, ...rest] = base.interfaces;
+    expect(check({ interfaces: [{ ...a1, x: 900 }, ...rest] })).toMatch(/placed outside the picture/);
+    expect(check({ explanation: "Kort." })).toMatch(/explanation has 1 sentences/);
+    expect(check({ interfaces: [a1, { ...a1 }, ...rest.slice(1)] })).toMatch(/duplicate choice id/);
+  });
+});
+
 describe("countSolutions", () => {
   it("is exactly 1 for well-formed questions of every kind", () => {
-    for (const q of [mcq(), ordering(), matching(), slots(), rack()]) expect(countSolutions(questionSchema.parse(q))).toBe(1);
+    for (const q of [mcq(), ordering(), matching(), slots(), rack()]) expect(countSolutions(questionSchema.parse(q) as Countable)).toBe(1);
   });
 
   it("is 0 when the correct answer is missing", () => {
-    expect(countSolutions(questionSchema.parse(mcq({ correct: "zzz" } as never)))).toBe(0);
-    expect(countSolutions(questionSchema.parse(slots({ answer: ["aa", "zz"] } as never)))).toBe(0);
+    expect(countSolutions(questionSchema.parse(mcq({ correct: "zzz" } as never)) as Countable)).toBe(0);
+    expect(countSolutions(questionSchema.parse(slots({ answer: ["aa", "zz"] } as never)) as Countable)).toBe(0);
   });
 
   it("handles single-item permutations", () => {

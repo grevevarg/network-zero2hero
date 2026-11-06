@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { buildCourse, opaqueId, parseContent } from "../../src/build/course.ts";
 import { answerKey, matchesKey } from "../../src/lib/answerHash.ts";
 import { cellAnswer, fillAnswer, pairAnswer, rankAnswer, slotAnswer } from "../../src/lib/answers.ts";
-import type { ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientRack, ClientSlots } from "../../src/types.ts";
-import { fill, matching, mcq, rack, rawContent, sectionInput, slots, TEXT } from "../fixtures/content.ts";
+import type { ClientFill, ClientMatching, ClientMcq, ClientOrdering, ClientRack, ClientRepair, ClientSlots } from "../../src/types.ts";
+import { fill, matching, mcq, rack, rawContent, repair, sectionInput, slots, TEXT } from "../fixtures/content.ts";
 
 describe("parseContent", () => {
   it("validates and splits blocks", () => {
@@ -50,6 +50,15 @@ describe("buildCourse", () => {
     expect(matchesKey(x.id, pairAnswer(l1, r2), x.keys[l1])).toBe(false);
     expect(x.right).toHaveLength(3);
     expect(x.left.find((l) => l.diagramHtml)?.html).toBe("");
+  });
+
+  it("ships repair questions with positions in percent and without the reference", () => {
+    const raw = rawContent();
+    raw.sections[0] = { section: sectionInput({ bonus: true }, [repair()]), text: TEXT };
+    const q = buildCourse(parseContent(raw)).sections[0].questions[0] as ClientRepair;
+    expect(q.interfaces[0]).toEqual({ id: "a1", label: "A1", left: 25, top: 25, address: "10.0.0.1/30" });
+    expect(q.diagramHtml).toContain("<img");
+    expect(JSON.stringify(q.interfaces)).not.toContain("10.0.0.2/30");
   });
 
   it("ships rack questions with a key for the answer cell and nothing else that names it", () => {

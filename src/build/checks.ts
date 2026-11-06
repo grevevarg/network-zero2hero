@@ -1,6 +1,6 @@
 import type { ParsedContent } from "./course.ts";
 import { normalizeAnswer } from "../lib/answers.ts";
-import type { Fill, Matching, Mcq, Ordering, Question, Rack, Slots } from "./schema.ts";
+import type { Fill, Matching, Mcq, Ordering, Question, Repair, Slots } from "./schema.ts";
 import {
   isFillSolved,
   isSlotsSolved,
@@ -10,6 +10,7 @@ import {
   isRackSolved,
   matchingRightOptions,
 } from "../puzzles/validators.ts";
+import { audit, repairTopology } from "../puzzles/audit.ts";
 import { RACK_CELLS } from "../puzzles/rack.ts";
 
 /** Concept registry and section graph rules. Returns human-readable errors, empty when fine. */
@@ -123,7 +124,7 @@ function* assignments(keys: readonly string[], values: readonly string[]): Gener
 }
 
 /** Brute-force the number of answers each validator accepts. Must be exactly 1. */
-export function countSolutions(q: Question): number {
+export function countSolutions(q: Exclude<Question, Repair>): number {
   let count = 0;
   switch (q.kind) {
     case "mcq":
@@ -196,6 +197,30 @@ function checkMatching(q: Matching): string[] {
   return errors;
 }
 
+/**
+ * A repair accepts every valid network, so it has no solution to count. Instead: it may only sit in
+ * a bonus section, the audit must find exactly the planted faults, and its reference must pass.
+ */
+function checkRepair(q: Repair, bonus: boolean): string[] {
+  const errors = explanationLength(q.id, q.explanation);
+  if (!bonus) errors.push(`"${q.id}": repair questions accept many solutions, so they belong in a bonus section`);
+  const ends = q.links.flat();
+  for (const i of q.interfaces) {
+    const cables = ends.filter((e) => e === i.id).length;
+    if (cables !== 1) errors.push(`"${q.id}": interface "${i.id}" is on ${cables} links, expected 1`);
+    if (i.x > q.width || i.y > q.height) errors.push(`"${q.id}": interface "${i.id}" is placed outside the picture`);
+    if (i.repaired !== undefined && !q.explanation.includes(i.repaired)) errors.push(`"${q.id}": the explanation does not show ${i.repaired}`);
+  }
+  const known = new Set([...q.switches, ...q.interfaces.map((i) => i.id)]);
+  for (const e of ends) if (!known.has(e)) errors.push(`"${q.id}": a link ends at unknown "${e}"`);
+  const topology = repairTopology(q);
+  const found = audit(topology, Object.fromEntries(q.interfaces.map((i) => [i.id, i.address]))).map((p) => p.kind).sort();
+  if (found.join() !== q.planted.slice().sort().join()) errors.push(`"${q.id}": planted ${q.planted.join(", ")} but the audit finds ${found.join(", ")}`);
+  const left = audit(topology, Object.fromEntries(q.interfaces.map((i) => [i.id, i.repaired ?? i.address])));
+  for (const p of left) errors.push(`"${q.id}": the reference solution still has ${p.kind} on ${p.interfaces.join(", ")}`);
+  return errors;
+}
+
 /** Per-question rules: ids, one correct answer, explanation length, no position references. */
 export function checkQuestions(content: ParsedContent): string[] {
   const errors: string[] = [];
@@ -209,6 +234,7 @@ export function checkQuestions(content: ParsedContent): string[] {
         : q.kind === "ordering" ? q.items.map((i) => i.id)
         : q.kind === "fill" ? q.fields.map((f) => f.id)
         : q.kind === "slots" ? q.blocks.map((b) => b.id)
+        : q.kind === "repair" ? q.interfaces.map((i) => i.id)
         : q.kind === "rack" ? []
         : [...q.pairs.map((p) => p.left.id), ...matchingRightOptions(q).map((r) => r.id)];
       for (const d of duplicates(choiceIds)) errors.push(`"${q.id}": duplicate choice id "${d}"`);
@@ -223,6 +249,10 @@ export function checkQuestions(content: ParsedContent): string[] {
       if (q.kind === "rack") errors.push(...explanationLength(q.id, q.explanation));
       const explanation = "explanation" in q ? q.explanation : undefined;
       if (explanation !== undefined && refersToPosition(explanation)) errors.push(`"${q.id}": explanation refers to an option by letter or position`);
+      if (q.kind === "repair") {
+        errors.push(...checkRepair(q, s.meta.bonus));
+        continue;
+      }
       const solutions = countSolutions(q);
       if (solutions !== 1) errors.push(`"${q.id}": ${solutions} answers are accepted, expected exactly 1`);
     }

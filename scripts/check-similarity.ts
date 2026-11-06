@@ -31,6 +31,7 @@ function ownItem(q: Question): OwnItem {
     case "slots":
       return { id: q.id, text: `${q.prompt} ${q.explanation}`, options: q.blocks.map((b) => b.text) };
     case "rack":
+    case "repair":
       return { id: q.id, text: `${q.prompt} ${q.explanation}`, options: [] };
     case "fill":
       return { id: q.id, text: `${q.prompt} ${q.fields.map((f) => f.label).join(" ")} ${q.explanation}`, options: [] };

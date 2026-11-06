@@ -339,6 +339,45 @@ button.slot:disabled { opacity: 1; cursor: default; }
 }
 .ordering-buttons button { margin: 0; min-width: 2.75rem; padding: 0.25rem; }
 .matching li { padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+/* Repair: address fields on top of a network picture. 16px stops phones zooming in on focus. */
+.repair-map { position: relative; width: 100%; max-width: 22rem; margin: 0.5rem auto; }
+.repair-map .diagram { max-width: none; }
+.repair-field { position: absolute; transform: translate(-50%, -50%); font: 16px var(--mono); }
+@media (max-width: 26rem) {
+  /* The card's padding is worth more to the addresses than to the margin. */
+  .repair-map { width: calc(100% + 1.8rem); max-width: none; margin-inline: -0.9rem; }
+}
+@media (max-width: 22.5rem) {
+  .repair-field { font-size: 14px; }
+}
+.repair-field input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.2rem 0.1rem;
+  font: inherit;
+  text-align: center;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.repair-field input:disabled { opacity: 1; }
+.repair-field.wrong input { border: 2px solid var(--wrong); }
+.repair-mark {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.35rem;
+  padding: 0 0.2rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: var(--surface);
+  background: var(--wrong);
+  border-radius: var(--radius);
+}
+.repair-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.repair-problems { margin: 0.25rem 0 0.5rem; padding-left: 1.25rem; }
+
 .fill { list-style: none; padding: 0; margin: 0.5rem 0; }
 .fill li { padding: 0.5rem 0; }
 .fill label { display: flex; flex-direction: column; gap: 0.35rem; }

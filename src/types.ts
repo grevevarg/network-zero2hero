@@ -70,7 +70,27 @@ export type ClientRack = {
   explanationHtml: string;
 };
 
-export type ClientQuestion = ClientMcq | ClientOrdering | ClientMatching | ClientFill | ClientSlots | ClientRack;
+export type ClientRepairInterface = {
+  id: string;
+  label: string;
+  /** Where the address field sits on the picture, in percent. */
+  left: number;
+  top: number;
+  address: string;
+};
+
+export type ClientRepair = {
+  kind: "repair";
+  id: string;
+  promptHtml: string;
+  diagramHtml: string;
+  switches: string[];
+  interfaces: ClientRepairInterface[];
+  links: [string, string][];
+  explanationHtml: string;
+};
+
+export type ClientQuestion = ClientMcq | ClientOrdering | ClientMatching | ClientFill | ClientSlots | ClientRack | ClientRepair;
 
 export type ClientSection = {
   id: string;

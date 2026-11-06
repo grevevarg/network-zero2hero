@@ -56,6 +56,8 @@ function choices(qid: string, list: { id: string; text: string }[]): ClientChoic
   return hideOrder(out);
 }
 
+const percent = (part: number, whole: number) => Math.round((part / whole) * 1000) / 10;
+
 function buildQuestion(q: Question, diagrams: Record<string, string>): ClientQuestion {
   const promptHtml = renderMarkdown(q.prompt);
   const diagram = (id: string | undefined) => {
@@ -124,6 +126,23 @@ function buildQuestion(q: Question, diagrams: Record<string, string>): ClientQue
         id: q.id,
         promptHtml,
         key: answerKey(q.id, cellAnswer(q.answer)),
+        explanationHtml: renderMarkdown(q.explanation),
+      };
+    case "repair":
+      return {
+        kind: "repair",
+        id: q.id,
+        promptHtml,
+        diagramHtml: diagram(q.diagram) as string,
+        switches: q.switches,
+        interfaces: q.interfaces.map((i) => ({
+          id: i.id,
+          label: i.label,
+          left: percent(i.x, q.width),
+          top: percent(i.y, q.height),
+          address: i.address,
+        })),
+        links: q.links,
         explanationHtml: renderMarkdown(q.explanation),
       };
     case "fill":

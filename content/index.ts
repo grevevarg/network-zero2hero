@@ -15,7 +15,8 @@ import vlan from "./sections/13-vlan/section.ts";
 import wlan from "./sections/14-wlan/section.ts";
 import ipv6 from "./sections/15-ipv6/section.ts";
 import felsokning from "./sections/16-felsokning/section.ts";
+import slutuppdrag from "./sections/17-slutuppdrag/section.ts";
 
 export const title = "Från noll till nätverk";
 export { concepts };
-export const sections = [natverk, lager, kablar, markning, switchar, ipv4, subnat, routing, routingprotokoll, transport, dhcpdns, natacl, vlan, wlan, ipv6, felsokning];
+export const sections = [natverk, lager, kablar, markning, switchar, ipv4, subnat, routing, routingprotokoll, transport, dhcpdns, natacl, vlan, wlan, ipv6, felsokning, slutuppdrag];

@@ -88,6 +88,33 @@ export const rack = (over: Partial<QuestionInput> = {}): QuestionInput =>
     ...over,
   }) as QuestionInput;
 
+/** Two links: one fault to plant (a2 is in another net), and b on its own net. */
+export const repair = (over: Partial<QuestionInput> = {}): QuestionInput =>
+  ({
+    kind: "repair",
+    id: "q-repair",
+    uses: ["a"],
+    prompt: "Laga nätet.",
+    diagram: "dia",
+    width: 200,
+    height: 400,
+    switches: ["sw"],
+    interfaces: [
+      { id: "a1", label: "A1", x: 50, y: 100, address: "10.0.0.1/30" },
+      { id: "a2", label: "A2", x: 100, y: 100, address: "10.0.0.6/30", repaired: "10.0.0.2/30" },
+      { id: "b1", label: "B1", x: 50, y: 300, address: "10.0.1.1/24" },
+      { id: "b2", label: "B2", x: 100, y: 300, address: "10.0.1.2/24" },
+    ],
+    links: [
+      ["a1", "a2"],
+      ["b1", "sw"],
+      ["b2", "sw"],
+    ],
+    planted: ["different-nets"],
+    explanation: "A2 ligger i fel nät. Skriv 10.0.0.2/30 i stället. Andra adresser går också bra.",
+    ...over,
+  }) as QuestionInput;
+
 export const sectionInput = (over: Partial<SectionInput["meta"]> = {}, questions?: QuestionInput[]): SectionInput => ({
   meta: {
     id: "s1",
