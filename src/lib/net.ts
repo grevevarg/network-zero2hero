@@ -96,6 +96,12 @@ export function inSubnet(ip: number, network: number, prefix: number): boolean {
   return networkAddress(ip, prefix) === networkAddress(network, prefix);
 }
 
+/** Whether two networks share any address. The shorter prefix decides: inside it, both must be the same. */
+export function subnetsOverlap(a: number, prefixA: number, b: number, prefixB: number): boolean {
+  const shortest = Math.min(prefixA, prefixB);
+  return networkAddress(a, shortest) === networkAddress(b, shortest);
+}
+
 /** Split a network into equal subnets with a longer prefix, in address order. */
 export function splitNetwork(network: number, prefix: number, newPrefix: number): { network: number; prefix: number }[] {
   checkPrefix(prefix);
