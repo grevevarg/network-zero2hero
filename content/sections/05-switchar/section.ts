@@ -14,7 +14,7 @@ const section: SectionInput = {
     ],
     requires: [
       "stjarna", "datalankslagret", "fysiska-lagret", "natverkslagret", "frame", "trailer", "fysisk-adress",
-      "bit", "byte", "dampning", "fiber", "halv-duplex", "poe",
+      "bit", "byte", "dampning", "fiber", "halv-duplex", "poe", "kategori",
     ],
     diagrams: {
       // Scenes live in diagrams/05-switchar/ (layouts in scripts/diagram-specs.ts).
