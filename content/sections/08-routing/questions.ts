@@ -93,6 +93,22 @@ export const questions: QuestionInput[] = [
       "10.20.30.40 ligger i 10.0.0.0/8, eftersom den första oktetten är 10. Den raden säger att paketet ska till routern 192.168.2.254. Default route till 192.168.1.1 används bara när ingen annan rad passar, och här passar en. Paketet slängs inte, och mottagaren sitter inte direkt på interface 1.",
   },
   {
+    kind: "mcq",
+    id: "routing-default-fel-prefix",
+    uses: ["default-route", "routingtabell", "statisk-route", "interface", "prefix"],
+    prompt:
+      "Datorerna sitter i 192.168.1.0/24 och vägen mot internet går via routern 192.168.2.1. Routern har de här raderna:\n\n| Nät | Skicka till |\n| --- | --- |\n| 192.168.1.0/24 | Direkt, interface 1 |\n| 192.168.2.0/24 | Direkt, interface 2 |\n| 0.0.0.0/24 | Router 192.168.2.1 |\n\nDatorerna når 192.168.2.0/24 men inte 8.8.8.8. Vad är felet?",
+    options: [
+      { id: "prefix", text: "Den sista raden passar bara adresserna 0.0.0.0 till 0.0.0.255" },
+      { id: "nas-ej", text: "Routern 192.168.2.1 ligger inte i något av routerns egna nät" },
+      { id: "fel-hall", text: "Den sista raden ska peka mot interface 1, där datorerna sitter" },
+      { id: "egen-adress", text: "Den sista raden ska ha routerns egen adress i stället för 0.0.0.0" },
+    ],
+    correct: "prefix",
+    explanation:
+      "En default route ska vara 0.0.0.0/0. Med /24 måste de första 24 bitarna stämma, så raden passar bara 0.0.0.0 till 0.0.0.255, och där finns ingen riktig mottagare. Ingen rad passar 8.8.8.8, och då slänger routern paketet. Routern 192.168.2.1 går att nå, eftersom den ligger i 192.168.2.0/24 på interface 2. Raden ska peka mot internet, inte tillbaka mot datorerna, och det är 0.0.0.0 som står där, inte routerns egen adress.",
+  },
+  {
     kind: "ordering",
     id: "routing-steg",
     uses: ["default-gateway", "arp", "routingtabell", "subnatmask"],
